@@ -1,6 +1,6 @@
 {
   "name": "@d1g1tal/collections",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JavaScript Collections ES Modules",
   "type": "module",
   "types": "collections.d.ts",
@@ -14,7 +14,9 @@
   },
   "files": [
     "/src",
-    "/dist"
+    "/dist",
+    "collections.js",
+    "collections.d.ts"
   ],
   "scripts": {
     "lint": "eslint --ext .js --fix --ignore-path .gitignore .",
