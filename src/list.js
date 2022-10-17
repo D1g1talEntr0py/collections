@@ -1,4 +1,3 @@
-import { _arrayIsEmpty, _arrayRemove } from '@d1g1tal/chrysalis';
 
 /**
  *
@@ -205,7 +204,7 @@ export default class List {
 	 * @returns {boolean} true if element was already in {@link List}; otherwise false.
 	 */
 	delete(element) {
-		return this.#array.length > _arrayRemove(this.#array, this.#array.indexOf(element));
+		return this.#array.splice(this.#array.indexOf(element), 1).length == 1;
 	}
 
 	/**
@@ -215,7 +214,7 @@ export default class List {
 	 * @returns {boolean} true if element was already in {@link List}; otherwise false.
 	 */
 	deleteAt(index) {
-		return this.#array.length > _arrayRemove(this.#array, index);
+		return this.#array.splice(index, 1).length == 1;
 	}
 
 	keys() {
@@ -244,7 +243,7 @@ export default class List {
 	 * @returns {boolean} true if the list is empty, false otherwise.
 	 */
 	isEmpty() {
-		return _arrayIsEmpty(this.#array);
+		return this.#array.length === 0;
 	}
 
 	toArray() {
