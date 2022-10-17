@@ -1,13 +1,12 @@
 {
   "name": "@d1g1tal/collections",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JavaScript Collections ES Modules",
   "type": "module",
-  "types": "collections.d.ts",
+  "types": "index.d.ts",
   "exports": {
-    ".": {
-      "import": "./collections.js"
-    }
+    ".": "./index.js",
+    "./*": "./src/*"
   },
   "publishConfig": {
     "access": "public"
@@ -15,8 +14,8 @@
   "files": [
     "/src",
     "/dist",
-    "collections.js",
-    "collections.d.ts"
+    "index.js",
+    "index.d.ts"
   ],
   "scripts": {
     "lint": "eslint --ext .js --fix --ignore-path .gitignore .",
