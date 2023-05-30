@@ -12,6 +12,7 @@
 		"sourceType": "module"
 	},
 	"rules": {
+		"jsdoc/tag-lines": 0,
 		"no-prototype-builtins": "off",
 		"indent": [
 			"error",
@@ -38,7 +39,9 @@
 				"PropertyKey": "PropertyKey",
 				"PropertyDescriptor": "PropertyDescriptor",
 				"EventListener": "EventListener",
-				"AddEventListenerOptions": "AddEventListenerOptions"
+				"AddEventListenerOptions": "AddEventListenerOptions",
+				"Iterable": "Iterable",
+				"IterableIterator": "IterableIterator"
 			},
 			"structuredTags": {
 				"template": {
