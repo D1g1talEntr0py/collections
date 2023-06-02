@@ -65,6 +65,22 @@ describe('EvictingCache', () => {
 		});
 	});
 
+	describe('getOrPut', () => {
+		it('should return the value for the key if it exists in the cache', () => {
+			const cache = new EvictingCache(2);
+			cache.put('key1', 'value1');
+			const value = cache.getOrPut('key1', 'value2');
+			expect(value).toBe('value1');
+		});
+
+		it('should put the key-value pair into the cache and return the value if the key does not exist', () => {
+			const cache = new EvictingCache(2);
+			const value = cache.getOrPut('key1', 'value1');
+			expect(value).toBe('value1');
+			expect(cache.get('key1')).toBe('value1');
+		});
+	});
+
 	describe('evict', () => {
 		it('should remove the least recently used item', () => {
 			const cache = new EvictingCache(2);

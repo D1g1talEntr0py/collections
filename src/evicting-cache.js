@@ -64,6 +64,21 @@ class EvictingCache {
 	}
 
 	/**
+	 * Returns the value for the key if it exists in the cache. If not, put the key-value pair into the cache and return the value.
+	 * @param {K} key The key.
+	 * @param {V} value The value to put if the key does not exist in the cache.
+	 * @returns {V} The value corresponding to the key.
+	 */
+	getOrPut(key, value) {
+		if (this.#cache.has(key)) {
+			return this.get(key);
+		} else {
+			this.put(key, value);
+			return value;
+		}
+	}
+
+	/**
 	 * Removes the least recently used key-value pair from the cache.
 	 *
 	 * @returns {boolean} True if an item was removed, false otherwise.
