@@ -1,69 +1,45 @@
 /**
- * JavaScript implementation of a Node.
+ * JavaScript implementation of a Node that can be used in a linked list.
  *
+ * @template E
+ * @type {Node<E>}
  * @module {Node} node
  */
 class Node {
-	/** @type {*} */
-	#value;
-	/** @type {Node} */
-	#next;
-	/** @type {Node} */
+	/** @type {Node<E>} */
 	#previous;
+	/** @type {Node<E>} */
+	#next;
+	/** @type {E} */
+	#value;
 
 	/**
 	 * Creates a new node with the given value.
 	 *
-	 * @param {*} value The value to be assigned to the node.
+	 * @param {Object} options The options for the node, or the node to copy.
+	 * @param {Node<E>} [options.previous] The previous node.
+	 * @param {Node<E>} [options.next] The next node.
+	 * @param {E} [options.value] The value to be assigned to the node.
 	 */
-	constructor(value) {
-		this.#value = value;
-		this.#next = null;
-		this.#previous = null;
-	}
-
-	/**
-	 * Sets the value of the node.
-	 *
-	 * @param {*} value The value to be assigned to the node.
-	 * @returns {void}
-	 */
-	set value(value) {
-		this.#value = value;
-	}
-
-	/**
-	 * Gets the value of the node.
-	 *
-	 * @returns {*} The value of the node.
-	 */
-	get value() {
-		return this.#value;
-	}
-
-	/**
-	 * Sets the next node.
-	 *
-	 * @param {Node} next The next node.
-	 * @returns {void}
-	 */
-	set next(next) {
+	constructor({ previous = null, next = null, value } = {}) {
+		this.#previous = previous;
 		this.#next = next;
+		this.#value = value;
 	}
 
 	/**
-	 * Gets the next node.
+	 * Gets the previous node.
 	 *
-	 * @returns {Node} The next node.
+	 * @returns {Node<E>} The previous node.
 	 */
-	get next() {
-		return this.#next;
+	get previous() {
+		return this.#previous;
 	}
 
 	/**
 	 * Sets the previous node.
 	 *
-	 * @param {Node} previous The previous node.
+	 * @param {Node<E>} previous The previous node.
 	 * @returns {void}
 	 */
 	set previous(previous) {
@@ -71,18 +47,65 @@ class Node {
 	}
 
 	/**
-	 * Gets the previous node.
+	 * Gets the next node.
 	 *
-	 * @returns {Node} The previous node.
+	 * @returns {Node<E>} The next node.
 	 */
-	get previous() {
-		return this.#previous;
+	get next() {
+		return this.#next;
 	}
 
 	/**
-	 * Gets the default description of the class.
+	 * Sets the next node.
 	 *
-	 * @returns {string} The default description of the class.
+	 * @param {Node<E>} next The next node.
+	 * @returns {void}
+	 */
+	set next(next) {
+		this.#next = next;
+	}
+
+	/**
+	 * Gets the value of the node.
+	 *
+	 * @returns {E} The value of the node.
+	 */
+	get value() {
+		return this.#value;
+	}
+
+	/**
+	 * Sets the value of the node.
+	 *
+	 * @param {E} value The value of the node.
+	 * @returns {void}
+	 */
+	set value(value) {
+		this.#value = value;
+	}
+
+	/**
+	 * Unlinks this node from the list.
+	 *
+	 * @returns {void}
+	 */
+	unlink() {
+		if (this.#previous != null) {
+			this.#previous.next = this.#next;
+		}
+
+		if (this.#next != null) {
+			this.#next.previous = this.#previous;
+		}
+
+		this.#previous = this.#next = null;
+	}
+
+	/**
+	 * Returns a string description of the class.
+	 *
+	 * @override
+	 * @returns {string} A string description of the class.
 	 */
 	get [Symbol.toStringTag]() {
 		return 'Node';
