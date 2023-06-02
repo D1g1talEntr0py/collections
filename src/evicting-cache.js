@@ -40,6 +40,16 @@ class EvictingCache {
 	}
 
 	/**
+	 * Returns true if the given key is in the cache, false otherwise.
+	 *
+	 * @param {K} key The key to check.
+	 * @returns {boolean} True if the key is in the cache, false otherwise.
+	 */
+	has(key) {
+		return this.#cache.has(key);
+	}
+
+	/**
 	 * Adds a new key-value pair to the cache and updates the LRU order.
 	 * If adding the new pair will exceed the capacity, removes the least recently used pair from the cache.
 	 *
@@ -66,16 +76,18 @@ class EvictingCache {
 	/**
 	 * Returns the value for the key if it exists in the cache. If not, put the key-value pair into the cache and return the value.
 	 * @param {K} key The key.
-	 * @param {V} value The value to put if the key does not exist in the cache.
+	 * @param {function(): V} producer The value to put if the key does not exist in the cache.
 	 * @returns {V} The value corresponding to the key.
 	 */
-	getOrPut(key, value) {
-		if (this.#cache.has(key)) {
-			return this.get(key);
-		} else {
+	getOrPut(key, producer) {
+		let value = this.get(key);
+		
+		if (!value) {
+			value = producer();
 			this.put(key, value);
-			return value;
 		}
+
+		return value;
 	}
 
 	/**

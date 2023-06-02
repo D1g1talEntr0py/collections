@@ -34,6 +34,28 @@ describe('EvictingCache', () => {
 		});
 	});
 
+	describe('has', () => {
+		it('should return false for a missing key', () => {
+			const cache = new EvictingCache(3);
+			expect(cache.has('missing')).toBe(false);
+		});
+
+		it('should return true for an existing key', () => {
+			const cache = new EvictingCache(3);
+			cache.put('key1', 'value1');
+			expect(cache.has('key1')).toBe(true);
+		});
+
+		it('should return true for an existing key even if the cache is at capacity', () => {
+			const cache = new EvictingCache(2);
+			cache.put('key1', 'value1');
+			cache.put('key2', 'value2');
+			cache.get('key1'); // Makes 'key1' most recently used.
+			cache.put('key3', 'value3'); // Evicts 'key2'.
+			expect(cache.has('key1')).toBe(true);
+		});
+	});
+
 	describe('put', () => {
 		it('should add new key-value pairs and evict the least recently used item when over capacity', () => {
 			const cache = new EvictingCache(2);
@@ -69,13 +91,13 @@ describe('EvictingCache', () => {
 		it('should return the value for the key if it exists in the cache', () => {
 			const cache = new EvictingCache(2);
 			cache.put('key1', 'value1');
-			const value = cache.getOrPut('key1', 'value2');
+			const value = cache.getOrPut('key1', () => 'value2');
 			expect(value).toBe('value1');
 		});
 
 		it('should put the key-value pair into the cache and return the value if the key does not exist', () => {
 			const cache = new EvictingCache(2);
-			const value = cache.getOrPut('key1', 'value1');
+			const value = cache.getOrPut('key1', () => 'value1');
 			expect(value).toBe('value1');
 			expect(cache.get('key1')).toBe('value1');
 		});
