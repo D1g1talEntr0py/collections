@@ -1,3 +1,4 @@
+import Cache from './cache.js';
 import LinkedList from './linked-list.js';
 
 /**
@@ -10,8 +11,8 @@ import LinkedList from './linked-list.js';
 class EvictingCache {
 	/** @type {number} */
 	#capacity;
-	/** @type {Map<K, V>} */
-	#cache = new Map();
+	/** @type {Cache<V>} */
+	#cache = new Cache();
 	/** @type {LinkedList<K>} */
 	#keyList = new LinkedList(LinkedList.Type.Doubly);
 
@@ -57,19 +58,14 @@ class EvictingCache {
 	 * @param {V} value The value to add.
 	 */
 	put(key, value) {
-		if (this.#cache.has(key)) {
-			// Key is already in the cache, update the value and move the key to the front
-			this.#cache.set(key, value);
+		const alreadyExists = this.#cache.has(key);
+		this.#cache.set(key, value);
+
+		if (alreadyExists) {
 			this.#moveToFront(key);
 		} else {
-			// Key is not in the cache, add a new key to the front
-			if (this.#cache.size === this.#capacity) {
-				// Cache is at capacity, remove the least recently used key-value pair
-				this.evict();
-			}
-
 			this.#keyList.addFirst(key);
-			this.#cache.set(key, value);
+			if (this.#cache.size > this.#capacity) { this.evict()	}
 		}
 	}
 
@@ -81,8 +77,8 @@ class EvictingCache {
 	 */
 	getOrPut(key, producer) {
 		let value = this.get(key);
-		
-		if (!value) {
+
+		if (value === null) {
 			value = producer();
 			this.put(key, value);
 		}
@@ -96,7 +92,7 @@ class EvictingCache {
 	 * @returns {boolean} True if an item was removed, false otherwise.
 	 */
 	evict() {
-		if (this.#keyList.size === 0) return false;
+		if (this.#keyList.size === 0) { return false }
 
 		const leastRecentlyUsedKey = this.#keyList.getLast();
 		this.#keyList.removeLast();
@@ -123,7 +119,7 @@ class EvictingCache {
 	 * @readonly
 	 * @returns {number} The capacity of the cache.
 	 */
-	capacity() {
+	get capacity() {
 		return this.#capacity;
 	}
 

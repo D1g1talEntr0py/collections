@@ -1,239 +1,299 @@
-import { describe, beforeEach, it, expect, test } from '@jest/globals';
 import List from '../src/list.js';
+import { jest, describe, beforeEach, it, expect } from '@jest/globals';
 
-describe('Constructor', () => {
-	test('Empty Constructor', () => expect(new List().size).toEqual(0));
-	test('Number Array', () => expect(new List([2]).size).toEqual(1));
-	test('String Array', () => expect(new List(['string']).size).toEqual(1));
-	test('String', () => expect(new List('string').size).toEqual(6));
-	test('Empty Set', () => expect(new List(new Set()).size).toEqual(0));
-	test('Set of Objects', () => expect(new List(new Set([{foo: 'bar'}, {foo: 'zoo'}])).size).toEqual(2));
-	test('Map<string, string>', () => expect(new List(new Map([['key', 'value']])).size).toEqual(1));
-});
-
-describe('List', () => {
-	let list, arr;
+describe('List class', () => {
+	let list;
+	const initialItems = [1, 2, 3];
 
 	beforeEach(() => {
-		arr = [1, 2, 3];
-		list = new List(arr);
+		list = new List(initialItems);
 	});
 
-	describe('constructor', () => {
-		it('creates an instance with the given iterable', () => {
-			expect(list.toArray()).toEqual(arr);
-		});
-
-		it('creates an empty instance if no iterable is provided', () => {
-			const emptyList = new List();
-			expect(emptyList.isEmpty()).toBe(true);
-		});
+	it('should initialize with given items', () => {
+		expect(list.toArray()).toEqual(initialItems);
 	});
 
-	describe('from', () => {
-		it('creates a new instance from given elements', () => {
-			const fromList = List.from(arr);
-			expect(fromList.toArray()).toEqual(arr);
-		});
-
-		it('creates a new instance from given elements and apply a mapper', () => {
-			const mapper = x => x * 2;
-			const fromList = List.from(arr, mapper);
-			expect(fromList.toArray()).toEqual(arr.map(mapper));
-		});
+	it('should initialize with an empty list if no items are given', () => {
+		list = new List();
+		expect(list.toArray()).toEqual([]);
 	});
 
-	describe('add', () => {
-		it('adds an element to the list', () => {
+	describe('add method', () => {
+		it('should add an item to the list', () => {
 			list.add(4);
-			expect(list.toArray()).toEqual([...arr, 4]);
+			expect(list.toArray()).toEqual([...initialItems, 4]);
 		});
 	});
 
-	describe('addAll', () => {
-		it('adds multiple elements to the list', () => {
-			list.addAll([4, 5]);
-			expect(list.toArray()).toEqual([...arr, 4, 5]);
+	describe('addAll method', () => {
+		it('should add multiple items to the list', () => {
+			list.addAll(4, 5, 6);
+			expect(list.toArray()).toEqual([...initialItems, 4, 5, 6]);
 		});
 	});
 
-	describe('clear', () => {
-		it('clears the list', () => {
-			list.clear();
-			expect(list.toArray()).toEqual([]);
+	describe('insert method', () => {
+		it('should insert an item at the specified index', () => {
+			list.insert(1, 4);
+			expect(list.toArray()).toEqual([1, 4, 2, 3]);
 		});
 	});
 
-	describe('concat', () => {
-		it('returns a new list as a result of concatenating the list with another', () => {
-			const anotherList = new List([4, 5]);
-			const concatenatedList = list.concat(anotherList);
-			expect(concatenatedList.toArray()).toEqual([...arr, 4, 5]);
-		});
-	});
-
-	describe('every', () => {
-		it('returns true if every element passes the test implemented by the provided function', () => {
-			const isPositive = number => number > 0;
-			expect(list.every(isPositive)).toBe(true);
-		});
-	});
-
-	describe('some', () => {
-		it('returns true if at least one element passes the test implemented by the provided function', () => {
-			const isTwo = number => number === 2;
-			expect(list.some(isTwo)).toBe(true);
-		});
-	});
-
-	describe('filter', () => {
-		it('creates a new list with all elements that pass the test implemented by the provided function', () => {
-			const isOdd = number => number % 2 !== 0;
-			const filteredList = list.filter(isOdd);
-			expect(filteredList.toArray()).toEqual([1, 3]);
-		});
-	});
-
-	describe('find', () => {
-		it('returns the first element in the list that satisfies the provided testing function', () => {
-			const isTwo = number => number === 2;
-			expect(list.find(isTwo)).toBe(2);
-		});
-	});
-
-	describe('findIndex', () => {
-		it('returns the index of the first element in the list that satisfies the provided testing function', () => {
-			const isTwo = number => number === 2;
-			expect(list.findIndex(isTwo)).toBe(1);
-		});
-	});
-
-	describe('map', () => {
-		it('creates a new list with the results of calling a provided function on every element in the list', () => {
-			const multiplyByTwo = number => number * 2;
-			const mappedList = list.map(multiplyByTwo);
-			expect(mappedList.toArray()).toEqual([2, 4, 6]);
-		});
-	});
-
-	describe('reduce', () => {
-		it('applies a function against an accumulator and each element in the list (from left to right) to reduce it to a single output value', () => {
-			const sum = list.reduce((acc, curr) => acc + curr, 0);
-			expect(sum).toBe(6);
-		});
-	});
-
-	describe('sort', () => {
-		it('sorts the elements of the list in place and returns the list', () => {
-			const sortedList = new List([3, 1, -1, 2]).sort();
-			expect(sortedList.toArray()).toEqual([-1, 1, 2, 3]);
-		});
-	});
-
-	describe('forEach', () => {
-		it('executes a provided function once for each list element', () => {
-			const results = [];
-			const pushIntoResults = item => results.push(item);
-			list.forEach(pushIntoResults);
-			expect(results).toEqual(arr);
-		});
-	});
-
-	describe('get', () => {
-		it('returns the element at the specified index', () => {
-			expect(list.get(1)).toBe(2);
-		});
-	});
-
-	describe('set', () => {
-		it('changes the value of the element at the specified index', () => {
-			list.set(1, 5);
-			expect(list.get(1)).toBe(5);
-		});
-	});
-
-	describe('has', () => {
-		it('returns a boolean indicating whether an element with the specified value exists in the list', () => {
-			expect(list.has(2)).toBe(true);
-			expect(list.has(5)).toBe(false);
-		});
-	});
-
-	describe('insert', () => {
-		it('inserts an element at a specific index', () => {
-			list.insert(1, 5);
-			expect(list.toArray()).toEqual([1, 5, 2, 3]);
-		});
-	});
-
-	describe('delete', () => {
-		it('removes the first occurrence of a specific element from the list', () => {
-			list.add(2);
-			list.delete(2);
-			expect(list.toArray()).toEqual([1, 3, 2]);
-		});
-	});
-
-	describe('deleteAt', () => {
-		it('removes the element at a specific index', () => {
-			list.deleteAt(1);
+	describe('remove method', () => {
+		it('should remove an item from the list', () => {
+			list.remove(2);
 			expect(list.toArray()).toEqual([1, 3]);
 		});
 	});
 
-	describe('removeLast', () => {
-		it('removes the last element from the list', () => {
-			list.removeLast();
+	describe('removeAt method', () => {
+		it('should remove an item at a specific index', () => {
+			list.removeAt(1);
+			expect(list.toArray()).toEqual([1, 3]);
+		});
+
+		it('should return false if the index is out of bounds', () => {
+			expect(list.removeAt(10)).toBe(false);
+		});
+	});
+
+	describe('get method', () => {
+		it('should get the item at a specific index', () => {
+			expect(list.get(1)).toEqual(2);
+		});
+	});
+
+	describe('set method', () => {
+		it('should set the value at the specified index', () => {
+			list.set(1, 4);
+			expect(list.toArray()).toEqual([1, 4, 3]);
+		});
+
+		it('should throw an error if index is out of bounds', () => {
+			expect(() => list.set(10, 4)).toThrow('Index out of bounds');
+		});
+	});
+
+	describe('removeLast method', () => {
+		it('should remove the last element from the list', () => {
+			const last = list.removeLast();
+			expect(last).toEqual(3);
 			expect(list.toArray()).toEqual([1, 2]);
 		});
 	});
 
-	describe('removeFirst', () => {
-		it('removes the first element from the list', () => {
-			list.removeFirst();
+	describe('removeFirst method', () => {
+		it('should remove the first element from the list', () => {
+			const first = list.removeFirst();
+			expect(first).toEqual(1);
 			expect(list.toArray()).toEqual([2, 3]);
 		});
 	});
 
-	describe('reverse', () => {
-		it('reverses the order of the elements in the list', () => {
+	describe('reverse method', () => {
+		it('should reverse the list', () => {
 			list.reverse();
 			expect(list.toArray()).toEqual([3, 2, 1]);
 		});
 	});
 
-	describe('keys', () => {
-		it('returns an array of list indices', () => {
-			expect(Array.from(list.keys())).toEqual([0, 1, 2]);
+	describe('indexOf method', () => {
+		it('should return the index of an item', () => {
+			expect(list.indexOf(2)).toEqual(1);
+		});
+
+		it('should return -1 if the item is not in the list', () => {
+			expect(list.indexOf(10)).toEqual(-1);
 		});
 	});
 
-	describe('values', () => {
-		it('returns an array of list values', () => {
-			expect(Array.from(list.values())).toEqual(arr);
+	describe('lastIndexOf method', () => {
+		it('should return the last index of an item', () => {
+			list.add(1);
+			expect(list.lastIndexOf(1)).toEqual(3);
+		});
+
+		it('should return -1 if the item is not in the list', () => {
+			expect(list.lastIndexOf(10)).toEqual(-1);
 		});
 	});
 
-	describe('entries', () => {
-		it('returns an IterableIterator of [index, value] for each item in the list', () => {
-			expect(Array.from(list.entries())).toEqual([[0, 1], [1, 2], [2, 3]]);
+	describe('contains method', () => {
+		it('should return true if the list contains the item', () => {
+			expect(list.contains(2)).toBe(true);
+		});
+
+		it('should return false if the list does not contain the item', () => {
+			expect(list.contains(10)).toBe(false);
 		});
 	});
 
-	describe('isEmpty', () => {
-		it('returns true if the list is empty', () => {
+	describe('size method', () => {
+		it('should return the number of items in the list', () => {
+			expect(list.size).toEqual(3);
+		});
+	});
+
+	describe('isEmpty method', () => {
+		it('should return false if the list is not empty', () => {
+			expect(list.isEmpty()).toBe(false);
+		});
+
+		it('should return true if the list is empty', () => {
+			list.remove(1);
+			list.remove(2);
+			list.remove(3);
+			expect(list.isEmpty()).toBe(true);
+		});
+	});
+
+	describe('clear method', () => {
+		it('should remove all items from the list', () => {
 			list.clear();
 			expect(list.isEmpty()).toBe(true);
 		});
+	});
 
-		it('returns false if the list is not empty', () => {
-			expect(list.isEmpty()).toBe(false);
+	describe('every method', () => {
+		it('should return true if every item in the list passes the test', () => {
+			expect(list.every((item) => item > 0)).toBe(true);
+		});
+
+		it('should return false if any item in the list fails the test', () => {
+			expect(list.every((item) => item > 1)).toBe(false);
 		});
 	});
 
-	describe('size', () => {
-		it('returns the number of elements in the list', () => {
-			expect(list.size).toBe(3);
+	describe('some method', () => {
+		it('should return true if any item in the list passes the test', () => {
+			expect(list.some((item) => item > 2)).toBe(true);
+		});
+
+		it('should return false if every item in the list fails the test', () => {
+			expect(list.some((item) => item > 3)).toBe(false);
+		});
+	});
+
+	describe('filter method', () => {
+		it('should return a new list with items that pass the test', () => {
+			const newList = list.filter((item) => item > 1);
+			expect(newList.toArray()).toEqual([2, 3]);
+		});
+	});
+
+	describe('map method', () => {
+		it('should return a new list with the results of the callback', () => {
+			const newList = list.map((item) => item * 2);
+			expect(newList.toArray()).toEqual([2, 4, 6]);
+		});
+	});
+
+	describe('reduce method', () => {
+		it('should return the result of the callback', () => {
+			const result = list.reduce((acc, item) => acc + item, 0);
+			expect(result).toEqual(6);
+		});
+	});
+
+	describe('find method', () => {
+		it('should return the first item that passes the test', () => {
+			const item = list.find((item) => item > 1);
+			expect(item).toEqual(2);
+		});
+
+		it('should return undefined if no item passes the test', () => {
+			const item = list.find((item) => item > 3);
+			expect(item).toBe(undefined);
+		});
+	});
+
+	describe('findIndex method', () => {
+		it('should return the index of the first item that passes the test', () => {
+			const index = list.findIndex((item) => item > 1);
+			expect(index).toEqual(1);
+		});
+
+		it('should return -1 if no item passes the test', () => {
+			const index = list.findIndex((item) => item > 3);
+			expect(index).toEqual(-1);
+		});
+	});
+
+	describe('sort method', () => {
+		it('should sort the list', () => {
+			list.add(4);
+			list.add(5);
+			list.add(6);
+			list.sort((a, b) => a - b);
+			expect(list.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		});
+	});
+
+	describe('forEach method', () => {
+		it('should call the callback for each item in the list', () => {
+			const callback = jest.fn();
+			list.forEach(callback);
+			expect(callback).toHaveBeenCalledTimes(3);
+		});
+	});
+
+	describe('toArray method', () => {
+		it('should return an array that matches the list', () => {
+			expect(list.toArray()).toEqual([1, 2, 3]);
+		});
+	});
+
+	describe('valueOf method', () => {
+		it('should return an array that matches the list', () => {
+			expect(list.valueOf()).toEqual([1, 2, 3]);
+		});
+	});
+
+	describe('*keys method', () => {
+		it('should return an iterator of the keys', () => {
+			const iterator = list.keys();
+			expect(iterator.next().value).toEqual(0);
+			expect(iterator.next().value).toEqual(1);
+			expect(iterator.next().value).toEqual(2);
+		});
+	});
+
+	describe('*values method', () => {
+		it('should return an iterator of the values', () => {
+			const iterator = list.values();
+			expect(iterator.next().value).toEqual(1);
+			expect(iterator.next().value).toEqual(2);
+			expect(iterator.next().value).toEqual(3);
+		});
+	});
+
+	describe('*entries method', () => {
+		it('should return an iterator of the entries', () => {
+			const iterator = list.entries();
+			expect(iterator.next().value).toEqual([0, 1]);
+			expect(iterator.next().value).toEqual([1, 2]);
+			expect(iterator.next().value).toEqual([2, 3]);
+		});
+	});
+
+	describe('*@@iterator method', () => {
+		it('should return an iterator of the values', () => {
+			const iterator = list[Symbol.iterator]();
+			expect(iterator.next().value).toEqual(1);
+			expect(iterator.next().value).toEqual(2);
+			expect(iterator.next().value).toEqual(3);
+		});
+	});
+
+	describe('toString method', () => {
+		it('should return a string representation of the list', () => {
+			expect(list.toString()).toEqual('1,2,3');
+		});
+	});
+
+	describe('Symbol.toStringTag method', () => {
+		it('should return a string representation of the list', () => {
+			expect(list[Symbol.toStringTag]).toEqual('List');
 		});
 	});
 });

@@ -119,6 +119,11 @@ describe('Doubly LinkedList', () => {
 			// Assuming the node has a 'value' property
 			expect(value).toBe(7);
 		});
+
+		it('should return null if the index is out of bounds', () => {
+			list.addLast(1);
+			expect(list.get(1)).toBeNull();
+		});
 	});
 
 	describe('set', () => {

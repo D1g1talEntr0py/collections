@@ -150,7 +150,7 @@ describe('EvictingCache', () => {
 	describe('capacity', () => {
 		it('should return the capacity of the cache', () => {
 			const cache = new EvictingCache(2);
-			expect(cache.capacity()).toEqual(2);
+			expect(cache.capacity).toEqual(2);
 		});
 	});
 

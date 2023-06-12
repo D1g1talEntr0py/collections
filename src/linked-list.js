@@ -42,12 +42,10 @@ class LinkedList {
 	 */
 	addFirst(value) {
 		const node = new Node({ next: this.#head, value });
-		if (this.#doublyLinked && this.#head) {
-			this.#head.previous = node;
-		}
+		if (this.#doublyLinked && this.#head) { this.#head.previous = node }
 
 		this.#head = node;
-		if (!this.#tail) this.#tail = node;
+		if (!this.#tail) { this.#tail = node }
 
 		this.#size++;
 	}
@@ -60,10 +58,10 @@ class LinkedList {
 	 */
 	addLast(value) {
 		const node = new Node({ value, previous: this.#doublyLinked ? this.#tail : null });
-		if (this.#tail) this.#tail.next = node;
+		if (this.#tail) { this.#tail.next = node }
 
 		this.#tail = node;
-		if (!this.#head) this.#head = node;
+		if (!this.#head) { this.#head = node }
 
 		this.#size++;
 	}
@@ -112,9 +110,7 @@ class LinkedList {
 	 */
 	remove(value) {
 		for (let node = this.#head; node; node = node.next) {
-			if (node.value === value) {
-				return this.#remove(node);
-			}
+			if (node.value === value) {	return this.#remove(node) }
 		}
 
 		return null;
@@ -127,7 +123,7 @@ class LinkedList {
 	 * @returns {E|null} The removed element, or null if the index was out of bounds.
 	 */
 	get(index) {
-		return this.#getNodeAt(index)?.value;
+		return this.#getNodeAt(index)?.value ?? null;
 	}
 
 	/**
@@ -141,7 +137,7 @@ class LinkedList {
 	 */
 	set(index, value) {
 		const node = this.#getNodeAt(index);
-		if (!node) throw new RangeError('Index out of bounds');
+		if (!node) { throw new RangeError('Index out of bounds') }
 
 		node.value = value;
 	}
@@ -159,9 +155,7 @@ class LinkedList {
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
 	insert(index, value) {
-		if (index < 0 || index > this.#size) {
-			throw new RangeError('Index out of bounds');
-		}
+		if (index < 0 || index > this.#size) { throw new RangeError('Index out of bounds') }
 
 		if (index === 0) {
 			this.addFirst(value);
@@ -218,9 +212,7 @@ class LinkedList {
 	 * @returns {void}
 	 */
 	clear() {
-		for (let node = this.#head; node; node = node.next) {
-			node.unlink();
-		}
+		for (let node = this.#head; node; node = node.next) {	node.unlink() }
 
 		this.#head = this.#tail = null;
 		this.#size = 0;

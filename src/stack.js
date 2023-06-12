@@ -1,45 +1,62 @@
-import Node from './node.js';
+/**
+ * @template E
+ * @type {Stack<E>} The stack class.
+ * JavaScript implementation of a Stack.
+ */
+class Stack {
+	/** @type {Array<E>} */
+	#items;
 
-export default class Stack {
-	#first;
-	#last;
-	#size;
-
-	// The stack has three properties, the first node, the last node and the stack size
+	/**
+	 * Creates a new stack.
+	 * @constructor
+	 */
 	constructor() {
-		this.#first = null;
-		this.#last = null;
-		this.#size = 0;
+		this.#items = [];
 	}
 
-	// The push method receives a value and adds it to the "top" of the stack
+	/**
+	 * Pushes a value onto the stack.
+	 * @param {E} value - The value to be pushed.
+	 * @returns {void}
+	 */
 	push(value) {
-		const node = new Node(value);
-
-		if (this.#first) {
-			const next = this.#first;
-			this.#first = node;
-			this.#first.next = next;
-		} else {
-			this.#first = node;
-			this.#last = node;
-		}
-
-		return ++this.#size;
+		this.#items.push(value);
 	}
 
-	// The pop method eliminates the element at the "top" of the stack and returns its value
+	/**
+	 * Pops the top value off the stack and returns it.
+	 * Returns undefined if the stack is empty.
+	 * @returns {E} The popped value or undefined.
+	 */
 	pop() {
-		if (!this.#first) return null;
+		return this.#items.pop();
+	}
 
-		const temp = this.#first;
-		if (this.#first === this.#last) {
-			this.#last = null;
-		}
+	/**
+	 * Peeks at the top value on the stack without popping it.
+	 * Returns undefined if the stack is empty.
+	 * @returns {E} The top value of the stack or undefined.
+	 */
+	peek() {
+		return this.#items[this.#items.length - 1];
+	}
 
-		this.#first = this.#first.next;
-		this.#size--;
+	/**
+	 * Checks if the stack is empty.
+	 * @returns {boolean} True if the stack is empty, false otherwise.
+	 */
+	isEmpty() {
+		return this.#items.length === 0;
+	}
 
-		return temp.value;
+	/**
+	 * Returns the number of items in the stack.
+	 * @returns {number} The number of items in the stack.
+	 */
+	get size() {
+		return this.#items.length;
 	}
 }
+
+export default Stack;
