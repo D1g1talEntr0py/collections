@@ -50,10 +50,8 @@ class SetMultiMap extends Map {
 	 */
 	deleteValue(key, value) {
 		const values = super.get(key);
-		if (values) {
-			return values.delete(value);
-		}
-		
+		if (values) { return values.delete(value) }
+
 		return false;
 	}
 

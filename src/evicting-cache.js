@@ -1,4 +1,3 @@
-import Cache from './cache.js';
 import LinkedList from './linked-list.js';
 
 /**
@@ -11,13 +10,13 @@ import LinkedList from './linked-list.js';
 class EvictingCache {
 	/** @type {number} */
 	#capacity;
-	/** @type {Cache<V>} */
-	#cache = new Cache();
+	/** @type {Map<K, V>} */
+	#cache = new Map();
 	/** @type {LinkedList<K>} */
 	#keyList = new LinkedList(LinkedList.Type.Doubly);
 
 	/**
-	 * Creates a new LRU Cache with the given capacity.
+	 * Creates a new Evicting Cache with the given capacity.
 	 *
 	 * @param {number} capacity The maximum number of key-value pairs the cache can hold.
 	 */
@@ -133,7 +132,7 @@ class EvictingCache {
 	 *
 	 * @returns {number} The size of the cache.
 	 */
-	size() {
+	get size() {
 		return this.#cache.size;
 	}
 

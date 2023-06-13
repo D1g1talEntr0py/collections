@@ -1,6 +1,6 @@
 import MultiMap from '../src/multi-map.js';
 import List from '../src/list.js';
-import { describe, expect, it } from '@jest/globals';
+import { describe, beforeEach, expect, it } from '@jest/globals';
 
 describe('MultiMap', () => {
 	let multiMap;

@@ -143,7 +143,7 @@ describe('EvictingCache', () => {
 			const cache = new EvictingCache(2);
 			cache.put('key1', 'value1');
 			cache.put('key2', 'value2');
-			expect(cache.size()).toEqual(2);
+			expect(cache.size).toEqual(2);
 		});
 	});
 
