@@ -1,11 +1,11 @@
-import Node from '../src/node';
+import KeyedNode from '../src/keyed-node.js';
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
-describe('Node', () => {
+describe('KeyedNode', () => {
 	let node;
 
 	beforeEach(() => {
-		node = new Node({ value: 10});
+		node = new KeyedNode({ value: 10 });
 	});
 
 	afterEach(() => {
@@ -24,19 +24,26 @@ describe('Node', () => {
 	});
 
 	it('should set and get the next node', () => {
-		const nextNode = new Node(30);
+		const nextNode = new KeyedNode(30);
 		node.next = nextNode;
 		expect(node.next).toBe(nextNode);
 	});
 
 	it('should set and get the previous node', () => {
-		const previousNode = new Node(40);
+		const previousNode = new KeyedNode(40);
 		node.previous = previousNode;
 		expect(node.previous).toBe(previousNode);
 	});
 
-	it('should return "Node" as the default description', () => {
-		expect(node[Symbol.toStringTag]).toBe('Node');
+	it('should return "KeyedNode" as the default description', () => {
+		expect(node[Symbol.toStringTag]).toBe('KeyedNode');
+	});
+
+	describe('key', () => {
+		it('should set and get the key', () => {
+			node.key = 'key';
+			expect(node.key).toBe('key');
+		});
 	});
 
 	describe('unlink', () => {
@@ -45,9 +52,9 @@ describe('Node', () => {
 		let node3;
 
 		beforeEach(() => {
-			node1 = new Node({ value: 'Node 1' });
-			node2 = new Node({ value: 'Node 2' });
-			node3 = new Node({ value: 'Node 3' });
+			node1 = new KeyedNode({ value: 'KeyedNode 1' });
+			node2 = new KeyedNode({ value: 'KeyedNode 2' });
+			node3 = new KeyedNode({ value: 'KeyedNode 3' });
 
 			node1.next = node2;
 			node2.previous = node1;
@@ -94,7 +101,7 @@ describe('Node', () => {
 		});
 
 		it('should handle unlinking a node that is not connected to any other nodes', () => {
-			const isolatedNode = new Node({ value: 'Isolated Node' });
+			const isolatedNode = new KeyedNode({ value: 'Isolated KeyedNode' });
 			isolatedNode.unlink();
 
 			expect(isolatedNode.previous).toBeNull();
@@ -102,8 +109,8 @@ describe('Node', () => {
 		});
 
 		it('should handle unlinking a node that has circular references', () => {
-			const circularNode1 = new Node({ value: 'Circular Node 1' });
-			const circularNode2 = new Node({ value: 'Circular Node 2' });
+			const circularNode1 = new KeyedNode({ value: 'Circular KeyedNode 1'});
+			const circularNode2 = new KeyedNode({ value: 'Circular KeyedNode 2'});
 
 			circularNode1.next = circularNode2;
 			circularNode2.previous = circularNode1;
@@ -117,8 +124,8 @@ describe('Node', () => {
 		});
 
 		it('should clear the next and previous references if they still reference this node', () => {
-			const node1 = new Node({ value: 'Node 1' });
-			const node2 = new Node({ value: 'Node 2' });
+			const node1 = new KeyedNode({ value: 'KeyedNode 1' });
+			const node2 = new KeyedNode({ value: 'KeyedNode 2' });
 
 			node1.next = node2;
 			node2.previous = node1;
@@ -133,9 +140,9 @@ describe('Node', () => {
 		});
 
 		it('should clear the next and previous references if they still reference this node', () => {
-			const node1 = new Node({ value: 'Node 1' });
-			const node2 = new Node({ value: 'Node 2' });
-			const node3 = new Node({ value: 'Node 3' });
+			const node1 = new KeyedNode({ value: 'KeyedNode 1' });
+			const node2 = new KeyedNode({ value: 'KeyedNode 2' });
+			const node3 = new KeyedNode({ value: 'KeyedNode 3' });
 
 			node1.next = node2;
 			node2.previous = node1;

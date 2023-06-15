@@ -1,4 +1,4 @@
-import LinkedList from './linked-list.js';
+import LinkedMap from './linked-map.js';
 
 /**
  * JavaScript implementation of a Least Recently Used(LRU) Cache using a doubly linked list.
@@ -10,10 +10,8 @@ import LinkedList from './linked-list.js';
 class EvictingCache {
 	/** @type {number} */
 	#capacity;
-	/** @type {Map<K, V>} */
-	#cache = new Map();
-	/** @type {LinkedList<K>} */
-	#keyList = new LinkedList(LinkedList.Type.Doubly);
+	/** @type {LinkedMap<K, V>} */
+	#cache = new LinkedMap();
 
 	/**
 	 * Creates a new Evicting Cache with the given capacity.
@@ -32,9 +30,9 @@ class EvictingCache {
 	 */
 	get(key) {
 		const value = this.#cache.get(key);
-		if (!value) return null;
+		if (!value) { return null }
 
-		this.#moveToFront(key);
+		this.#cache.moveToFirst(key);
 
 		return value;
 	}
@@ -55,17 +53,15 @@ class EvictingCache {
 	 *
 	 * @param {K} key The key to add.
 	 * @param {V} value The value to add.
+	 * @returns {void}
 	 */
 	put(key, value) {
-		const alreadyExists = this.#cache.has(key);
-		this.#cache.set(key, value);
+		this.#put(key, value);
+	}
 
-		if (alreadyExists) {
-			this.#moveToFront(key);
-		} else {
-			this.#keyList.addFirst(key);
-			if (this.#cache.size > this.#capacity) { this.evict()	}
-		}
+	#put(key, value) {
+		this.#cache.addFirst(key, value);
+		if (this.#cache.size > this.#capacity) { this.evict() }
 	}
 
 	/**
@@ -75,14 +71,13 @@ class EvictingCache {
 	 * @returns {V} The value corresponding to the key.
 	 */
 	getOrPut(key, producer) {
-		let value = this.get(key);
+		const value = this.get(key);
+		if (value) { return value }
 
-		if (value === null) {
-			value = producer();
-			this.put(key, value);
-		}
+		const newValue = producer();
+		this.#put(key, newValue);
 
-		return value;
+		return newValue;
 	}
 
 	/**
@@ -91,13 +86,7 @@ class EvictingCache {
 	 * @returns {boolean} True if an item was removed, false otherwise.
 	 */
 	evict() {
-		if (this.#keyList.size === 0) { return false }
-
-		const leastRecentlyUsedKey = this.#keyList.getLast();
-		this.#keyList.removeLast();
-		this.#cache.delete(leastRecentlyUsedKey);
-
-		return true;
+		return this.#cache.size === 0 ? false : this.#cache.removeLast();
 	}
 
 	/**
@@ -107,7 +96,6 @@ class EvictingCache {
 	 */
 	clear() {
 		this.#cache.clear();
-		this.#keyList.clear();
 	}
 
 	/**
@@ -134,18 +122,6 @@ class EvictingCache {
 	 */
 	get size() {
 		return this.#cache.size;
-	}
-
-	/**
-	 * Moves the given key to the front of the LRU list.
-	 *
-	 * @private
-	 * @param {K} key The key to move.
-	 */
-	#moveToFront(key) {
-		// Remove the key from its current position and add it to the front
-		this.#keyList.remove(key);
-		this.#keyList.addFirst(key);
 	}
 
 	/**

@@ -6,9 +6,9 @@
  * @module {Node} node
  */
 class Node {
-	/** @type {Node<E>} */
+	/** @type {Node<E>|null} */
 	#previous;
-	/** @type {Node<E>} */
+	/** @type {Node<E>|null} */
 	#next;
 	/** @type {E} */
 	#value;
@@ -19,9 +19,9 @@ class Node {
 	 * @param {Object} options The options for the node, or the node to copy.
 	 * @param {Node<E>} [options.previous] The previous node.
 	 * @param {Node<E>} [options.next] The next node.
-	 * @param {E} [options.value] The value to be assigned to the node.
+	 * @param {E} options.value The value to be assigned to the node.
 	 */
-	constructor({ previous = null, next = null, value } = {}) {
+	constructor({ previous = null, next = null, value }) {
 		this.#previous = previous;
 		this.#next = next;
 		this.#value = value;

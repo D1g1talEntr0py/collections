@@ -48,7 +48,6 @@ class List {
 	 *
 	 * @param {number} index The index to insert the new element.
 	 * @param {E} element The entry to add to the list.
-	 * @returns {List<E>} The updated list.
 	 */
 	insert(index, element) {
 		this.#items.splice(index, 0, element);
@@ -83,7 +82,7 @@ class List {
 	 * Gets the item at a specific index in the list.
 	 *
 	 * @param {number} index - The index of the item to get.
-	 * @return {E} - The item at the given index.
+	 * @returns {E} - The item at the given index.
 	 */
 	get(index) {
 		return this.#items[index];
@@ -167,7 +166,7 @@ class List {
 	 * Checks if the list contains a specific item.
 	 *
 	 * @param {E} item - The item to check for.
-	 * @return {boolean} - True if the list contains the item, false otherwise.
+	 * @returns {boolean} - True if the list contains the item, false otherwise.
 	 */
 	contains(item) {
 		return this.#items.includes(item);
@@ -333,7 +332,7 @@ class List {
 	/**
 	 * Returns an iterator for the keys in the list.
 	 *
-	 * @returns {Generator<number>} An iterator for the keys in the list.
+	 * @yields {IterableIterator<E>} An iterator for the keys in the list.
 	 */
 	*keys() {
 		for (let index = 0, length = this.#items.length; index < length; index++) {
@@ -344,7 +343,7 @@ class List {
 	/**
 	 * Returns an iterator for the values in the list.
 	 *
-	 * @returns {Generator<E>} An iterator for the values in the list.
+	 * @yields {IterableIterator<E>} An iterator for the values in the list.
 	 */
 	*values() {
 		for (let item of this.#items) {
@@ -356,7 +355,7 @@ class List {
 	 * Returns an iterator for the entries in the list.
 	 * Each entry is an array of [index, value].
 	 *
-	 * @returns {Generator<Array>} An iterator for the entries in the list.
+	 * @yields {IterableIterator<Array<E>>} An iterator for the entries in the list.
 	 */
 	*entries() {
 		for (let index = 0, length = this.#items.length; index < length; index++) {
@@ -366,7 +365,7 @@ class List {
 
 	/**
 	 * Creates an iterator for the items in the list.
-	 * @return {Generator} - An iterator for the items in the list.
+	 * @yields {IterableIterator<E>} - An iterator for the items in the list.
 	 */
 	*[Symbol.iterator]() {
 		for (const item of this.#items) {
@@ -376,7 +375,8 @@ class List {
 
 	/**
 	 * Returns a string representation of the list.
-	 * @return {string} - A string representation of the list.
+	 *
+	 * @returns {string} - A string representation of the list.
 	 */
 	toString() {
 		return this.#items.toString();
