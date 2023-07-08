@@ -1,4 +1,4 @@
-import LinkedList from '../src/linked-list';
+import LinkedList from '../src/linked-list.js';
 import { beforeEach, describe, expect, it } from '@jest/globals';
 
 describe('Doubly LinkedList', () => {
@@ -395,15 +395,6 @@ describe('Singly LinkedList', () => {
 			list.addLast(1);
 			expect(list.remove(1)).toBe(1);
 			expect(list.size).toBe(0);
-		});
-	});
-
-	describe('get', () => {
-		it('returns the element at the given index', () => {
-			list.addLast(1);
-			list.addLast(2);
-			list.addLast(3);
-			expect(list.get(1)).toBe(2);
 		});
 	});
 

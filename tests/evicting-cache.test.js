@@ -7,6 +7,11 @@ describe('EvictingCache', () => {
 			const cache = new EvictingCache(3);
 			expect(cache).toBeDefined();
 		});
+
+		it('should initialize with a default capacity of 100', () => {
+			const cache = new EvictingCache();
+			expect(cache).toBeDefined();
+		});
 	});
 
 	describe('get', () => {

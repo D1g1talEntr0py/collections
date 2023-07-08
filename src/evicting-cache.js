@@ -16,9 +16,9 @@ class EvictingCache {
 	/**
 	 * Creates a new Evicting Cache with the given capacity.
 	 *
-	 * @param {number} capacity The maximum number of key-value pairs the cache can hold.
+	 * @param {number} [capacity=100] The maximum number of key-value pairs the cache can hold.
 	 */
-	constructor(capacity) {
+	constructor(capacity = 100) {
 		this.#capacity = capacity;
 	}
 

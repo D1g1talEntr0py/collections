@@ -1,43 +1,46 @@
 /**
+ * A simple List class in ECMAScript. This class is based on the {@link Array} class.
+ * The List class is a wrapper around the Array class and provides a more functional approach to working with arrays.
+ * The List class is not meant to be a replacement for the Array class.
+ * 
  * @template E
- * @type {List<E>} The list class.
- * A simple List class in ECMAScript.
+ * @type {List<E>}
  */
 class List {
 	/** @type {Array<E>} */
-	#items = [];
+	#elements = [];
 
 	/**
 	 * Creates a new List.
 	 *
-	 * @param {Array<E>} items - The initial items in the list.
+	 * @param {Array<E>} elements The initial elements in the list.
 	 */
-	constructor(items = []) {
-		this.#items = [...items];
+	constructor(elements = []) {
+		this.#elements = elements;
 	}
 
 	/**
-	 * Adds an item to the list.
+	 * Adds an element to the list.
 	 * This method mutates the list and returns a reference to the same list.
 	 *
-	 * @param {E} item - The item to add.
+	 * @param {E} element The element to add.
 	 * @returns {List<E>} The updated list.
 	 */
-	add(item) {
-		this.#items.push(item);
+	add(element) {
+		this.#elements.push(element);
 
 		return this;
 	}
 
 	/**
-	 * Adds multiple items to the list.
+	 * Adds multiple elements to the list.
 	 * This method mutates the list and returns a reference to the same list.
 	 *
-	 * @param {E[]} items - The items to add.
+	 * @param {E[]} elements The elements to add.
 	 * @returns {List<E>} The updated list.
 	 */
-	addAll(...items) {
-		this.#items.push(...items);
+	addAll(...elements) {
+		this.#elements.push(...elements);
 
 		return this;
 	}
@@ -48,44 +51,44 @@ class List {
 	 *
 	 * @param {number} index The index to insert the new element.
 	 * @param {E} element The entry to add to the list.
+	 * @returns {List<E>} The updated list.
 	 */
 	insert(index, element) {
-		this.#items.splice(index, 0, element);
+		this.#elements.splice(index, 0, element);
+
+		return this;
 	}
 
 	/**
-	 * Removes an item from the list.
+	 * Removes an element from the list.
 	 *
-	 * @param {E} item - The item to remove.
-	 * @returns {boolean} - True if the item was removed, false otherwise.
+	 * @param {E} element The element to remove.
+	 * @returns {E} The element that was removed.
 	 */
-	remove(item) {
-		return this.removeAt(this.#items.indexOf(item));
+	remove(element) {
+		return this.removeAt(this.indexOf(element));
 	}
 
 	/**
-	 * Removes an item at a specific index from the list.
+	 * Removes an element at a specific index from the list.
 	 *
-	 * @param {number} index - The index of the item to remove.
-	 * @returns {boolean} - True if the item was removed, false otherwise.
+	 * @param {number} index The index of the element to remove.
+	 * @returns {E} The element that was removed.
 	 */
 	removeAt(index) {
-		if (index >= 0 && index < this.#items.length) {
-			this.#items.splice(index, 1);
-			return true;
-		}
-
-		return false;
+		if (index < 0 || this.#elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
+		
+		return this.#elements.splice(index, 1)[0];
 	}
 
 	/**
-	 * Gets the item at a specific index in the list.
+	 * Gets the element at a specific index in the list.
 	 *
-	 * @param {number} index - The index of the item to get.
-	 * @returns {E} - The item at the given index.
+	 * @param {number} index The index of the element to get.
+	 * @returns {E} The element at the given index.
 	 */
 	get(index) {
-		return this.#items[index];
+		return this.#elements[index];
 	}
 
 	/**
@@ -97,23 +100,22 @@ class List {
 	 * @returns {List<E>} The updated list.
 	 */
 	set(index, element) {
-		if (index < 0 || index >= this.#items.length) { throw new Error('Index out of bounds') }
+		if (index < 0 || this.#elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
 
-		this.#items.splice(index, 1, element);
+		this.#elements.splice(index, 1, element);
 
 		return this;
 	}
 
 	/**
-	 * Returns the number of elements in this list.
-	 * If this list contains more than Number.MAX_SAFE_INTEGER elements, returns Number.MAX_SAFE_INTEGER.
+	 * Returns the index of the first occurrence of the element in this list
 	 *
-	 * @param {E} item The item to search for.
+	 * @param {E} element The element to search for.
 	 * @param {number} [fromIndex=0] The index to start searching from.
-	 * @returns {number} The number of elements in this list.
+	 * @returns {number} The index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 */
-	indexOf(item, fromIndex = 0) {
-		return this.#items.indexOf(item, fromIndex);
+	indexOf(element, fromIndex = 0) {
+		return this.#elements.indexOf(element, fromIndex);
 	}
 
 	/**
@@ -122,32 +124,32 @@ class List {
 	 * More formally, returns the highest index i such that (element === this.get(i)),
 	 * or -1 if there is no such index.
 	 *
-	 * @param {E} item The item to search for.
-	 * @param {number} [fromIndex=this.#items.length - 1] The index to start searching from.
+	 * @param {E} element The element to search for.
+	 * @param {number} [fromIndex] The index to start searching from. If omitted, the search starts from the end of the list.
 	 * @returns {number} The index of the last occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 */
-	lastIndexOf(item, fromIndex = this.#items.length - 1) {
-		return this.#items.lastIndexOf(item, fromIndex);
+	lastIndexOf(element, fromIndex = this.#elements.length - 1) {
+		return this.#elements.lastIndexOf(element, fromIndex);
 	}
 
 	/**
 	 * Removes the last element from the list and returns it.
-	 * If the list is empty, undefined is returned and the list is not modified.
+	 * If the list is empty, null is returned and the list is not modified.
 	 *
-	 * @returns {E} The last item in the list or undefined.
+	 * @returns {E|null} The last element in the list or null.
 	 */
 	removeLast() {
-		return this.#items.pop();
+		return this.#elements.pop() ?? null;
 	}
 
 	/**
 	 * Removes the first element from the list and returns it.
-	 * If the list is empty, undefined is returned and the list is not modified.
+	 * If the list is empty, null is returned and the list is not modified.
 	 *
-	 * @returns {E} The first item in the list or undefined.
+	 * @returns {E|null} The first element in the list or null.
 	 */
 	removeFirst() {
-		return this.#items.shift();
+		return this.#elements.shift() ?? null;
 	}
 
 	/**
@@ -157,26 +159,48 @@ class List {
 	 * @returns {List<E>} The mutated list.
 	 */
 	reverse() {
-		this.#items.reverse();
+		this.#elements.reverse();
 
 		return this;
 	}
 
 	/**
-	 * Checks if the list contains a specific item.
+	 * Checks if the list contains a specific element.
 	 *
-	 * @param {E} item - The item to check for.
-	 * @returns {boolean} - True if the list contains the item, false otherwise.
+	 * @param {E} element The element to check for.
+	 * @returns {boolean} `true` if the list contains the element, `false` otherwise.
 	 */
-	contains(item) {
-		return this.#items.includes(item);
+	contains(element) {
+		return this.#elements.includes(element);
 	}
 
 	/**
-	 * Removes all items from the list.
+	 * Returns a new {@link List} with the elements from all the given lists.
+	 * This method does not mutate the list.
+	 * 
+	 * @param {...List<E>} elements The lists to concatenate.
+	 * @returns {List<E>} A new list with the elements from all the given lists.
+	 */
+	concat(...elements) {
+		return new List(this.#elements.concat(...elements));
+	}
+	
+	/**
+	 * Adds all the elements of the list into a string, separated by the specified separator string.
+	 * 
+	 * @param {string} [separator=','] A string used to separate one element of the list from the next in the resulting string. 
+	 * If omitted, the list elements are separated with a comma (",") by default. If separator is an empty string, all elements are joined without any characters in between them.
+	 * @returns {string} A string with all the elements of the list joined. If the list has only one element, then that element will be returned without using the separator.
+	 */
+	join(separator = ',') {
+		return this.#elements.join(separator);
+	}
+
+	/**
+	 * Removes all elements from the list.
 	 */
 	clear() {
-		this.#items.length = 0;
+		this.#elements.length = 0;
 	}
 
 	/**
@@ -189,7 +213,7 @@ class List {
 	 * @returns {boolean} true if all elements satisfy the specified test, false otherwise.
 	 */
 	every(predicate, context) {
-		return this.#items.every((element, index) => predicate.apply(context, [element, index, this.#items]), context);
+		return this.#elements.every((element, index) => predicate.call(context, element, index, this), context);
 	}
 
 	/**
@@ -202,7 +226,7 @@ class List {
 	 * @returns {boolean} true if any of the elements returns true from the predicate function, false otherwise.
 	 */
 	some(predicate, context) {
-		return this.#items.some((element, index) => predicate.apply(context, [element, index, this.#items]), context);
+		return this.#elements.some((element, index) => predicate.call(context, element, index, this), context);
 	}
 
 	/**
@@ -214,7 +238,7 @@ class List {
 	 * @returns {List<E>} A new list of elements that satisfied the predicate condition.
 	 */
 	filter(predicate, context) {
-		return new List(this.#items.filter((element, index) => predicate.apply(context, [element, index, this.#items]), context));
+		return new List(this.#elements.filter((element, index) => predicate.call(context, element, index, this), context));
 	}
 
 	/**
@@ -226,7 +250,7 @@ class List {
 	 * @returns {E} The element in the array.
 	 */
 	find(predicate, context) {
-		return this.#items.find((element, index) => predicate.apply(context, [element, index, this.#items]), context);
+		return this.#elements.find((element, index) => predicate.call(context, element, index, this), context);
 	}
 
 	/**
@@ -238,7 +262,7 @@ class List {
 	 * @returns {number} The index found.
 	 */
 	findIndex(predicate, context) {
-		return this.#items.findIndex((element, index) => predicate.apply(context, [element, index, this.#items]), context);
+		return this.#elements.findIndex((element, index) => predicate.call(context, element, index, this), context);
 	}
 
 	/**
@@ -252,7 +276,7 @@ class List {
 	 * @returns {List<*>} A new list with each element being the result of the callback function.
 	 */
 	map(mapper, context) {
-		return new List(this.#items.map((element, index) => mapper.apply(context, [element, index, this.#items]), context));
+		return new List(this.#elements.map((element, index) => mapper.call(context, element, index, this), context));
 	}
 
 	/**
@@ -261,26 +285,27 @@ class List {
 	 * of running the reducer across all elements of the list is a single value.
 	 *
 	 * @param {function(E, E, number, List<E>): *} reducer A function that accepts up to four arguments. The reduce method calls the reducer function one time for each element in the list.
-	 * @param {E} [initialValue] If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the reducer function provides this value as an argument instead of a list value.
-	 * @returns {E} The resulting element.
+	 * @param {*} [initialValue] If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an list value.
+	 * @returns {*} The value that results from the reduction.
 	 */
 	reduce(reducer, initialValue) {
-		return this.#items.reduce(reducer, initialValue);
+		return this.#elements.reduce(reducer, initialValue);
 	}
 
 	/**
-	 * Sorts the elements of a list in place and returns the reference to the same list, now sorted.
-	 * The default sort order is ascending, built upon converting the elements into strings,
-	 * then comparing their sequences of UTF-16 code units values.
+	 * Returns a new list with the elements sorted.
+	 * This method mutates the list and returns a reference to the same list.
 	 *
 	 * @example
-	 * // returns
-	 * new List([50, 3, 20, 33, 9, 1]).sort();
-	 * @param {function(E, E): number} [comparator] A function that defines the sort order. If omitted, the list elements are converted to strings, then sorted according to each character's Unicode code point value.
-	 * @returns {void}
+	 * new List([50, 3, 20, 33, 9, 1]).sort(); // [1, 3, 9, 20, 33, 50]
+	 * 
+	 * @param {function(E, E): number} [comparator] A function that defines the sort order. If omitted, the default (ascending order) comparator function will be used.
+	 * @returns {List<E>} The sorted list.
 	 */
-	sort(comparator) {
-		this.#items.sort(comparator);
+	sort(comparator = (a, b) => !isNaN(a) && !isNaN(b) ? a - b : String(a).localeCompare(String(b))) {
+		this.#elements.sort(comparator);
+
+		return this;
 	}
 
 	/**
@@ -290,7 +315,7 @@ class List {
 	 * @param {*} [context] An object to which the this keyword can refer in the consumer function. If context is omitted, this is used as the this value.
 	 */
 	forEach(consumer, context = this) {
-		this.#items.forEach((element, index) => consumer(element, index, context));
+		this.#elements.forEach((element, index) => consumer(element, index, context));
 	}
 
 	/**
@@ -299,7 +324,7 @@ class List {
 	 * @returns {boolean} true if the list is empty, false otherwise.
 	 */
 	isEmpty() {
-		return this.#items.length === 0;
+		return this.#elements.length === 0;
 	}
 
 	/**
@@ -308,7 +333,7 @@ class List {
 	 * @returns {List<E>} A new list with the elements sliced from the original list.
 	 */
 	toArray() {
-		return [...this.#items];
+		return [...this.#elements];
 	}
 
 	/**
@@ -317,7 +342,7 @@ class List {
 	 * @returns {Array<E>} The primitive value of the list.
 	 */
 	valueOf() {
-		return this.#items.valueOf();
+		return this.#elements.valueOf();
 	}
 
 	/**
@@ -326,7 +351,7 @@ class List {
 	 * @returns {number} The number of elements in the list.
 	 */
 	get size() {
-		return this.#items.length;
+		return this.#elements.length;
 	}
 
 	/**
@@ -335,9 +360,7 @@ class List {
 	 * @yields {IterableIterator<E>} An iterator for the keys in the list.
 	 */
 	*keys() {
-		for (let index = 0, length = this.#items.length; index < length; index++) {
-			yield index;
-		}
+		yield* this.#elements.keys();
 	}
 
 	/**
@@ -346,9 +369,7 @@ class List {
 	 * @yields {IterableIterator<E>} An iterator for the values in the list.
 	 */
 	*values() {
-		for (let item of this.#items) {
-			yield item;
-		}
+		yield* this.#elements;
 	}
 
 	/**
@@ -358,28 +379,24 @@ class List {
 	 * @yields {IterableIterator<Array<E>>} An iterator for the entries in the list.
 	 */
 	*entries() {
-		for (let index = 0, length = this.#items.length; index < length; index++) {
-			yield [index, this.#items[index]];
-		}
+		yield* this.#elements.entries();
 	}
 
 	/**
-	 * Creates an iterator for the items in the list.
-	 * @yields {IterableIterator<E>} - An iterator for the items in the list.
+	 * Creates an iterator for the elements in the list.
+	 * @yields {IterableIterator<E>} An iterator for the elements in the list.
 	 */
 	*[Symbol.iterator]() {
-		for (const item of this.#items) {
-			yield item;
-		}
+		yield* this.#elements;
 	}
 
 	/**
 	 * Returns a string representation of the list.
 	 *
-	 * @returns {string} - A string representation of the list.
+	 * @returns {string} A string representation of the list.
 	 */
 	toString() {
-		return this.#items.toString();
+		return this.#elements.toString();
 	}
 
 	/**

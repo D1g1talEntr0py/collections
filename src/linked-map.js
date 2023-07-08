@@ -44,19 +44,9 @@ class LinkedMap {
 
 		if (node) {
 			node.value = value;
-			this.moveToLast(key);
+			this.#moveToLast(node);
 		} else {
-			const newNode = new KeyedNode({ key, value });
-
-			if (this.#head === null) {
-				this.#head = this.#tail = newNode;
-			} else {
-				newNode.previous = this.#tail;
-				this.#tail.next = newNode;
-				this.#tail = newNode;
-			}
-
-			this.#map.set(key, newNode);
+			this.#appendNewNode(key, value);
 		}
 	}
 
@@ -67,29 +57,7 @@ class LinkedMap {
 	 * @returns {boolean} True if the map contained a mapping for the specified key, false otherwise.
 	 */
 	remove(key) {
-		const node = this.#map.get(key);
-
-		if (node === undefined) { return false }
-
-		if (node.previous !== null) {
-			node.previous.next = node.next;
-		} else {
-			this.#head = node.next;
-			if (node.next !== null) {
-				node.next.previous = null;
-			}
-		}
-
-		if (node.next !== null) {
-			node.next.previous = node.previous;
-		} else {
-			this.#tail = node.previous;
-			if (node.previous !== null) {
-				node.previous.next = null;
-			}
-		}
-
-		return this.#map.delete(key);
+		return this.#unlinkNode(this.#map.get(key)) ? this.#map.delete(key) : false;
 	}
 
 	/**
@@ -105,21 +73,13 @@ class LinkedMap {
 	 * @returns {void}
 	 */
 	addFirst(key, value) {
-		if (this.#map.has(key)) {
-			this.moveToFirst(key); // if the key exists, move it to first
-			this.#map.get(key).value = value; // update the value
+		const node = this.#map.get(key);
+
+		if (node) {
+			this.#moveToFirst(node);
+			node.value = value;
 		} else {
-			const node = new KeyedNode({ key, value });
-
-			if (this.#head === null) {
-				this.#head = this.#tail = node;
-			} else {
-				node.next = this.#head;
-				this.#head.previous = node;
-				this.#head = node;
-			}
-
-			this.#map.set(key, node);
+			this.#prependNewNode(key, value);
 		}
 	}
 
@@ -136,21 +96,13 @@ class LinkedMap {
 	 * @returns {void}
 	 */
 	addLast(key, value) {
-		if (this.#map.has(key)) {
-			this.moveToLast(key); // if the key exists, move it to last
-			this.#map.get(key).value = value; // update the value
+		const node = this.#map.get(key);
+
+		if (node) {
+			this.#moveToLast(node);
+			node.value = value;
 		} else {
-			const node = new KeyedNode({ key, value });
-
-			if (this.#head === null) {
-				this.#head = this.#tail = node;
-			} else {
-				node.previous = this.#tail;
-				this.#tail.next = node;
-				this.#tail = node;
-			}
-
-			this.#map.set(key, node);
+			this.#appendNewNode(key, value);
 		}
 	}
 
@@ -171,23 +123,7 @@ class LinkedMap {
 	 * @returns {void}
 	 */
 	moveToFirst(key) {
-		const node = this.#map.get(key);
-
-		if (node === undefined || node === this.#head) { return }
-
-		node.previous.next = node.next;
-
-		if (node.next !== null) {
-			node.next.previous = node.previous;
-		} else {
-			this.#tail.previous.next = null;
-			this.#tail = node.previous;
-		}
-
-		node.previous = null;
-		node.next = this.#head;
-		this.#head.previous = node; // update the previous pointer of the new head
-		this.#head = node;
+		this.#moveToFirst(this.#map.get(key));
 	}
 
 	/**
@@ -206,24 +142,7 @@ class LinkedMap {
 	 * @returns {void}
 	 */
 	moveToLast(key) {
-		const node = this.#map.get(key);
-
-		if (node === undefined || node === this.#tail) { return }
-
-		if (node.previous !== null) {
-			node.previous.next = node.next;
-		} else {
-			this.#head = node.next;
-		}
-
-		node.next.previous = node.previous;
-
-		// Move the node to the end of the list
-		node.previous = this.#tail;
-		node.next = null;
-
-		this.#tail.next = node;
-		this.#tail = node;
+		this.#moveToLast(this.#map.get(key));
 	}
 
 	/**
@@ -285,6 +204,19 @@ class LinkedMap {
 	}
 
 	/**
+	 * Executes a provided function once for each key-value pair in the map.
+	 *
+	 * @param {function(V, K, LinkedMap<K, V>): void} callback - Function to execute for each key-value pair.
+	 * @param {any} [thisArg=this] - Value to use as `this` when executing the callback.
+	 * @returns {void}
+	 */
+	forEach(callback, thisArg = this) {
+		for (let [key, value] of this) {
+			callback.call(thisArg, value, key, this);
+		}
+	}
+
+	/**
 	 * Removes all of the mappings from this map. The map will be empty after this call returns.
 	 */
 	clear() {
@@ -302,7 +234,7 @@ class LinkedMap {
 	 * @yields {K} An iterator for the keys in the map.
 	 */
 	*keys() {
-		for (let [key] of this.entries()) {
+		for (let [key] of this) {
 			yield key;
 		}
 	}
@@ -313,7 +245,7 @@ class LinkedMap {
 	 * @yields {V} An iterator for the values in the map.
 	 */
 	*values() {
-		for (let [, value] of this.entries()) {
+		for (let [, value] of this) {
 			yield value;
 		}
 	}
@@ -326,19 +258,6 @@ class LinkedMap {
 	*entries() {
 		for (let node = this.#head; node !== null; node = node.next) {
 			yield [node.key, node.value];
-		}
-	}
-
-	/**
-	 * Executes a provided function once for each key-value pair in the map.
-	 *
-	 * @param {function(V, K, LinkedMap<K, V>): void} callback - Function to execute for each key-value pair.
-	 * @param {any} [thisArg=this] - Value to use as `this` when executing the callback.
-	 * @returns {void}
-	 */
-	forEach(callback, thisArg = this) {
-		for (let [key, value] of this.entries()) {
-			callback.call(thisArg, value, key, this);
 		}
 	}
 
@@ -358,6 +277,152 @@ class LinkedMap {
 	 */
 	get [Symbol.toStringTag]() {
 		return 'LinkedMap';
+	}
+
+	/**
+	 * Moves the node to the end of the list.
+	 * If the node is already the tail, nothing will happen.
+	 * If the node is not in the map, nothing will happen.
+	 * If the node is the head, the head will be updated to be the next node.
+	 * If the node is not the head, the node's previous pointer will be updated to point to the node's next node.
+	 * If the node is not the tail, the node's next pointer will be updated to point to null.
+	 * The node will be added to the end of the list.
+	 * The node's previous pointer will be updated to point to the current tail.
+	 * The current tail's next pointer will be updated to point to the node.
+	 *
+	 * @private
+	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
+	 * @returns {boolean} True if the node was moved to the end of the list, false otherwise.
+	 */
+	#unlinkNode(node) {
+		if (node === undefined) { return false }
+
+		// Handle previous node
+		if (node.previous !== null) {
+			node.previous.next = node.next;
+		} else {
+			this.#head = node.next;
+		}
+
+		// Handle next node
+		if (node.next !== null) {
+			node.next.previous = node.previous;
+		} else {
+			this.#tail = node.previous;
+		}
+
+		// Clean up the removed node's pointers
+		node.previous = null;
+		node.next = null;
+
+		return true;
+	}
+
+	/**
+	 * Adds a new node to the beginning of the list.
+	 * If the key already exists, the node will be moved to the beginning of the list.
+	 * If the key does not exist, a new node will be created and added to the beginning of the list.
+	 * If the key already exists, the node's value will be updated to the new value.
+	 * If the key does not exist, the node's value will be set to the new value.
+	 * If the key already exists, the node will be moved to the beginning of the list.
+	 * If the key does not exist, the node will be added to the beginning of the list.
+	 *
+	 * @private
+	 * @param {K} key The key of the node to add.
+	 * @param {V} value The value of the node to add.
+	 * @returns {void}
+	 */
+	#prependNewNode(key, value) {
+		const newNode = new KeyedNode({ key, value });
+
+		this.#map.set(key, newNode);
+
+		if (this.#head === null) {
+			this.#head = this.#tail = newNode;
+		} else {
+			newNode.next = this.#head;
+			this.#head.previous = newNode;
+			this.#head = newNode;
+		}
+	}
+
+	/**
+	 * Adds a new node to the end of the list.
+	 * If the key already exists, the node will be moved to the end of the list.
+	 * If the key does not exist, a new node will be created and added to the end of the list.
+	 * If the key already exists, the node's value will be updated to the new value.
+	 * If the key does not exist, the node's value will be set to the new value.
+	 * If the key already exists, the node will be moved to the end of the list.
+	 * If the key does not exist, the node will be added to the end of the list.
+	 *
+	 * @private
+	 * @param {K} key The key of the node to add.
+	 * @param {V} value The value of the node to add.
+	 * @returns {void}
+	 */
+	#appendNewNode(key, value) {
+		const newNode = new KeyedNode({ key, value });
+
+		this.#map.set(key, newNode);
+
+		if (this.#head === null) {
+			this.#head = this.#tail = newNode;
+		} else {
+			newNode.previous = this.#tail;
+			this.#tail.next = newNode;
+			this.#tail = newNode;
+		}
+	}
+
+	/**
+	 * Moves the node to the beginning of the list.
+	 * If the node is already the head, nothing will happen.
+	 * If the node is not in the map, nothing will happen.
+	 * If the node is the tail, the tail will be updated to be the previous node.
+	 * If the node is not the tail, the node's next pointer will be updated to point to the node's previous node.
+	 * If the node is not the head, the node's previous pointer will be updated to point to null.
+	 * The node will be added to the beginning of the list.
+	 * The node's next pointer will be updated to point to the current head.
+	 * The current head's previous pointer will be updated to point to the node.
+	 *
+	 * @private
+	 * @param {KeyedNode<K, V>} node The node to move to the beginning of the list.
+	 * @returns {void}
+	 */
+	#moveToFirst(node) {
+		if (node === undefined || node === this.#head) { return }
+
+		this.#unlinkNode(node);
+
+		// Add the node at the start
+		node.next = this.#head;
+		this.#head.previous = node;
+		this.#head = node;
+	}
+
+	/**
+	 * Moves the node to the end of the list.
+	 * If the node is already the tail, nothing will happen.
+	 * If the node is not in the map, nothing will happen.
+	 * If the node is the head, the head will be updated to be the next node.
+	 * If the node is not the head, the node's previous pointer will be updated to point to the node's next node.
+	 * If the node is not the tail, the node's next pointer will be updated to point to null.
+	 * The node will be added to the end of the list.
+	 * The node's previous pointer will be updated to point to the current tail.
+	 *
+	 * @private
+	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
+	 * @returns {void}
+	 */
+	#moveToLast(node) {
+		if (node === undefined || node === this.#tail) { return }
+
+		this.#unlinkNode(node);
+
+		// Add the node at the end
+		node.previous = this.#tail;
+		this.#tail.next = node;
+		this.#tail = node;
 	}
 }
 
