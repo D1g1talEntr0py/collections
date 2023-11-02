@@ -7,7 +7,7 @@ import LinkedMap from './linked-map.js';
  * @template V
  * @type {EvictingCache<K, V>}
  */
-class EvictingCache {
+export default class EvictingCache {
 	/** @type {number} */
 	#capacity;
 	/** @type {LinkedMap<K, V>} */
@@ -134,5 +134,3 @@ class EvictingCache {
 		return 'EvictingCache';
 	}
 }
-
-export default EvictingCache;

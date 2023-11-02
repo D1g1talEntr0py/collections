@@ -3,13 +3,13 @@
  * @type {Stack<E>} The stack class.
  * JavaScript implementation of a Stack.
  */
-class Stack {
+export default class Stack {
 	/** @type {Array<E>} */
 	#items;
 
 	/**
 	 * Creates a new stack.
-	 * @constructor
+	 * @class
 	 */
 	constructor() {
 		this.#items = [];
@@ -58,5 +58,3 @@ class Stack {
 		return this.#items.length;
 	}
 }
-
-export default Stack;

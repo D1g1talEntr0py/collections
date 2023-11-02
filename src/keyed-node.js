@@ -8,7 +8,7 @@ import Node from './node.js';
  * @type {KeyedNode<K, E>}
  * @module {KeyedNode} keyed-node
  */
-class KeyedNode extends Node {
+export default class KeyedNode extends Node {
 	/** @type {K|null} */
 	#key;
 
@@ -55,5 +55,3 @@ class KeyedNode extends Node {
 		return 'KeyedNode';
 	}
 }
-
-export default KeyedNode;

@@ -5,7 +5,7 @@
  * @type {Node<E>}
  * @module {Node} node
  */
-class Node {
+export default class Node {
 	/** @type {Node<E>|null} */
 	#previous;
 	/** @type {Node<E>|null} */
@@ -111,5 +111,3 @@ class Node {
 		return 'Node';
 	}
 }
-
-export default Node;

@@ -8,7 +8,7 @@ import KeyedNode from './keyed-node.js';
  * @type {LinkedMap<K, V>}
  * @module {LinkedMap} linked-map
  */
-class LinkedMap {
+export default class LinkedMap {
 	/** @type {Map<K, KeyedNode<K, V>>} */
 	#map;
 	/** @type {KeyedNode<K, V>} */
@@ -425,5 +425,3 @@ class LinkedMap {
 		this.#tail = node;
 	}
 }
-
-export default LinkedMap;

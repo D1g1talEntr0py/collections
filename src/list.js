@@ -2,11 +2,11 @@
  * A simple List class in ECMAScript. This class is based on the {@link Array} class.
  * The List class is a wrapper around the Array class and provides a more functional approach to working with arrays.
  * The List class is not meant to be a replacement for the Array class.
- * 
+ *
  * @template E
  * @type {List<E>}
  */
-class List {
+export default class List {
 	/** @type {Array<E>} */
 	#elements = [];
 
@@ -77,7 +77,7 @@ class List {
 	 */
 	removeAt(index) {
 		if (index < 0 || this.#elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
-		
+
 		return this.#elements.splice(index, 1)[0];
 	}
 
@@ -177,18 +177,18 @@ class List {
 	/**
 	 * Returns a new {@link List} with the elements from all the given lists.
 	 * This method does not mutate the list.
-	 * 
+	 *
 	 * @param {...List<E>} elements The lists to concatenate.
 	 * @returns {List<E>} A new list with the elements from all the given lists.
 	 */
 	concat(...elements) {
 		return new List(this.#elements.concat(...elements));
 	}
-	
+
 	/**
 	 * Adds all the elements of the list into a string, separated by the specified separator string.
-	 * 
-	 * @param {string} [separator=','] A string used to separate one element of the list from the next in the resulting string. 
+	 *
+	 * @param {string} [separator=','] A string used to separate one element of the list from the next in the resulting string.
 	 * If omitted, the list elements are separated with a comma (",") by default. If separator is an empty string, all elements are joined without any characters in between them.
 	 * @returns {string} A string with all the elements of the list joined. If the list has only one element, then that element will be returned without using the separator.
 	 */
@@ -298,7 +298,7 @@ class List {
 	 *
 	 * @example
 	 * new List([50, 3, 20, 33, 9, 1]).sort(); // [1, 3, 9, 20, 33, 50]
-	 * 
+	 *
 	 * @param {function(E, E): number} [comparator] A function that defines the sort order. If omitted, the default (ascending order) comparator function will be used.
 	 * @returns {List<E>} The sorted list.
 	 */
@@ -409,5 +409,3 @@ class List {
 		return 'List';
 	}
 }
-
-export default List;

@@ -12,7 +12,7 @@
  * @template V
  * @type {SetMultiMap<K, V>}
  */
-class SetMultiMap extends Map {
+export default class SetMultiMap extends Map {
 	/**
 	 * Adds a new element with a specified key and value to the SetMultiMap.
 	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
@@ -59,5 +59,3 @@ class SetMultiMap extends Map {
 		return 'SetMultiMap';
 	}
 }
-
-export default SetMultiMap;

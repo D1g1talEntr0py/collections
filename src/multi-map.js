@@ -14,7 +14,7 @@ import List from './list.js';
  * @template V
  * @type {MultiMap<K, V>}
  */
-class MultiMap extends Map {
+export default class MultiMap extends Map {
 	/**
 	 * Adds a new element with a specified key and value to the MultiMap.
 	 * If an element with the same key already exists, the value will be added to the underlying {@link List}.
@@ -34,5 +34,3 @@ class MultiMap extends Map {
 		return 'MultiMap';
 	}
 }
-
-export default MultiMap;

@@ -13,7 +13,7 @@ import Node from './node.js';
  * @template E
  * @type {LinkedList<E>}
  */
-class LinkedList {
+export default class LinkedList {
 	/** @type {Node<E>} */
 	#head = null;
 	/** @type {Node<E>} */
@@ -388,5 +388,3 @@ class LinkedList {
 		return value;
 	}
 }
-
-export default LinkedList;

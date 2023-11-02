@@ -1,42 +1,48 @@
 {
   "name": "@d1g1tal/collections",
-  "version": "0.2.4",
+  "version": "0.2.5",
+  "author": "Jason DiMeo",
+  "license": "ISC",
   "description": "JavaScript Collections ES Modules",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/D1g1talEntr0py/collections.git"
+  },
+  "bugs": {
+    "url": "https://github.com/D1g1talEntr0py/collections/issues"
+  },
+  "keywords": [
+    "Collections",
+    "ESModules"
+  ],
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./*": "./src/*"
+    "./*.js": "./src/*.js",
+    "./dist/*.js": "./dist/*.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "files": [
     "/src",
+    "/dist",
     "index.js"
   ],
   "scripts": {
+    "build": "node ./esbuild.js",
     "lint": "eslint --ext .js --fix --ignore-path .gitignore .",
     "test": "node --no-warnings --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/D1g1talEntr0py/collections.git"
-  },
-  "keywords": [
-    "Collections",
-    "ESModules"
-  ],
-  "author": "Jason DiMeo",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/D1g1talEntr0py/collections/issues"
-  },
   "homepage": "https://github.com/D1g1talEntr0py/collections#readme",
+  "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c",
   "devDependencies": {
     "benchmark": "^2.1.4",
-    "eslint": "^8.49.0",
+    "esbuild": "^0.19.5",
+    "esbuild-library": "^1.0.1",
+    "eslint": "^8.52.0",
     "eslint-plugin-compat": "^4.2.0",
-    "eslint-plugin-jsdoc": "^46.6.0",
+    "eslint-plugin-jsdoc": "^46.8.2",
     "jest": "^29.7.0",
     "microtime": "^3.1.1"
   },
@@ -46,8 +52,7 @@
     "not op_mini all"
   ],
   "engines": {
-    "node": ">=16.20.0",
-    "pnpm": ">=8.8.0"
+    "node": ">=16.20.0"
   },
   "jest": {
     "verbose": true,
