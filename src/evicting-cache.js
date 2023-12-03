@@ -3,6 +3,7 @@ import LinkedMap from './linked-map.js';
 /**
  * JavaScript implementation of a Least Recently Used(LRU) Cache using a doubly linked list.
  *
+ * @deprecated Use the npm package `evicting-cache` instead.
  * @template K
  * @template V
  * @type {EvictingCache<K, V>}
@@ -59,11 +60,6 @@ export default class EvictingCache {
 		this.#put(key, value);
 	}
 
-	#put(key, value) {
-		this.#cache.addFirst(key, value);
-		if (this.#cache.size > this.#capacity) { this.evict() }
-	}
-
 	/**
 	 * Returns the value for the key if it exists in the cache. If not, put the key-value pair into the cache and return the value.
 	 * @param {K} key The key.
@@ -71,13 +67,7 @@ export default class EvictingCache {
 	 * @returns {V} The value corresponding to the key.
 	 */
 	getOrPut(key, producer) {
-		const value = this.get(key);
-		if (value) { return value }
-
-		const newValue = producer();
-		this.#put(key, newValue);
-
-		return newValue;
+		return this.get(key) ?? this.#put(key, producer());
 	}
 
 	/**
@@ -86,7 +76,7 @@ export default class EvictingCache {
 	 * @returns {boolean} True if an item was removed, false otherwise.
 	 */
 	evict() {
-		return this.#cache.size === 0 ? false : this.#cache.removeLast();
+		return this.#cache.size ? this.#cache.removeLast() : false;
 	}
 
 	/**
@@ -132,5 +122,12 @@ export default class EvictingCache {
 	 */
 	get [Symbol.toStringTag]() {
 		return 'EvictingCache';
+	}
+
+	#put(key, value) {
+		this.#cache.addFirst(key, value);
+		if (this.#cache.size > this.#capacity) { this.evict() }
+
+		return value;
 	}
 }

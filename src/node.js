@@ -90,13 +90,9 @@ export default class Node {
 	 * @returns {void}
 	 */
 	unlink() {
-		if (this.#previous != null) {
-			this.#previous.next = this.#next;
-		}
+		if (this.#previous !== null) { this.#previous.next = this.#next }
 
-		if (this.#next != null) {
-			this.#next.previous = this.#previous;
-		}
+		if (this.#next !== null) { this.#next.previous = this.#previous }
 
 		this.#previous = this.#next = null;
 	}

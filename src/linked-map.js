@@ -211,9 +211,7 @@ export default class LinkedMap {
 	 * @returns {void}
 	 */
 	forEach(callback, thisArg = this) {
-		for (let [key, value] of this) {
-			callback.call(thisArg, value, key, this);
-		}
+		for (let [ key, value ] of this) { callback.call(thisArg, value, key, this) }
 	}
 
 	/**
@@ -234,9 +232,7 @@ export default class LinkedMap {
 	 * @yields {K} An iterator for the keys in the map.
 	 */
 	*keys() {
-		for (let [key] of this) {
-			yield key;
-		}
+		for (let [ key ] of this) { yield key }
 	}
 
 	/**
@@ -245,9 +241,7 @@ export default class LinkedMap {
 	 * @yields {V} An iterator for the values in the map.
 	 */
 	*values() {
-		for (let [, value] of this) {
-			yield value;
-		}
+		for (let [ , value ] of this) { yield value	}
 	}
 
 	/**
@@ -256,9 +250,7 @@ export default class LinkedMap {
 	 * @yields {[K, V]} An iterator for the key-value pairs in the map.
 	 */
 	*entries() {
-		for (let node = this.#head; node !== null; node = node.next) {
-			yield [node.key, node.value];
-		}
+		for (let node = this.#head; node !== null; node = node.next) { yield [ node.key, node.value ] }
 	}
 
 	/**
