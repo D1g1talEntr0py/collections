@@ -42,7 +42,7 @@ export default class LinkedMap {
 	set(key, value) {
 		const node = this.#map.get(key);
 
-		if (node) {
+		if (node !== undefined) {
 			node.value = value;
 			this.#moveToLast(node);
 		} else {
@@ -75,7 +75,7 @@ export default class LinkedMap {
 	addFirst(key, value) {
 		const node = this.#map.get(key);
 
-		if (node) {
+		if (node !== undefined) {
 			this.#moveToFirst(node);
 			node.value = value;
 		} else {
@@ -98,7 +98,7 @@ export default class LinkedMap {
 	addLast(key, value) {
 		const node = this.#map.get(key);
 
-		if (node) {
+		if (node !== undefined) {
 			this.#moveToLast(node);
 			node.value = value;
 		} else {
