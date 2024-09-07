@@ -1,20 +1,7 @@
-import List from './list.js';
+import { List } from './list';
 
-/**
- * @template K
- * @template V
- * @typedef {Map<K, List<V>>} MultiMap
- * @extends Map
- */
-
-/**
- * A {@link Map} that can contain multiple values for the same key.
- *
- * @template K
- * @template V
- * @type {MultiMap<K, V>}
- */
-export default class MultiMap extends Map {
+/** A {@link Map} that can contain multiple values for the same key */
+export class MultiMap<K, V> extends Map<K, List<V>> {
 	/**
 	 * Adds a new element with a specified key and value to the MultiMap.
 	 * If an element with the same key already exists, the value will be added to the underlying {@link List}.
@@ -24,13 +11,14 @@ export default class MultiMap extends Map {
 	 * @param {V} value The value to add to the MultiMap
 	 * @returns {MultiMap<K, V>} The MultiMap with the updated key and value.
 	 */
-	set(key, value) {
+	// @ts-expect-error I am overriding the set method from the Map class
+	override set(key: K, value: V): MultiMap<K, V> {
 		super.set(key, (this.get(key) ?? new List()).add(value));
 
 		return this;
 	}
 
-	get [Symbol.toStringTag]() {
+	override get [Symbol.toStringTag]() {
 		return 'MultiMap';
 	}
 }

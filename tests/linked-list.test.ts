@@ -1,8 +1,8 @@
-import LinkedList from '../src/linked-list.js';
-import { beforeEach, describe, expect, it } from '@jest/globals';
+import { LinkedList } from '../src/linked-list.js';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('Doubly LinkedList', () => {
-	let list;
+	let list: LinkedList<number>;
 
 	beforeEach(() => {
 		list = new LinkedList(LinkedList.Type.Doubly);
@@ -271,7 +271,7 @@ describe('Doubly LinkedList', () => {
 		it('iterates over the list', () => {
 			const values = [1, 2, 3];
 			values.forEach(v => list.addLast(v));
-			const result = [];
+			const result: number[] = [];
 			list.forEach(v => result.push(v));
 			expect(result).toEqual(values);
 		});
@@ -311,7 +311,7 @@ describe('Doubly LinkedList', () => {
 });
 
 describe('Singly LinkedList', () => {
-	let list;
+	let list: LinkedList<number>;
 
 	beforeEach(() => {
 		list = new LinkedList(LinkedList.Type.Singly);
@@ -324,11 +324,21 @@ describe('Singly LinkedList', () => {
 		});
 	});
 
-	describe('addFirst', () => {
-		it('adds an element at the start of the list', () => {
+	describe('addFirst method', () => {
+		it('should add an element to the start of an empty list', () => {
+			const list = new LinkedList<number>();
 			list.addFirst(1);
-			expect(list.getFirst()).toBe(1);
-			expect(list.size).toBe(1);
+			expect(list.getFirst()).toEqual(1);
+			expect(list.getLast()).toEqual(1);
+			expect(list.size).toEqual(1);
+		});
+
+		it('should add an element to the start of a doubly linked list', () => {
+			const list = new LinkedList<number>(LinkedList.Type.Doubly);
+			list.addFirst(1);
+			list.addFirst(2);
+			expect(list.getFirst()).toEqual(2);
+			expect(list.getLast()).toEqual(1);
 		});
 	});
 
@@ -371,6 +381,10 @@ describe('Singly LinkedList', () => {
 			list.addLast(2);
 			expect(list.removeLast()).toBe(2);
 			expect(list.getLast()).toBe(1);
+		});
+
+		it('Returns null when the list is empty', () => {
+			expect(list.removeLast()).toBeNull();
 		});
 	});
 
@@ -459,12 +473,6 @@ describe('Singly LinkedList', () => {
 		});
 	});
 
-	describe('reversedValues', () => {
-		it('throws an error if reversedValues is called on a singly linked list', () => {
-			expect(() => Array.from(list.reversedValues())).toThrowError();
-		});
-	});
-
 	describe('#clear', () => {
 		it('clears the list', () => {
 			list.addLast(1);
@@ -493,8 +501,8 @@ describe('Singly LinkedList', () => {
 		it('iterates over the list', () => {
 			const values = [1, 2, 3];
 			values.forEach(v => list.addLast(v));
-			const result = [];
-			list.forEach(v => result.push(v));
+			const result: number[] = [];
+			list.forEach((v: number) => result.push(v));
 			expect(result).toEqual(values);
 		});
 	});
@@ -537,371 +545,3 @@ describe('Symbol.toStringTag', () => {
 		expect(Object.prototype.toString.call(new LinkedList())).toBe('[object LinkedList]');
 	});
 });
-
-
-
-// describe('LinkedList (Singly)', () => {
-// 	describe('addFirst', () => {
-// 		it('should add the value as the head of an empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addFirst('Value 1');
-
-// 			expect(list.getFirst()).toBe('Value 1');
-// 			expect(list.getLast()).toBe('Value 1');
-// 			expect(list.size).toBe(1);
-// 		});
-
-// 		it('should add the value as the head of a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addFirst('Value 1');
-// 			list.addFirst('Value 2');
-
-// 			expect(list.getFirst()).toBe('Value 2');
-// 			expect(list.getLast()).toBe('Value 1');
-// 			expect(list.size).toBe(2);
-// 		});
-// 	});
-
-// 	describe('addLast', () => {
-// 		it('should add the value as the tail of an empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-
-// 			expect(list.getFirst()).toBe('Value 1');
-// 			expect(list.getLast()).toBe('Value 1');
-// 			expect(list.size).toBe(1);
-// 		});
-
-// 		it('should add the value as the tail of a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			expect(list.getFirst()).toBe('Value 1');
-// 			expect(list.getLast()).toBe('Value 2');
-// 			expect(list.size).toBe(2);
-// 		});
-// 	});
-
-// 	describe('removeFirst', () => {
-// 		it('should remove and return the head value from a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const removedValue = list.removeFirst();
-
-// 			expect(removedValue).toBe('Value 1');
-// 			expect(list.getFirst()).toBe('Value 2');
-// 			expect(list.getLast()).toBe('Value 2');
-// 			expect(list.size).toBe(1);
-// 		});
-
-// 		it('should return undefined if the list is empty', () => {
-// 			const list = new LinkedList();
-
-// 			const removedValue = list.removeFirst();
-
-// 			expect(removedValue).toBeUndefined();
-// 			expect(list.size).toBe(0);
-// 		});
-// 	});
-
-// 	describe('removeLast', () => {
-// 		it.only('should remove and return the tail value from a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const removedValue = list.removeLast();
-
-// 			expect(removedValue).toBe('Value 2');
-// 			expect(list.getFirst()).toBe('Value 1');
-// 			expect(list.getLast()).toBe('Value 1');
-// 			expect(list.size).toBe(1);
-// 		});
-
-// 		it('should return undefined if the list is empty', () => {
-// 			const list = new LinkedList();
-
-// 			const removedValue = list.removeLast();
-
-// 			expect(removedValue).toBeUndefined();
-// 			expect(list.size).toBe(0);
-// 		});
-// 	});
-
-// 	describe('remove', () => {
-// 		it('should remove and return the value from the list if it exists', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const removedValue = list.remove('Value 2');
-
-// 			expect(removedValue).toBe('Value 2');
-// 			expect(list.getFirst()).toBe('Value 1');
-// 			expect(list.getLast()).toBe('Value 3');
-// 			expect(list.size).toBe(2);
-// 		});
-
-// 		it('should return undefined if the value does not exist in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const removedValue = list.remove('Value 3');
-
-// 			expect(removedValue).toBeUndefined();
-// 			expect(list.size).toBe(2);
-// 		});
-// 	});
-
-// 	describe('contains', () => {
-// 		it('should return true if the value exists in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const containsValue = list.contains('Value 2');
-
-// 			expect(containsValue).toBe(true);
-// 		});
-
-// 		it('should return false if the value does not exist in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const containsValue = list.contains('Value 3');
-
-// 			expect(containsValue).toBe(false);
-// 		});
-// 	});
-
-// 	describe('insert', () => {
-// 		it('should insert the value at the specified index in a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			list.insert(1, 'Value 1.5');
-
-// 			expect(list.toArray()).toEqual(['Value 1', 'Value 1.5', 'Value 2']);
-// 			expect(list.size).toBe(3);
-// 		});
-
-// 		it('should insert the value at the specified index in an empty list', () => {
-// 			const list = new LinkedList();
-
-// 			list.insert(0, 'Value 1');
-
-// 			expect(list.toArray()).toEqual(['Value 1']);
-// 			expect(list.size).toBe(1);
-// 		});
-
-// 		it('should throw an error if the index is out of bounds', () => {
-// 			const list = new LinkedList();
-
-// 			expect(() => {
-// 				list.insert(2, 'Value 1');
-// 			}).toThrowError('Index out of bounds: 2');
-// 		});
-// 	});
-
-// 	describe('toArray', () => {
-// 		it('should convert the list to an array', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const arr = list.toArray();
-
-// 			expect(arr).toEqual(['Value 1', 'Value 2', 'Value 3']);
-// 		});
-
-// 		it('should return an empty array for an empty list', () => {
-// 			const list = new LinkedList();
-
-// 			const arr = list.toArray();
-
-// 			expect(arr).toEqual([]);
-// 		});
-// 	});
-
-// 	describe('reverse', () => {
-// 		it('should reverse the list in place', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			list.reverse();
-
-// 			expect(list.toArray()).toEqual(['Value 3', 'Value 2', 'Value 1']);
-// 		});
-
-// 		it('should reverse an empty list without any changes', () => {
-// 			const list = new LinkedList();
-
-// 			list.reverse();
-
-// 			expect(list.toArray()).toEqual([]);
-// 		});
-// 	});
-
-// 	describe('get', () => {
-// 		it('should get the value at the specified index in a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const value = list.get(1);
-
-// 			expect(value).toBe('Value 2');
-// 		});
-
-// 		it('should return null if the index is out of bounds in a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const value = list.get(2);
-
-// 			expect(value).toBeUndefined();
-// 		});
-
-// 		it('should return null if the index is out of bounds in an empty list', () => {
-// 			const list = new LinkedList();
-
-// 			const value = list.get(0);
-
-// 			expect(value).toBeUndefined();
-// 		});
-// 	});
-
-// 	describe('set', () => {
-// 		it('should set the value at the specified index in a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const result = list.set(1, 'Value 2.5');
-
-// 			expect(result).toBe(true);
-// 			expect(list.get(1)).toBe('Value 2.5');
-// 		});
-
-// 		it('should throw an error if the index is out of bounds', () => {
-// 			const list = new LinkedList();
-
-// 			expect(() => {
-// 				list.set(1, 'Value 1');
-// 			}).toThrowError('Index out of bounds: 1');
-// 		});
-// 	});
-
-// 	describe('forEach', () => {
-// 		it('should execute the callback function for each value in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const callback = jest.fn();
-// 			list.forEach(callback);
-
-// 			expect(callback).toHaveBeenCalledTimes(3);
-// 			expect(callback).toHaveBeenCalledWith('Value 1', 0, list);
-// 			expect(callback).toHaveBeenCalledWith('Value 2', 1, list);
-// 			expect(callback).toHaveBeenCalledWith('Value 3', 2, list);
-// 		});
-
-// 		it('should execute the callback function with the provided context', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-
-// 			const context = { count: 0 };
-// 			const callback = function (value) {
-// 				this.count++;
-// 				console.log(value);
-// 			};
-// 			list.forEach(callback, context);
-
-// 			expect(context.count).toBe(2);
-// 		});
-// 	});
-
-// 	describe('values', () => {
-// 		it('should return an iterator of the values in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const iterator = list.values();
-// 			const result = Array.from(iterator);
-
-// 			expect(result).toEqual(['Value 1', 'Value 2', 'Value 3']);
-// 		});
-// 	});
-
-// 	describe('size', () => {
-// 		it('should return the number of elements in the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			const size = list.size;
-
-// 			expect(size).toBe(3);
-// 		});
-
-// 		it('should return 0 for an empty list', () => {
-// 			const list = new LinkedList();
-
-// 			const size = list.size;
-
-// 			expect(size).toBe(0);
-// 		});
-// 	});
-
-// 	describe('isEmpty', () => {
-// 		it('should return true for an empty list', () => {
-// 			const list = new LinkedList();
-
-// 			const isEmpty = list.isEmpty();
-
-// 			expect(isEmpty).toBe(true);
-// 		});
-
-// 		it('should return false for a non-empty list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-
-// 			const isEmpty = list.isEmpty();
-
-// 			expect(isEmpty).toBe(false);
-// 		});
-// 	});
-
-// 	describe('clear', () => {
-// 		it('should remove all elements from the list', () => {
-// 			const list = new LinkedList();
-// 			list.addLast('Value 1');
-// 			list.addLast('Value 2');
-// 			list.addLast('Value 3');
-
-// 			list.clear();
-
-// 			expect(list.toArray()).toEqual([]);
-// 			expect(list.size).toBe(0);
-// 		});
-// 	});
-// });

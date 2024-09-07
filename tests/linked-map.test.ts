@@ -1,8 +1,8 @@
-import LinkedMap from '../src/linked-map.js';
-import { jest, describe, beforeEach, expect, it } from '@jest/globals';
+import { LinkedMap } from '../src/linked-map.js';
+import { vi, describe, beforeEach, expect, it } from 'vitest';
 
 describe('LinkedMap', () => {
-	let linkedMap;
+	let linkedMap: LinkedMap<string, string>;
 
 	beforeEach(() => {
 		linkedMap = new LinkedMap();
@@ -225,6 +225,7 @@ describe('LinkedMap', () => {
 
 			expect(linkedMap.remove('key1')).toBe(true);
 			expect(linkedMap.has('key1')).toBe(false);
+			expect(linkedMap.remove(null)).toBe(false);
 			expect(linkedMap.size).toBe(1);
 		});
 
@@ -355,7 +356,7 @@ describe('LinkedMap', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			const callback = jest.fn();
+			const callback = vi.fn();
 			linkedMap.forEach(callback);
 
 			expect(callback).toHaveBeenCalledTimes(2);
@@ -367,7 +368,7 @@ describe('LinkedMap', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			const callback = jest.fn();
+			const callback = vi.fn();
 			const thisArg = {};
 
 			linkedMap.forEach(callback, thisArg);

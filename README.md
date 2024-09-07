@@ -1,6 +1,13 @@
 # collections
 JavaScript Collections and Data Structures
 
+[![Build Status](https://travis-ci.org/d1g1tal/collections.svg?branch=master)](https://travis-ci.org/d1g1tal/collections)
+[![Coverage Status](https://coveralls.io/repos/github/d1g1tal/collections/badge.svg?branch=master)](https://coveralls.io/github/d1g1tal/collections?branch=master)
+[![npm version](https://badge.fury.io/js/%40d1g1tal%2Fcollections.svg)](https://badge.fury.io/js/%40d1g1tal%2Fcollections)
+
+## Breaking Changes!
+To my tens of users, I recently decided to learn TypeScript and I wanted to rewrite this library in TypeScript. The `EvictingCache` class has been removed as it is its own [library](https://github.com/D1g1talEntr0py/evicting-cache) now. I have also decided to change the way the classes are imported. Named exports are used now instead of default. Also, testing is now done using Vitest instead of Jest.
+
 This is a collection of JavaScript data structures and algorithms. The goal is to provide a comprehensive set of data structures and algorithms that can be used in JavaScript programs.
 
 ## Installation

@@ -1,36 +1,26 @@
-import KeyedNode from './keyed-node.js';
+import { KeyedNode } from './keyed-node';
 
-/**
- * A Map that maintains insertion order.
- *
- * @template K
- * @template V
- * @type {LinkedMap<K, V>}
- * @module {LinkedMap} linked-map
- */
-export default class LinkedMap {
-	/** @type {Map<K, KeyedNode<K, V>>} */
-	#map;
-	/** @type {KeyedNode<K, V>} */
-	#head = null;
-	/** @type {KeyedNode<K, V>} */
-	#tail = null;
+/** A Map that maintains insertion order. */
+export class LinkedMap<K, V> {
+	private readonly $map: Map<K, KeyedNode<K, V>>;
+	private $head: KeyedNode<K, V> | null = null;
+	private $tail: KeyedNode<K, V> | null = null;
 
 	/**
 	 * Initializes an empty LinkedMap.
 	 */
 	constructor() {
-		this.#map = new Map();
+		this.$map = new Map();
 	}
 
 	/**
 	 * Retrieves the value associated with a given key.
 	 *
 	 * @param {K} key The key to retrieve.
-	 * @returns {V|undefined} The value associated with the key, or undefined if the key is not in the map.
+	 * @returns {V | undefined} The value associated with the key, or undefined if the key is not in the map.
 	 */
-	get(key) {
-		return this.#map.get(key)?.value;
+	get(key: K): V | undefined {
+		return this.$map.get(key)?.value;
 	}
 
 	/**
@@ -39,14 +29,14 @@ export default class LinkedMap {
 	 * @param {K} key The key with which the specified value is to be associated.
 	 * @param {V} value The value to be associated with the specified key.
 	 */
-	set(key, value) {
-		const node = this.#map.get(key);
+	set(key: K, value: V): void {
+		const node = this.$map.get(key);
 
 		if (node !== undefined) {
 			node.value = value;
-			this.#moveToLast(node);
+			this.$moveToLast(node);
 		} else {
-			this.#appendNewNode(key, value);
+			this.appendNewNode(key, value);
 		}
 	}
 
@@ -56,8 +46,9 @@ export default class LinkedMap {
 	 * @param {K} key The key whose mapping is to be removed from the map.
 	 * @returns {boolean} True if the map contained a mapping for the specified key, false otherwise.
 	 */
-	remove(key) {
-		return this.#unlinkNode(this.#map.get(key)) ? this.#map.delete(key) : false;
+	remove(key: K | null): boolean {
+		if (key === null) { return false }
+		return this.unlinkNode(this.$map.get(key)) ? this.$map.delete(key) : false;
 	}
 
 	/**
@@ -72,14 +63,14 @@ export default class LinkedMap {
 	 * @param {V} value The value of the new node.
 	 * @returns {void}
 	 */
-	addFirst(key, value) {
-		const node = this.#map.get(key);
+	addFirst(key: K, value: V): void {
+		const node = this.$map.get(key);
 
 		if (node !== undefined) {
-			this.#moveToFirst(node);
+			this.$moveToFirst(node);
 			node.value = value;
 		} else {
-			this.#prependNewNode(key, value);
+			this.prependNewNode(key, value);
 		}
 	}
 
@@ -95,14 +86,14 @@ export default class LinkedMap {
 	 * @param {V} value The value of the new node.
 	 * @returns {void}
 	 */
-	addLast(key, value) {
-		const node = this.#map.get(key);
+	addLast(key: K, value: V): void {
+		const node = this.$map.get(key);
 
 		if (node !== undefined) {
-			this.#moveToLast(node);
+			this.$moveToLast(node);
 			node.value = value;
 		} else {
-			this.#appendNewNode(key, value);
+			this.appendNewNode(key, value);
 		}
 	}
 
@@ -122,8 +113,8 @@ export default class LinkedMap {
 	 * @param {K} key The key of the node to move to the beginning of the list.
 	 * @returns {void}
 	 */
-	moveToFirst(key) {
-		this.#moveToFirst(this.#map.get(key));
+	moveToFirst(key: K): void {
+		this.$moveToFirst(this.$map.get(key));
 	}
 
 	/**
@@ -141,8 +132,8 @@ export default class LinkedMap {
 	 * @param {K} key The key of the node to move to the end of the list.
 	 * @returns {void}
 	 */
-	moveToLast(key) {
-		this.#moveToLast(this.#map.get(key));
+	moveToLast(key: K): void {
+		this.$moveToLast(this.$map.get(key));
 	}
 
 	/**
@@ -150,8 +141,8 @@ export default class LinkedMap {
 	 *
 	 * @returns {V|null} The value to which the first key is mapped, or null if this map contains no mappings.
 	 */
-	getFirst() {
-		return this.#head?.value ?? null;
+	getFirst(): V | null {
+		return this.$head?.value ?? null;
 	}
 
 	/**
@@ -159,8 +150,8 @@ export default class LinkedMap {
 	 *
 	 * @returns {V|null} The value to which the last key is mapped, or null if this map contains no mappings.
 	 */
-	getLast() {
-		return this.#tail?.value ?? null;
+	getLast(): V | null {
+		return this.$tail?.value ?? null;
 	}
 
 	/**
@@ -173,8 +164,8 @@ export default class LinkedMap {
 	 *
 	 * @returns {boolean} True if the first key and its corresponding value were removed, false otherwise.
 	 */
-	removeFirst() {
-		return this.#head === null ? false : this.remove(this.#head.key);
+	removeFirst(): boolean {
+		return this.$head === null ? false : this.remove(this.$head.key);
 	}
 
 	/**
@@ -189,8 +180,8 @@ export default class LinkedMap {
 	 *
 	 * @returns {boolean} True if the last key and its corresponding value were removed, false otherwise.
 	 */
-	removeLast() {
-		return this.#tail === null ? false : this.remove(this.#tail.key);
+	removeLast(): boolean {
+		return this.$tail === null ? false : this.remove(this.$tail.key);
 	}
 
 	/**
@@ -199,8 +190,8 @@ export default class LinkedMap {
 	 * @param {K} key The key to check.
 	 * @returns {boolean} True if the map contains the key, false otherwise.
 	 */
-	has(key) {
-		return this.#map.has(key);
+	has(key: K): boolean {
+		return this.$map.has(key);
 	}
 
 	/**
@@ -210,20 +201,20 @@ export default class LinkedMap {
 	 * @param {any} [thisArg=this] - Value to use as `this` when executing the callback.
 	 * @returns {void}
 	 */
-	forEach(callback, thisArg = this) {
-		for (let [ key, value ] of this) { callback.call(thisArg, value, key, this) }
+	forEach(callback: (value: V, key: K, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this): void {
+		for (const [ key, value ] of this) { callback.call(thisArg, value as V, key as K, this) }
 	}
 
 	/**
 	 * Removes all of the mappings from this map. The map will be empty after this call returns.
 	 */
-	clear() {
-		this.#map.clear();
-		this.#head = this.#tail = null;
+	clear(): void {
+		this.$map.clear();
+		this.$head = this.$tail = null;
 	}
 
-	get size() {
-		return this.#map.size;
+	get size(): number {
+		return this.$map.size;
 	}
 
 	/**
@@ -231,8 +222,8 @@ export default class LinkedMap {
 	 *
 	 * @yields {K} An iterator for the keys in the map.
 	 */
-	*keys() {
-		for (let [ key ] of this) { yield key }
+	*keys(): Generator<K | null, void, unknown> {
+		for (const [ key ] of this) { yield key }
 	}
 
 	/**
@@ -240,8 +231,8 @@ export default class LinkedMap {
 	 *
 	 * @yields {V} An iterator for the values in the map.
 	 */
-	*values() {
-		for (let [ , value ] of this) { yield value	}
+	*values(): Generator<V | null, void, unknown> {
+		for (const [ _key , value ] of this) { yield value }
 	}
 
 	/**
@@ -249,8 +240,8 @@ export default class LinkedMap {
 	 *
 	 * @yields {[K, V]} An iterator for the key-value pairs in the map.
 	 */
-	*entries() {
-		for (let node = this.#head; node !== null; node = node.next) { yield [ node.key, node.value ] }
+	*entries(): Generator<[K | null,  V | null], void, unknown> {
+		yield* this;
 	}
 
 	/**
@@ -258,8 +249,8 @@ export default class LinkedMap {
 	 *
 	 * @yields {[K, V]} An iterator for the key-value pairs in the map.
 	 */
-	*[Symbol.iterator]() {
-		yield* this.entries();
+	*[Symbol.iterator](): Generator<[K | null,  V | null], void, unknown> {
+		for (let node = this.$head; node !== null; node = node.next) { yield [ node.key, node.value ] }
 	}
 
 	/**
@@ -267,7 +258,7 @@ export default class LinkedMap {
 	 *
 	 * @returns {string} A string description of the class.
 	 */
-	get [Symbol.toStringTag]() {
+	get [Symbol.toStringTag](): string {
 		return 'LinkedMap';
 	}
 
@@ -286,21 +277,21 @@ export default class LinkedMap {
 	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
 	 * @returns {boolean} True if the node was moved to the end of the list, false otherwise.
 	 */
-	#unlinkNode(node) {
+	private unlinkNode(node?: KeyedNode<K, V>): boolean {
 		if (node === undefined) { return false }
 
 		// Handle previous node
 		if (node.previous !== null) {
 			node.previous.next = node.next;
 		} else {
-			this.#head = node.next;
+			this.$head = node.next;
 		}
 
 		// Handle next node
 		if (node.next !== null) {
 			node.next.previous = node.previous;
 		} else {
-			this.#tail = node.previous;
+			this.$tail = node.previous;
 		}
 
 		// Clean up the removed node's pointers
@@ -324,17 +315,17 @@ export default class LinkedMap {
 	 * @param {V} value The value of the node to add.
 	 * @returns {void}
 	 */
-	#prependNewNode(key, value) {
+	private prependNewNode(key: K, value: V): void {
 		const newNode = new KeyedNode({ key, value });
 
-		this.#map.set(key, newNode);
+		this.$map.set(key, newNode);
 
-		if (this.#head === null) {
-			this.#head = this.#tail = newNode;
+		if (this.$head === null) {
+			this.$head = this.$tail = newNode;
 		} else {
-			newNode.next = this.#head;
-			this.#head.previous = newNode;
-			this.#head = newNode;
+			newNode.next = this.$head;
+			this.$head.previous = newNode;
+			this.$head = newNode;
 		}
 	}
 
@@ -352,17 +343,17 @@ export default class LinkedMap {
 	 * @param {V} value The value of the node to add.
 	 * @returns {void}
 	 */
-	#appendNewNode(key, value) {
+	private appendNewNode(key: K, value: V): void {
 		const newNode = new KeyedNode({ key, value });
 
-		this.#map.set(key, newNode);
+		this.$map.set(key, newNode);
 
-		if (this.#head === null) {
-			this.#head = this.#tail = newNode;
+		if (this.$head === null) {
+			this.$head = this.$tail = newNode;
 		} else {
-			newNode.previous = this.#tail;
-			this.#tail.next = newNode;
-			this.#tail = newNode;
+			newNode.previous = this.$tail;
+			this.$tail!.next = newNode;
+			this.$tail = newNode;
 		}
 	}
 
@@ -381,15 +372,15 @@ export default class LinkedMap {
 	 * @param {KeyedNode<K, V>} node The node to move to the beginning of the list.
 	 * @returns {void}
 	 */
-	#moveToFirst(node) {
-		if (node === undefined || node === this.#head) { return }
+	private $moveToFirst(node?: KeyedNode<K, V>): void {
+		if (node === undefined || node === this.$head) { return }
 
-		this.#unlinkNode(node);
+		this.unlinkNode(node);
 
 		// Add the node at the start
-		node.next = this.#head;
-		this.#head.previous = node;
-		this.#head = node;
+		node.next = this.$head;
+		this.$head!.previous = node;
+		this.$head = node;
 	}
 
 	/**
@@ -406,14 +397,14 @@ export default class LinkedMap {
 	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
 	 * @returns {void}
 	 */
-	#moveToLast(node) {
-		if (node === undefined || node === this.#tail) { return }
+	private $moveToLast(node?: KeyedNode<K, V>): void {
+		if (node === undefined || node === this.$tail) { return }
 
-		this.#unlinkNode(node);
+		this.unlinkNode(node);
 
 		// Add the node at the end
-		node.previous = this.#tail;
-		this.#tail.next = node;
-		this.#tail = node;
+		node.previous = this.$tail;
+		this.$tail!.next = node;
+		this.$tail = node;
 	}
 }

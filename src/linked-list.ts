@@ -1,11 +1,6 @@
-import Node from './node.js';
+import { Node } from './node';
 
-/**
- * @template E
- * @typedef {Iterable<E>} LinkedList<E>
- */
-
-/** @typedef {'singly'|'doubly'} LinkedListType */
+type LinkedListType = (typeof LinkedList.Type)[keyof typeof LinkedList.Type];
 
 /**
  * JavaScript implementation of a LinkedList.
@@ -13,25 +8,21 @@ import Node from './node.js';
  * @template E
  * @type {LinkedList<E>}
  */
-export default class LinkedList {
-	/** @type {Node<E>} */
-	#head = null;
-	/** @type {Node<E>} */
-	#tail = null;
-	/** @type {number} */
-	#size = 0;
-	/** @type {boolean} */
-	#doublyLinked;
-	/** @constant {Object<string, LinkedListType>} */
-	static Type = Object.freeze({ Singly: 'singly', Doubly: 'doubly' });
+export class LinkedList<E> {
+	private $head: Node<E> | null = null;
+	private $tail: Node<E> | null = null;
+	private $size: number = 0;
+	private $doublyLinked: boolean;
+
+	static Type = { Singly: 'singly', Doubly: 'doubly' } as const;
 
 	/**
 	 * Creates a new LinkedList.
 	 *
 	 * @param {LinkedListType} type The type of the list ('singly' or 'doubly' linked).
 	 */
-	constructor(type = LinkedList.Type.Singly) {
-		this.#doublyLinked = type == LinkedList.Type.Doubly;
+	constructor(type: LinkedListType = LinkedList.Type.Singly) {
+		this.$doublyLinked = type == LinkedList.Type.Doubly;
 	}
 
 	/**
@@ -40,14 +31,14 @@ export default class LinkedList {
 	 * @param {E} value The element to add.
 	 * @returns {void}
 	 */
-	addFirst(value) {
-		const node = new Node({ next: this.#head, value });
-		if (this.#doublyLinked && this.#head) { this.#head.previous = node }
+	addFirst(value: E): void {
+		const node = new Node({ next: this.$head, value });
+		if (this.$doublyLinked && this.$head) { this.$head.previous = node }
 
-		this.#head = node;
-		if (!this.#tail) { this.#tail = node }
+		this.$head = node;
+		if (!this.$tail) { this.$tail = node }
 
-		this.#size++;
+		this.$size++;
 	}
 
 	/**
@@ -56,14 +47,14 @@ export default class LinkedList {
 	 * @param {E} value The element to add.
 	 * @returns {void}
 	 */
-	addLast(value) {
-		const node = new Node({ value, previous: this.#doublyLinked ? this.#tail : null });
-		if (this.#tail) { this.#tail.next = node }
+	addLast(value: E): void {
+		const node = new Node({ value, previous: this.$doublyLinked ? this.$tail : null });
+		if (this.$tail) { this.$tail.next = node }
 
-		this.#tail = node;
-		if (!this.#head) { this.#head = node }
+		this.$tail = node;
+		if (!this.$head) { this.$head = node }
 
-		this.#size++;
+		this.$size++;
 	}
 
 	/**
@@ -71,8 +62,8 @@ export default class LinkedList {
 	 *
 	 * @returns {E|null} The first node in the list, or null if the list is empty.
 	 */
-	getFirst() {
-		return this.#head?.value ?? null;
+	getFirst(): E | null {
+		return this.$head?.value ?? null;
 	}
 
 	/**
@@ -80,26 +71,26 @@ export default class LinkedList {
 	 *
 	 * @returns {E|null} The last node in the list, or null if the list is empty.
 	 */
-	getLast() {
-		return this.#tail?.value ?? null;
+	getLast(): E | null {
+		return this.$tail?.value ?? null;
 	}
 
 	/**
 	 * Removes the first element from the list.
 	 *
-	 * @returns {E|null} The removed element, or null if the list was empty.
+	 * @returns {E | null} The removed element, or null if the list was empty.
 	 */
-	removeFirst() {
-		return this.#remove(this.#head);
+	removeFirst(): E | null {
+		return this.removeNode(this.$head);
 	}
 
 	/**
 	 * Removes the last element from the list.
 	 *
-	 * @returns {E|null} The removed element, or null if the list was empty.
+	 * @returns {E | null} The removed element, or null if the list was empty.
 	 */
-	removeLast() {
-		return this.#remove(this.#tail);
+	removeLast(): E | null {
+		return this.removeNode(this.$tail);
 	}
 
 	/**
@@ -108,9 +99,9 @@ export default class LinkedList {
 	 * @param {E} value The element to remove.
 	 * @returns {E|null} The removed element, or null if the element was not found.
 	 */
-	remove(value) {
-		for (let node = this.#head; node; node = node.next) {
-			if (node.value === value) {	return this.#remove(node) }
+	remove(value: E): E | null {
+		for (let node = this.$head; node; node = node.next) {
+			if (node.value === value) {	return this.removeNode(node) }
 		}
 
 		return null;
@@ -122,8 +113,8 @@ export default class LinkedList {
 	 * @param {number} index The index of the element to remove.
 	 * @returns {E|null} The removed element, or null if the index was out of bounds.
 	 */
-	get(index) {
-		return this.#getNodeAt(index)?.value ?? null;
+	get(index: number): E | null {
+		return this.getNodeAt(index)?.value ?? null;
 	}
 
 	/**
@@ -135,8 +126,8 @@ export default class LinkedList {
 	 * @returns {void}
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	set(index, value) {
-		const node = this.#getNodeAt(index);
+	set(index: number, value: E): void {
+		const node = this.getNodeAt(index);
 		if (!node) { throw new RangeError('Index out of bounds') }
 
 		node.value = value;
@@ -154,17 +145,18 @@ export default class LinkedList {
 	 * @returns {void}
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	insert(index, value) {
-		if (index < 0 || index > this.#size) { throw new RangeError('Index out of bounds') }
+	insert(index: number, value: E): void {
+		if (index < 0 || index > this.$size) { throw new RangeError('Index out of bounds') }
 
 		if (index === 0) {
 			this.addFirst(value);
-		} else if (index === this.#size) {
+		} else if (index === this.$size) {
 			this.addLast(value);
 		} else {
-			const prevNode = this.#getNodeAt(index - 1);
-			prevNode.next = new Node({ value, previous: this.#doublyLinked ? prevNode : null, next: prevNode.next });
-			this.#size++;
+			// TODO: Fix ! assertion
+			const prevNode = this.getNodeAt(index - 1)!;
+			prevNode.next = new Node({ value, previous: this.$doublyLinked ? prevNode : null, next: prevNode.next });
+			this.$size++;
 		}
 	}
 
@@ -174,8 +166,8 @@ export default class LinkedList {
 	 * @param {E} value The element to check for.
 	 * @returns {boolean} True if the list contains the element, false otherwise.
 	 */
-	contains(value) {
-		for (let node = this.#head; node; node = node.next) {
+	contains(value: E): boolean {
+		for (let node = this.$head; node; node = node.next) {
 			if (node.value === value) return true;
 		}
 
@@ -189,8 +181,8 @@ export default class LinkedList {
 	 *
 	 * @returns {void}
 	 */
-	reverse() {
-		let node = this.#head;
+	reverse(): void {
+		let node = this.$head;
 		let prev = null;
 
 		while (node) {
@@ -201,7 +193,7 @@ export default class LinkedList {
 			node = next;
 		}
 
-		[this.#head, this.#tail] = [this.#tail, this.#head];
+		[this.$head, this.$tail] = [this.$tail, this.$head];
 	}
 
 	/**
@@ -211,11 +203,11 @@ export default class LinkedList {
 	 *
 	 * @returns {void}
 	 */
-	clear() {
-		for (let node = this.#head; node; node = node.next) {	node.unlink() }
+	clear(): void {
+		for (let node = this.$head; node; node = node.next) {	node.unlink() }
 
-		this.#head = this.#tail = null;
-		this.#size = 0;
+		this.$head = this.$tail = null;
+		this.$size = 0;
 	}
 
 	/**
@@ -223,8 +215,8 @@ export default class LinkedList {
 	 *
 	 * @returns {boolean} True if the list is empty, false otherwise.
 	 */
-	isEmpty() {
-		return this.#size === 0;
+	isEmpty(): boolean {
+		return this.$size === 0;
 	}
 
 	/**
@@ -236,8 +228,8 @@ export default class LinkedList {
 	 * @param {E} value The value to search for.
 	 * @returns {number} The index of the value in the list, or -1 if the value is not found.
 	 */
-	indexOf(value) {
-		for (let index = 0, node = this.#head; node; node = node.next, index++) {
+	indexOf(value: E): number {
+		for (let index = 0, node = this.$head; node; node = node.next, index++) {
 			if (node.value === value) return index;
 		}
 
@@ -252,8 +244,8 @@ export default class LinkedList {
 	 * @param {Object} [context] The context to call the consumer function in.
 	 * @returns {void}
 	 */
-	forEach(consumer, context = this) {
-		for (let index = 0, node = this.#head; node; node = node.next, index++) {
+	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context: object = this): void {
+		for (let index = 0, node = this.$head; node; node = node.next, index++) {
 			consumer.call(context, node.value, index, this);
 		}
 	}
@@ -267,10 +259,8 @@ export default class LinkedList {
 	 *
 	 * @yields {Iterable<E>} An iterator over the values in the list.
 	 */
-	*values() {
-		for (let node = this.#head; node; node = node.next) {
-			yield node.value;
-		}
+	*values(): Generator<E, void, unknown> {
+		yield* this;
 	}
 
 	/**
@@ -279,8 +269,8 @@ export default class LinkedList {
 	 * @readonly
 	 * @returns {number} The size of the list.
 	 */
-	get size() {
-		return this.#size;
+	get size(): number {
+		return this.$size;
 	}
 
 	/**
@@ -292,7 +282,7 @@ export default class LinkedList {
 	 *
 	 * @returns {E[]} An array containing all the values in the list.
 	 */
-	toArray() {
+	toArray(): E[] {
 		return Array.from(this.values());
 	}
 
@@ -313,8 +303,10 @@ export default class LinkedList {
 	 * }
 	 * ````
 	 */
-	*[Symbol.iterator]() {
-		yield* this.values();
+	*[Symbol.iterator](): Generator<E, void, unknown> {
+		for (let node = this.$head; node; node = node.next) {
+			yield node.value;
+		}
 	}
 
 	/**
@@ -322,7 +314,7 @@ export default class LinkedList {
 	 *
 	 * @returns {string} A string description of the list.
 	 */
-	get [Symbol.toStringTag]() {
+	get [Symbol.toStringTag](): string {
 		return 'LinkedList';
 	}
 
@@ -334,19 +326,21 @@ export default class LinkedList {
 	 * @param {number} index The index of the node to get.
 	 * @returns {Node<E>} The node at the specified index, or null if the index is out of bounds.
 	 */
-	#getNodeAt(index) {
-		if (index < 0 || index >= this.#size) return null;
+	private getNodeAt(index: number): Node<E> | null {
+		if (index < 0 || index >= this.$size) { return null }
 
-		let node;
-		if (this.#doublyLinked && index >= this.#size / 2) {
-			node = this.#tail;
-			for (let i = this.#size - 1; i > index; i--) {
-				node = node.previous;
+		let node: Node<E> | null = null;
+		if (this.$doublyLinked && index >= this.$size / 2) {
+			node = this.$tail;
+			for (let i = this.$size - 1; i > index; i--) {
+				// TODO: Remove ugly TypeScript ! assertion
+				node = node!.previous;
 			}
 		} else {
-			node = this.#head;
+			node = this.$head;
 			for (let i = 0; i < index; i++) {
-				node = node.next;
+				// TODO: Remove ugly TypeScript ! assertion
+				node = node!.next;
 			}
 		}
 
@@ -360,30 +354,30 @@ export default class LinkedList {
 	 * @param {Node<E>} node The node to remove.
 	 * @returns {E} The value of the removed node.
 	 */
-	#remove(node) {
+	private removeNode(node: Node<E> | null): E | null {
+		if (node === null) { return null }
+
 		const value = node.value;
 
 		// If the node to be removed is the only node in the list
-		if (node === this.#head && node === this.#tail) {
-			this.#head = this.#tail = null;
+		if (node === this.$head && node === this.$tail) {
+			this.$head = this.$tail = null;
 		} else {
 			// Update head or tail reference and unlink the node
-			if (node === this.#head) {
-				this.#head = node.next;
-			} else if (node === this.#tail) {
-				this.#tail = this.#doublyLinked ? node.previous : null;
-				if (this.#tail) this.#tail.next = null;
+			if (node === this.$head) {
+				this.$head = node.next;
+			} else if (node === this.$tail) {
+				this.$tail = this.$doublyLinked ? node.previous : null;
+				if (this.$tail) this.$tail.next = null;
 			} else {
 				node.unlink();
 			}
 		}
 
-		this.#size--;
+		this.$size--;
 
 		// If there's only one node left, make sure head and tail point to it
-		if (this.#size === 1) {
-			this.#tail = this.#head;
-		}
+		if (this.$size === 1) { this.$tail = this.$head }
 
 		return value;
 	}

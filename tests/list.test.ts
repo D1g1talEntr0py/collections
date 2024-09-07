@@ -1,8 +1,8 @@
-import List from '../src/list.js';
-import { jest, describe, beforeEach, it, expect } from '@jest/globals';
+import { List } from '../src/list.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('List class', () => {
-	let list;
+	let list: List<number>;
 	const initialItems = [1, 2, 3];
 
 	beforeEach(() => {
@@ -147,7 +147,23 @@ describe('List class', () => {
 
 	describe('concat method', () => {
 		it('should return a new list with the items from both lists', () => {
-			const newList = list.concat([4, 5, 6]);
+			const newList = list.concat(new List([4, 5, 6]));
+			expect(newList.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		});
+
+		it('should return a new list with the items from both lists', () => {
+			const array = [4, 5, 6];
+			const newList = list.concat(...array);
+			expect(newList.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		});
+
+		it('should return a new list with the items from both lists', () => {
+			const newList = list.concat(4, 5, 6);
+			expect(newList.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
+		});
+
+		it('should return a new list with the items from both lists', () => {
+			const newList = list.concat(4, ...new List([5, 6]).values());
 			expect(newList.toArray()).toEqual([1, 2, 3, 4, 5, 6]);
 		});
 	});
@@ -263,7 +279,7 @@ describe('List class', () => {
 		});
 
 		it('should sort a list of strings in ascending order without providing a comparator function', () => {
-			list = new List(['c', 'a', 'b']);
+			const list = new List(['c', 'a', 'b']);
 			list.sort();
 			expect(list.toArray()).toEqual(['a', 'b', 'c']);
 		});
@@ -279,7 +295,7 @@ describe('List class', () => {
 
 	describe('forEach method', () => {
 		it('should call the callback for each item in the list', () => {
-			const callback = jest.fn();
+			const callback = vi.fn();
 			list.forEach(callback);
 			expect(callback).toHaveBeenCalledTimes(3);
 		});
@@ -304,6 +320,12 @@ describe('List class', () => {
 			expect(iterator.next().value).toEqual(1);
 			expect(iterator.next().value).toEqual(2);
 		});
+
+		it('should loop through the keys', () => {
+			for (const key of list.keys()) {
+				expect(key).toEqual(list.indexOf(list.get(key)!));
+			}
+		});
 	});
 
 	describe('*values method', () => {
@@ -313,6 +335,12 @@ describe('List class', () => {
 			expect(iterator.next().value).toEqual(2);
 			expect(iterator.next().value).toEqual(3);
 		});
+
+		it('should loop through the values', () => {
+			for (const value of list.values()) {
+				expect(list.contains(value));
+			}
+		});
 	});
 
 	describe('*entries method', () => {
@@ -321,6 +349,12 @@ describe('List class', () => {
 			expect(iterator.next().value).toEqual([0, 1]);
 			expect(iterator.next().value).toEqual([1, 2]);
 			expect(iterator.next().value).toEqual([2, 3]);
+		});
+
+		it('should loop through the entries', () => {
+			for (const [index, value] of list.entries()) {
+				expect(value).toEqual(list.get(index));
+			}
 		});
 	});
 

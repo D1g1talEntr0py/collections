@@ -1,8 +1,8 @@
-import Stack from '../src/stack.js';
-import { describe, expect, test } from '@jest/globals';
+import { Stack } from '../src/stack';
+import { beforeEach, describe, expect, test } from 'vitest';
 
 describe('Stack', () => {
-	let stack;
+	let stack: Stack<number>;
 
 	beforeEach(() => {
 		stack = new Stack();
