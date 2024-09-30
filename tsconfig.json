@@ -4,24 +4,27 @@
 		"strict": true,
 		"sourceMap": true,
 		"declaration": true,
-		"isolatedDeclarations": true,
+		"declarationMap": false,
+		"esModuleInterop": true,
 		"isolatedModules": true,
+		"isolatedDeclarations": true,
+		"importHelpers": true,
 		"useUnknownInCatchVariables": true,
 		"forceConsistentCasingInFileNames": true,
 		"verbatimModuleSyntax": true,
-		"noUncheckedIndexedAccess": true,
-		"skipLibCheck": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
 		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noUncheckedIndexedAccess": true,
+		"experimentalDecorators": false,
+		"emitDecoratorMetadata": false,
 		"target": "ESNext",
-		"module": "ESNext",
+		"module": "Preserve",
+		"moduleDetection": "force",
 		"moduleResolution": "Bundler",
 		"lib": [ "ESNext", "DOM" ]
 	},
-	"include": [ "./src/*.ts" ],
-	"tsbuild": {
-		"minify": false,
-		"splitting": false,
-		"bundle": false,
-		"entryPoints": { "src": "./src" }
-	}
+	"include": [ "src/" ],
+	"tsbuild": { "minify": true, "bundle": false }
 }

@@ -98,7 +98,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * @override
 	 * @returns {string} The string description of the class.
 	 */
-	get [Symbol.toStringTag](): string {
+	override get [Symbol.toStringTag](): string {
 		return 'KeyedNode';
 	}
 }
