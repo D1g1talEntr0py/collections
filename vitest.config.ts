@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from 'url';
+import { URL } from 'url';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -8,6 +8,6 @@ export default defineConfig({
 		outputFile: 'coverage/sonar-report.xml'
 	},
 	resolve: {
-		alias: [ { find: '@/', replacement: fileURLToPath(new URL('./', import.meta.url)) } ]
+		alias: { '@/': new URL('./', import.meta.url).pathname }
 	}
 });

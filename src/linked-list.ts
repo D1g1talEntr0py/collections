@@ -2,12 +2,7 @@ import { Node } from './node';
 
 type LinkedListType = (typeof LinkedList.Type)[keyof typeof LinkedList.Type];
 
-/**
- * JavaScript implementation of a LinkedList.
- *
- * @template E
- * @type {LinkedList<E>}
- */
+/** JavaScript implementation of a LinkedList */
 export class LinkedList<E> {
 	private $head: Node<E> | null = null;
 	private $tail: Node<E> | null = null;
@@ -18,8 +13,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Creates a new LinkedList.
-	 *
-	 * @param {LinkedListType} type The type of the list ('singly' or 'doubly' linked).
+	 * @param type The type of the list ('singly' or 'doubly' linked).
 	 */
 	constructor(type: LinkedListType = LinkedList.Type.Singly) {
 		this.$doublyLinked = type == LinkedList.Type.Doubly;
@@ -27,9 +21,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Adds an element to the start of the list.
-	 *
-	 * @param {E} value The element to add.
-	 * @returns {void}
+	 * @param value The element to add.
 	 */
 	addFirst(value: E): void {
 		const node = new Node({ next: this.$head, value });
@@ -43,9 +35,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Adds an element to the end of the list.
-	 *
-	 * @param {E} value The element to add.
-	 * @returns {void}
+	 * @param value The element to add.
 	 */
 	addLast(value: E): void {
 		const node = new Node({ value, previous: this.$doublyLinked ? this.$tail : null });
@@ -59,8 +49,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Gets the first node in the list.
-	 *
-	 * @returns {E|null} The first node in the list, or null if the list is empty.
+	 * @returns The first node in the list, or null if the list is empty.
 	 */
 	getFirst(): E | null {
 		return this.$head?.value ?? null;
@@ -68,8 +57,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Gets the last node in the list.
-	 *
-	 * @returns {E|null} The last node in the list, or null if the list is empty.
+	 * @returns The last node in the list, or null if the list is empty.
 	 */
 	getLast(): E | null {
 		return this.$tail?.value ?? null;
@@ -77,8 +65,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Removes the first element from the list.
-	 *
-	 * @returns {E | null} The removed element, or null if the list was empty.
+	 * @returns The removed element, or null if the list was empty.
 	 */
 	removeFirst(): E | null {
 		return this.removeNode(this.$head);
@@ -86,8 +73,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Removes the last element from the list.
-	 *
-	 * @returns {E | null} The removed element, or null if the list was empty.
+	 * @returns The removed element, or null if the list was empty.
 	 */
 	removeLast(): E | null {
 		return this.removeNode(this.$tail);
@@ -95,9 +81,8 @@ export class LinkedList<E> {
 
 	/**
 	 * Removes the first occurrence of an element from the list.
-	 *
-	 * @param {E} value The element to remove.
-	 * @returns {E|null} The removed element, or null if the element was not found.
+	 * @param value The element to remove.
+	 * @returns The removed element, or null if the element was not found.
 	 */
 	remove(value: E): E | null {
 		for (let node = this.$head; node; node = node.next) {
@@ -109,9 +94,8 @@ export class LinkedList<E> {
 
 	/**
 	 * Gets the value of the node at the specified index.
-	 *
-	 * @param {number} index The index of the element to remove.
-	 * @returns {E|null} The removed element, or null if the index was out of bounds.
+	 * @param index The index of the element to remove.
+	 * @returns The removed element, or null if the index was out of bounds.
 	 */
 	get(index: number): E | null {
 		return this.getNodeAt(index)?.value ?? null;
@@ -120,10 +104,8 @@ export class LinkedList<E> {
 	/**
 	 * Sets the value of the node at the specified index.
 	 * Replaces the value of the node at the specified index with the specified value.
-	 *
-	 * @param {number} index The index of the element to set.
-	 * @param {E} value The new value of the element.
-	 * @returns {void}
+	 * @param index The index of the element to set.
+	 * @param value The new value of the element.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
 	set(index: number, value: E): void {
@@ -139,10 +121,8 @@ export class LinkedList<E> {
 	 * If the index is equal to the size of the list, the element is added to the end of the list.
 	 * If the index is 0, the element is added to the start of the list.
 	 * Otherwise, the element is inserted at the specified index.
-	 *
-	 * @param {number} index The index at which to insert the element.
-	 * @param {E} value The element to insert.
-	 * @returns {void}
+	 * @param index The index at which to insert the element.
+	 * @param value The element to insert.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
 	insert(index: number, value: E): void {
@@ -162,9 +142,8 @@ export class LinkedList<E> {
 
 	/**
 	 * Checks if the list contains the specified element.
-	 *
-	 * @param {E} value The element to check for.
-	 * @returns {boolean} True if the list contains the element, false otherwise.
+	 * @param value The element to check for.
+	 * @returns True if the list contains the element, false otherwise.
 	 */
 	contains(value: E): boolean {
 		for (let node = this.$head; node; node = node.next) {
@@ -178,8 +157,6 @@ export class LinkedList<E> {
 	 * Reverses the list.
 	 * The first element becomes the last, and the last element becomes the first.
 	 * This method runs in linear time.
-	 *
-	 * @returns {void}
 	 */
 	reverse(): void {
 		let node = this.$head;
@@ -200,8 +177,6 @@ export class LinkedList<E> {
 	 * Removes all elements from the list.
 	 * The list will be empty after this call returns.
 	 * This method runs in linear time.
-	 *
-	 * @returns {void}
 	 */
 	clear(): void {
 		for (let node = this.$head; node; node = node.next) {	node.unlink() }
@@ -212,8 +187,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Checks if the list is empty.
-	 *
-	 * @returns {boolean} True if the list is empty, false otherwise.
+	 * @returns True if the list is empty, false otherwise.
 	 */
 	isEmpty(): boolean {
 		return this.$size === 0;
@@ -224,9 +198,8 @@ export class LinkedList<E> {
 	 * If the value is not found, -1 is returned.
 	 * If the value is found multiple times, the index of the first occurrence is returned.
 	 * This method runs in linear time.
-	 *
-	 * @param {E} value The value to search for.
-	 * @returns {number} The index of the value in the list, or -1 if the value is not found.
+	 * @param value The value to search for.
+	 * @returns The index of the value in the list, or -1 if the value is not found.
 	 */
 	indexOf(value: E): number {
 		for (let index = 0, node = this.$head; node; node = node.next, index++) {
@@ -239,10 +212,8 @@ export class LinkedList<E> {
 	/**
 	 * Iterates over the list and calls the specified consumer function for each element.
 	 * The consumer function is called with three arguments: the value of the element, the index of the element, and the list itself.
-	 *
-	 * @param {function(E, number, LinkedList<E>): void} consumer The consumer function to call for each element.
-	 * @param {Object} [context] The context to call the consumer function in.
-	 * @returns {void}
+	 * @param consumer The consumer function to call for each element.
+	 * @param [context] The context to call the consumer function in.
 	 */
 	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context: object = this): void {
 		for (let index = 0, node = this.$head; node; node = node.next, index++) {
@@ -256,8 +227,7 @@ export class LinkedList<E> {
 	 * This method runs in constant time.
 	 * The returned iterator is fail-fast.
 	 * Modifying the list after getting the iterator, except through the iterator's own methods, will throw an error.
-	 *
-	 * @yields {Iterable<E>} An iterator over the values in the list.
+	 * @yields {Generator<E, void, unknown>} An iterator over the values in the list.
 	 */
 	*values(): Generator<E, void, unknown> {
 		yield* this;
@@ -265,9 +235,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Gets the size of the list.
-	 *
-	 * @readonly
-	 * @returns {number} The size of the list.
+	 * @returns The size of the list.
 	 */
 	get size(): number {
 		return this.$size;
@@ -279,8 +247,7 @@ export class LinkedList<E> {
 	 * This method runs in linear time.
 	 * The returned array is a shallow copy of the list.
 	 * Modifying the array will not modify the list.
-	 *
-	 * @returns {E[]} An array containing all the values in the list.
+	 * @returns An array containing all the values in the list.
 	 */
 	toArray(): E[] {
 		return Array.from(this.values());
@@ -294,7 +261,6 @@ export class LinkedList<E> {
 	 * Modifying the list after getting the iterator, except through the iterator's own methods, will throw an error.
 	 * The iterator does not support modifying the list during iteration.
 	 * This method is called when the list is used in a for-of loop.
-	 *
 	 * @yields {Iterable<E>} An iterator over the values in the list.
 	 * @example
 	 * ````js
@@ -311,8 +277,7 @@ export class LinkedList<E> {
 
 	/**
 	 * Returns a string description of the list.
-	 *
-	 * @returns {string} A string description of the list.
+	 * @returns A string description of the list.
 	 */
 	get [Symbol.toStringTag](): string {
 		return 'LinkedList';
@@ -321,10 +286,8 @@ export class LinkedList<E> {
 	/**
 	 * Gets the node at the specified index.
 	 * If the index is out of bounds, null is returned.
-	 *
-	 * @private
-	 * @param {number} index The index of the node to get.
-	 * @returns {Node<E>} The node at the specified index, or null if the index is out of bounds.
+	 * @param index The index of the node to get.
+	 * @returns The node at the specified index, or null if the index is out of bounds.
 	 */
 	private getNodeAt(index: number): Node<E> | null {
 		if (index < 0 || index >= this.$size) { return null }
@@ -349,10 +312,8 @@ export class LinkedList<E> {
 
 	/**
 	 * Removes a node from the list.
-	 *
-	 * @private
-	 * @param {Node<E>} node The node to remove.
-	 * @returns {E} The value of the removed node.
+	 * @param node The node to remove.
+	 * @returns The value of the removed node.
 	 */
 	private removeNode(node: Node<E> | null): E | null {
 		if (node === null) { return null }

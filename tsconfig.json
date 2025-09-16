@@ -21,7 +21,6 @@
 		"emitDecoratorMetadata": false,
 		"target": "ESNext",
 		"module": "Preserve",
-		"moduleDetection": "force",
 		"moduleResolution": "Bundler",
 		"lib": [ "ESNext", "DOM" ]
 	},

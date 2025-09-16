@@ -6,18 +6,15 @@ export class LinkedMap<K, V> {
 	private $head: KeyedNode<K, V> | null = null;
 	private $tail: KeyedNode<K, V> | null = null;
 
-	/**
-	 * Initializes an empty LinkedMap.
-	 */
+	/** Initializes an empty LinkedMap. */
 	constructor() {
 		this.$map = new Map();
 	}
 
 	/**
 	 * Retrieves the value associated with a given key.
-	 *
-	 * @param {K} key The key to retrieve.
-	 * @returns {V | undefined} The value associated with the key, or undefined if the key is not in the map.
+	 * @param key The key to retrieve.
+	 * @returns The value associated with the key, or undefined if the key is not in the map.
 	 */
 	get(key: K): V | undefined {
 		return this.$map.get(key)?.value;
@@ -25,9 +22,8 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Associates the specified value with the specified key in this map.
-	 *
-	 * @param {K} key The key with which the specified value is to be associated.
-	 * @param {V} value The value to be associated with the specified key.
+	 * @param key The key with which the specified value is to be associated.
+	 * @param value The value to be associated with the specified key.
 	 */
 	set(key: K, value: V): void {
 		const node = this.$map.get(key);
@@ -42,9 +38,8 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Removes the mapping for a key from this map if it is present.
-	 *
-	 * @param {K} key The key whose mapping is to be removed from the map.
-	 * @returns {boolean} True if the map contained a mapping for the specified key, false otherwise.
+	 * @param key The key whose mapping is to be removed from the map.
+	 * @returns True if the map contained a mapping for the specified key, false otherwise.
 	 */
 	remove(key: K | null): boolean {
 		if (key === null) { return false }
@@ -58,10 +53,8 @@ export class LinkedMap<K, V> {
 	 * If the list is empty, the new node will be both the head and the tail.
 	 * If the list is not empty, the new node will be the head.
 	 * If the key already exists, the value will be updated.
-	 *
-	 * @param {K} key The key of the new node.
-	 * @param {V} value The value of the new node.
-	 * @returns {void}
+	 * @param key The key of the new node.
+	 * @param value The value of the new node.
 	 */
 	addFirst(key: K, value: V): void {
 		const node = this.$map.get(key);
@@ -81,10 +74,8 @@ export class LinkedMap<K, V> {
 	 * If the list is empty, the new node will be both the head and the tail.
 	 * If the list is not empty, the new node will be the tail.
 	 * If the key already exists, the value will be updated.
-	 *
-	 * @param {K} key The key of the new node.
-	 * @param {V} value The value of the new node.
-	 * @returns {void}
+	 * @param key The key of the new node.
+	 * @param value The value of the new node.
 	 */
 	addLast(key: K, value: V): void {
 		const node = this.$map.get(key);
@@ -109,9 +100,7 @@ export class LinkedMap<K, V> {
 	 * The head will be updated to point to the node.
 	 * If the node is the tail, the tail will be updated to be the previous node.
 	 * If the node is not the tail, the next node's previous pointer will be updated to point to the previous node.
-	 *
-	 * @param {K} key The key of the node to move to the beginning of the list.
-	 * @returns {void}
+	 * @param key The key of the node to move to the beginning of the list.
 	 */
 	moveToFirst(key: K): void {
 		this.$moveToFirst(this.$map.get(key));
@@ -128,9 +117,7 @@ export class LinkedMap<K, V> {
 	 * The tail will be updated to point to the node.
 	 * The node's next pointer will be updated to point to null.
 	 * If the key already exists, the value will be updated.
-	 *
-	 * @param {K} key The key of the node to move to the end of the list.
-	 * @returns {void}
+	 * @param key The key of the node to move to the end of the list.
 	 */
 	moveToLast(key: K): void {
 		this.$moveToLast(this.$map.get(key));
@@ -138,8 +125,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns the value to which the first key is mapped, or null if this map contains no mappings.
-	 *
-	 * @returns {V|null} The value to which the first key is mapped, or null if this map contains no mappings.
+	 * @returns The value to which the first key is mapped, or null if this map contains no mappings.
 	 */
 	getFirst(): V | null {
 		return this.$head?.value ?? null;
@@ -147,8 +133,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns the value to which the last key is mapped, or null if this map contains no mappings.
-	 *
-	 * @returns {V|null} The value to which the last key is mapped, or null if this map contains no mappings.
+	 * @returns The value to which the last key is mapped, or null if this map contains no mappings.
 	 */
 	getLast(): V | null {
 		return this.$tail?.value ?? null;
@@ -161,8 +146,7 @@ export class LinkedMap<K, V> {
 	 * If the map is not empty and the head is not null, the head's previous pointer will be updated to point to null.
 	 * The node will be removed from the map.
 	 * The node's previous and next pointers will be updated to point to null.
-	 *
-	 * @returns {boolean} True if the first key and its corresponding value were removed, false otherwise.
+	 * @returns True if the first key and its corresponding value were removed, false otherwise.
 	 */
 	removeFirst(): boolean {
 		return this.$head === null ? false : this.remove(this.$head.key);
@@ -177,8 +161,7 @@ export class LinkedMap<K, V> {
 	 * The node's previous and next pointers will be updated to point to null.
 	 * If the key does not exist, nothing will happen.
 	 * If the node is already the tail, nothing will happen.
-	 *
-	 * @returns {boolean} True if the last key and its corresponding value were removed, false otherwise.
+	 * @returns True if the last key and its corresponding value were removed, false otherwise.
 	 */
 	removeLast(): boolean {
 		return this.$tail === null ? false : this.remove(this.$tail.key);
@@ -186,9 +169,8 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns a boolean indicating whether the map contains a specific key.
-	 *
-	 * @param {K} key The key to check.
-	 * @returns {boolean} True if the map contains the key, false otherwise.
+	 * @param key The key to check.
+	 * @returns True if the map contains the key, false otherwise.
 	 */
 	has(key: K): boolean {
 		return this.$map.has(key);
@@ -196,31 +178,30 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Executes a provided function once for each key-value pair in the map.
-	 *
-	 * @param {function(V, K, LinkedMap<K, V>): void} callback - Function to execute for each key-value pair.
-	 * @param {any} [thisArg=this] - Value to use as `this` when executing the callback.
-	 * @returns {void}
+	 * @param callback - Function to execute for each key-value pair.
+	 * @param thisArg - Value to use as `this` when executing the callback.
 	 */
 	forEach(callback: (value: V, key: K, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this): void {
 		for (const [ key, value ] of this) { callback.call(thisArg, value as V, key as K, this) }
 	}
 
-	/**
-	 * Removes all of the mappings from this map. The map will be empty after this call returns.
-	 */
+	/** Removes all of the mappings from this map. The map will be empty after this call returns. */
 	clear(): void {
 		this.$map.clear();
 		this.$head = this.$tail = null;
 	}
 
+	/**
+	 * Returns the number of key-value pairs in the map.
+	 * @returns The number of key-value pairs in the map.
+	 */
 	get size(): number {
 		return this.$map.size;
 	}
 
 	/**
 	 * Returns an iterator that yields all keys in the map in their insertion order.
-	 *
-	 * @yields {K} An iterator for the keys in the map.
+	 * @yields {Generator<K | null, void, unknown>} An iterator for the keys in the map.
 	 */
 	*keys(): Generator<K | null, void, unknown> {
 		for (const [ key ] of this) { yield key }
@@ -228,8 +209,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns an iterator that yields all values in the map in their insertion order.
-	 *
-	 * @yields {V} An iterator for the values in the map.
+	 * @yields {Generator<V | null, void, unknown>} An iterator for the values in the map.
 	 */
 	*values(): Generator<V | null, void, unknown> {
 		for (const [ _key , value ] of this) { yield value }
@@ -237,8 +217,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
-	 *
-	 * @yields {[K, V]} An iterator for the key-value pairs in the map.
+	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
 	 */
 	*entries(): Generator<[K | null,  V | null], void, unknown> {
 		yield* this;
@@ -246,8 +225,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
-	 *
-	 * @yields {[K, V]} An iterator for the key-value pairs in the map.
+	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
 	 */
 	*[Symbol.iterator](): Generator<[K | null,  V | null], void, unknown> {
 		for (let node = this.$head; node !== null; node = node.next) { yield [ node.key, node.value ] }
@@ -255,8 +233,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns a string description of the class.
-	 *
-	 * @returns {string} A string description of the class.
+	 * @returns A string description of the class.
 	 */
 	get [Symbol.toStringTag](): string {
 		return 'LinkedMap';
@@ -272,10 +249,8 @@ export class LinkedMap<K, V> {
 	 * The node will be added to the end of the list.
 	 * The node's previous pointer will be updated to point to the current tail.
 	 * The current tail's next pointer will be updated to point to the node.
-	 *
-	 * @private
-	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
-	 * @returns {boolean} True if the node was moved to the end of the list, false otherwise.
+	 * @param node The node to move to the end of the list.
+	 * @returns True if the node was moved to the end of the list, false otherwise.
 	 */
 	private unlinkNode(node?: KeyedNode<K, V>): boolean {
 		if (node === undefined) { return false }
@@ -309,11 +284,8 @@ export class LinkedMap<K, V> {
 	 * If the key does not exist, the node's value will be set to the new value.
 	 * If the key already exists, the node will be moved to the beginning of the list.
 	 * If the key does not exist, the node will be added to the beginning of the list.
-	 *
-	 * @private
-	 * @param {K} key The key of the node to add.
-	 * @param {V} value The value of the node to add.
-	 * @returns {void}
+	 * @param key The key of the node to add.
+	 * @param value The value of the node to add.
 	 */
 	private prependNewNode(key: K, value: V): void {
 		const newNode = new KeyedNode({ key, value });
@@ -337,11 +309,8 @@ export class LinkedMap<K, V> {
 	 * If the key does not exist, the node's value will be set to the new value.
 	 * If the key already exists, the node will be moved to the end of the list.
 	 * If the key does not exist, the node will be added to the end of the list.
-	 *
-	 * @private
-	 * @param {K} key The key of the node to add.
-	 * @param {V} value The value of the node to add.
-	 * @returns {void}
+	 * @param key The key of the node to add.
+	 * @param value The value of the node to add.
 	 */
 	private appendNewNode(key: K, value: V): void {
 		const newNode = new KeyedNode({ key, value });
@@ -367,10 +336,7 @@ export class LinkedMap<K, V> {
 	 * The node will be added to the beginning of the list.
 	 * The node's next pointer will be updated to point to the current head.
 	 * The current head's previous pointer will be updated to point to the node.
-	 *
-	 * @private
-	 * @param {KeyedNode<K, V>} node The node to move to the beginning of the list.
-	 * @returns {void}
+	 * @param node The node to move to the beginning of the list.
 	 */
 	private $moveToFirst(node?: KeyedNode<K, V>): void {
 		if (node === undefined || node === this.$head) { return }
@@ -392,10 +358,7 @@ export class LinkedMap<K, V> {
 	 * If the node is not the tail, the node's next pointer will be updated to point to null.
 	 * The node will be added to the end of the list.
 	 * The node's previous pointer will be updated to point to the current tail.
-	 *
-	 * @private
-	 * @param {KeyedNode<K, V>} node The node to move to the end of the list.
-	 * @returns {void}
+	 * @param node The node to move to the end of the list.
 	 */
 	private $moveToLast(node?: KeyedNode<K, V>): void {
 		if (node === undefined || node === this.$tail) { return }
