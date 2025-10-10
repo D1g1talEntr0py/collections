@@ -5,28 +5,34 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
 	 * If the value already exists in the {@link Set}, it will not be added again.
 	 *
+	 * @param key - The key to set.
+	 * @param value - The value to add to the SetMultiMap.
+	 * @returns The SetMultiMap with the updated key and value.
+	 */
+	override set(key: K, value: V): this;
+	/**
+	 * Adds a new Set with a specified key and value to the SetMultiMap.
+	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
+	 * If the value already exists in the {@link Set}, it will not be added again.
+	 *
+	 * @param key - The key to set.
+	 * @param value - The set of values to add to the SetMultiMap.
+	 * @returns The SetMultiMap with the updated key and value.
+	 */
+	override set(key: K, value: Set<V>): this;
+	/**
+	 * Adds a new element with a specified key and value to the SetMultiMap.
+	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
+	 * If the value already exists in the {@link Set}, it will not be added again.
+	 *
 	 * @param key The key to set.
 	 * @param value The value to add to the SetMultiMap
 	 * @returns The SetMultiMap with the updated key and value.
 	 */
-	// @ts-expect-error I am overriding the set method from the Map class
-	override set(key: K, value: V): SetMultiMap<K, V> {
-		super.set(key, (super.get(key) ?? new Set()).add(value));
+	override set(key: K, value: V | Set<V>): SetMultiMap<K, V> {
+		super.set(key, value instanceof Set ? value : (super.get(key) ?? new Set<V>()).add(value));
 
 		return this;
-	}
-
-	/**
-	 * Checks if a specific key has a specific value.
-	 *
-	 * @param key The key to check.
-	 * @param value The value to check.
-	 * @returns True if the key has the value, false otherwise.
-	 */
-	hasValue(key: K, value: V): boolean {
-		const values = super.get(key);
-
-		return values ? values.has(value) : false;
 	}
 
 	/**
@@ -43,6 +49,19 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 		}
 
 		return undefined;
+	}
+
+	/**
+	 * Checks if a specific key has a specific value.
+	 *
+	 * @param key The key to check.
+	 * @param value The value to check.
+	 * @returns True if the key has the value, false otherwise.
+	 */
+	hasValue(key: K, value: V): boolean {
+		const values = super.get(key);
+
+		return values ? values.has(value) : false;
 	}
 
 	/**
