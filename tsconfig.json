@@ -25,5 +25,5 @@
 		"lib": [ "ESNext", "DOM" ]
 	},
 	"include": [ "src/" ],
-	"tsbuild": { "minify": true, "bundle": false }
+	"tsbuild": { "bundle": false }
 }

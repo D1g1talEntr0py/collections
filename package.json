@@ -1,6 +1,6 @@
 {
   "name": "@d1g1tal/collections",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "Jason DiMeo",
   "license": "ISC",
   "description": "JavaScript Collections ES Modules",
@@ -26,7 +26,12 @@
       "import": "./src/index.ts"
     }
   },
+	  "engines": {
+    "node": ">=20.16.0"
+  },
+	"packageManager": "pnpm@10.30.3",
   "publishConfig": {
+		"registry": "https://registry.npmjs.org",
     "access": "public"
   },
   "files": [

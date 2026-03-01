@@ -292,7 +292,7 @@ export class LinkedList<E> {
 	private getNodeAt(index: number): Node<E> | null {
 		if (index < 0 || index >= this.$size) { return null }
 
-		let node: Node<E> | null = null;
+		let node: Node<E> | null;
 		if (this.$doublyLinked && index >= this.$size / 2) {
 			node = this.$tail;
 			for (let i = this.$size - 1; i > index; i--) {
