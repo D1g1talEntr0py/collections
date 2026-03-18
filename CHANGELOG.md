@@ -1,3 +1,9 @@
+## [2.1.6](https://github.com/D1g1talEntr0py/collections/compare/v2.1.5...v2.1.6) (2026-03-18)
+
+### Bug Fixes
+
+* add missing .js extension to file paths in import statements when minifying (267997de0b9450ac586cba6d39f219cff7e19505)
+
 ## [2.1.5](https://github.com/D1g1talEntr0py/collections/compare/v2.1.4...v2.1.5) (2026-03-18)
 
 ### Bug Fixes
