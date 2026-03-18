@@ -31,7 +31,7 @@
     "@semantic-release/changelog",
     ["@semantic-release/npm", { "npmPublish": false }],
     ["@semantic-release/exec", {
-      "prepareCmd": "npm pack",
+      "prepareCmd": "npm lint && pnpm -s build --minify --force && npm pack",
       "publishCmd": "npm publish --provenance"
     }],
     ["@semantic-release/git", {
