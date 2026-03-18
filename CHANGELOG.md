@@ -1,3 +1,23 @@
+## [2.1.3](https://github.com/D1g1talEntr0py/collections/compare/v2.1.2...v2.1.3) (2026-03-18)
+
+### Bug Fixes
+
+* patch vulnerable dependencies to resolve CVE-2026-32141 (094f15fb012426c2f3a0b409865f4946d23312f1)
+Updates packages within the development environment and regenerates the lockfile to ensure stable and secure modules. This effectively mitigates the security vulnerability identified by CVE-2026-32141.
+
+* **release:** updated npm references to pnpm (d2fa2307e8cf217369659a900005afa148293f36)
+
+### Documentation
+
+* transition project license to MIT (4d7d6aec725f0008f1d1d1c7eb70ff3154da8eca)
+Updates the repository license from ISC to MIT to expand accessibility. This includes replacing the LICENSE file content, updating the README badge, and modifying the author and license fields in the package manifest.
+
+
+### Miscellaneous Chores
+
+* update publish configuration and action workflows (4a3103cfc9bd930d6f57eac8591baf74195e10b1)
+Upgrades GitHub Actions steps to newer semantic versions ensuring continued compatibility. Adjusts the semantic-release configuration to properly build and lint packages before publishing, and updates package.json maintainer properties and export definitions.
+
 ## [2.1.2](https://github.com/D1g1talEntr0py/collections/compare/v2.1.1...v2.1.2) (2026-03-01)
 
 ### Bug Fixes

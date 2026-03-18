@@ -1,7 +1,7 @@
 {
   "name": "@d1g1tal/collections",
   "author": "D1g1talEntr0py",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "license": "MIT",
   "description": "JavaScript Collections ES Modules",
   "homepage": "https://github.com/D1g1talEntr0py/collections#readme",
@@ -63,7 +63,7 @@
     "eslint-plugin-jsdoc": "^62.8.0",
     "globals": "^17.4.0",
     "microtime": "^3.1.1",
-		"typescript-eslint": "8.57.1",
+    "typescript-eslint": "8.57.1",
     "vitest": "^4.1.0"
   },
   "browserslist": [
@@ -73,7 +73,7 @@
   ],
   "keywords": [
     "Collections",
-		"Data Structures",
+    "Data Structures",
     "ESModules"
   ]
 }
