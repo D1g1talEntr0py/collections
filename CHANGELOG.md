@@ -1,3 +1,9 @@
+## [2.1.4](https://github.com/D1g1talEntr0py/collections/compare/v2.1.3...v2.1.4) (2026-03-18)
+
+### Bug Fixes
+
+* **release:** added --no-git-checks flag (8d49a6f2567a41e59f43c221675a921901c990bc)
+
 ## [2.1.3](https://github.com/D1g1talEntr0py/collections/compare/v2.1.2...v2.1.3) (2026-03-18)
 
 ### Bug Fixes
