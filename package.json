@@ -46,39 +46,34 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "benchmark": "tsx benchmark/*.benchmark.ts",
-    "prepublish": "pnpm lint && pnpm test && pnpm build --minify"
+    "test:coverage": "vitest run --coverage"
   },
-  "homepage": "https://github.com/D1g1talEntr0py/collections#readme",
   "devDependencies": {
-    "@d1g1tal/tsbuild": "^1.3.2",
-    "@eslint/compat": "^2.0.2",
+    "@d1g1tal/tsbuild": "^1.6.1",
+    "@eslint/compat": "^2.0.3",
     "@eslint/js": "^10.0.1",
     "@types/benchmark": "^2.1.5",
-    "@types/node": "^25.3.3",
-    "@typescript-eslint/eslint-plugin": "8.56.1",
-    "@typescript-eslint/parser": "8.56.1",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@types/node": "^25.5.0",
+    "@typescript-eslint/eslint-plugin": "8.57.1",
+    "@typescript-eslint/parser": "8.57.1",
+    "@vitest/coverage-v8": "^4.1.0",
     "benchmark": "^2.1.4",
-    "eslint": "^10.0.2",
-    "eslint-plugin-compat": "^7.0.0",
-    "eslint-plugin-jsdoc": "^62.7.1",
+    "eslint": "^10.0.3",
+    "eslint-plugin-compat": "^7.0.1",
+    "eslint-plugin-jsdoc": "^62.8.0",
     "globals": "^17.4.0",
     "microtime": "^3.1.1",
-    "tsbuild": "link:../tsbuild",
-    "typescript-eslint": "8.56.1",
-    "vitest": "^4.0.18"
-  },
-  "peerDependencies": {
-    "typescript": "^5.5.2"
-  },
-  "optionalDependencies": {
-    "tsx": "^4.21.0"
+		"typescript-eslint": "8.57.1",
+    "vitest": "^4.1.0"
   },
   "browserslist": [
     "defaults",
     "not ios_saf < 15",
     "not op_mini all"
+  ],
+  "keywords": [
+    "Collections",
+		"Data Structures",
+    "ESModules"
   ]
 }
