@@ -1,3 +1,9 @@
+## [2.1.5](https://github.com/D1g1talEntr0py/collections/compare/v2.1.4...v2.1.5) (2026-03-18)
+
+### Bug Fixes
+
+* add missing .js extension to file paths in import statements (106f2e4f85acefa81fab34012f500d58da600bc5)
+
 ## [2.1.4](https://github.com/D1g1talEntr0py/collections/compare/v2.1.3...v2.1.4) (2026-03-18)
 
 ### Bug Fixes
