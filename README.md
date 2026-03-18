@@ -5,7 +5,7 @@ JavaScript Collections and Data Structures
 [![npm downloads](https://img.shields.io/npm/dm/@d1g1tal/collections)](https://www.npmjs.com/package/@d1g1tal/collections)
 [![CI](https://github.com/D1g1talEntr0py/collections/actions/workflows/ci.yml/badge.svg)](https://github.com/D1g1talEntr0py/collections/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/D1g1talEntr0py/collections/graph/badge.svg)](https://codecov.io/gh/D1g1talEntr0py/collections)
-[![License: ISC](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/node/v/@d1g1tal/collections)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 

@@ -1,9 +1,10 @@
 {
   "name": "@d1g1tal/collections",
+  "author": "D1g1talEntr0py",
   "version": "2.1.2",
-  "author": "Jason DiMeo",
-  "license": "ISC",
+  "license": "MIT",
   "description": "JavaScript Collections ES Modules",
+  "homepage": "https://github.com/D1g1talEntr0py/collections#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/D1g1talEntr0py/collections.git"
