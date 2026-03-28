@@ -1,3 +1,28 @@
+## [2.2.0](https://github.com/D1g1talEntr0py/collections/compare/v2.1.6...v2.2.0) (2026-03-28)
+
+### Features
+
+* add `getOrInsert` and `getOrInsertComputed` map methods (31e66630b19692be92bf7e611d9a95b110bdd184)
+Introduces standard TypeScript 6 map access utility methods to `LinkedMap`, `MultiMap`, and `SetMultiMap`. Appends comprehensive unit tests for the new map procedures. Unveils `KeyedNode` in the core module exports.
+
+
+### Code Refactoring
+
+* remove explicit return types and rely on typescript inference (924a66e6dd3719cc948f367bc78219820096e231)
+Strips explicitly declared return types from collection interfaces to leverage TypeScript's type inference. Eliminates redundant `: void` and specific primitives like `: boolean` or `: E` where they are clearly delineated by the method bodies.
+
+
+### Documentation
+
+* add copilot instructions and improve readme (17371c7aedee3f59c70e42638bf2f48a4735f3e4)
+Adds a comprehensive GitHub Copilot instructions markdown file to guide AI contributions. Refines and greatly expands the README with new usage examples, a visual collection types matrix, and guidance on when to choose specific data structures.
+
+
+### Miscellaneous Chores
+
+* update dependencies and typescript configuration (ef54f1dbb88da35536591b3d4e26271176673108)
+Updates TypeScript to the latest version and bumps various devDependencies including vitest, eslint, and rollup. Modifies `tsconfig.json` to enable `erasableSyntaxOnly` and configures root and module resolution settings. Expands `package.json` exports to support individual module imports.
+
 ## [2.1.6](https://github.com/D1g1talEntr0py/collections/compare/v2.1.5...v2.1.6) (2026-03-18)
 
 ### Bug Fixes
