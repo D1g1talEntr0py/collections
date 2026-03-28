@@ -1,4 +1,5 @@
 export { Node } from './node';
+export { KeyedNode } from './keyed-node';
 export { Stack } from './stack';
 export { List } from './list';
 export { LinkedList } from './linked-list';

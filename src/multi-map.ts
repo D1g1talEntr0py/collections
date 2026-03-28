@@ -10,6 +10,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns The MultiMap with the updated key and value.
 	 */
 	override set(key: K, value: V): this;
+
 	/**
 	 * Adds a new List with a specified key and value to the MultiMap.
 	 * If an element with the same key already exists, the value will be added to the underlying {@link List}.
@@ -18,6 +19,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns The MultiMap with the updated key and value.
 	 */
 	override set(key: K, value: List<V>): this;
+
 	/**
 	 * Adds a new element with a specified key and value to the MultiMap.
 	 * If an element with the same key already exists, the value will be added to the underlying {@link List}.
@@ -25,10 +27,75 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param value The value to add to the MultiMap
 	 * @returns The MultiMap with the updated key and value.
 	 */
-	override set(key: K, value: V | List<V>): MultiMap<K, V> {
+	override set(key: K, value: V | List<V>) {
 		super.set(key, value instanceof List ? value : (super.get(key) ?? new List<V>()).add(value));
 
 		return this;
+	}
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will insert the default value and return it.
+	 * @param key The key to get the value for.
+	 * @param defaultValue The default value to insert if the key does not exist.
+	 * @returns The value associated with the specified key, or the default value if the key does not exist.
+	 */
+	override getOrInsert(key: K, defaultValue: V): V;
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will insert the default value and return it.
+	 * @param key The key to get the value for.
+	 * @param defaultValue The default value to insert if the key does not exist.
+	 * @returns The value associated with the specified key, or the default value if the key does not exist.
+	 */
+	override getOrInsert(key: K, defaultValue: List<V>): List<V>;
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will insert the default value and return it.
+	 * @param key The key to get the value for.
+	 * @param defaultValue The default value to insert if the key does not exist.
+	 * @returns The value associated with the specified key, or the default value if the key does not exist.
+	 */
+	override getOrInsert(key: K, defaultValue: V | List<V>): V | List<V> {
+		const values = super.get(key);
+
+		if (values !== undefined) { return values }
+
+		super.set(key, defaultValue instanceof List ? defaultValue : (super.get(key) ?? new List<V>()).add(defaultValue));
+
+		return defaultValue;
+	}
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will compute the value using the provided function, insert it, and return it.
+	 * @param key The key to get the value for.
+	 * @param compute The function to compute the value if the key does not exist.
+	 * @returns The value associated with the specified key, or the computed value if the key does not exist.
+	 */
+	override getOrInsertComputed(key: K, compute: (key: K) => V): V;
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will compute the value using the provided function, insert it, and return it.
+	 * @param key The key to get the value for.
+	 * @param compute The function to compute the value if the key does not exist.
+	 * @returns The value associated with the specified key, or the computed value if the key does not exist.
+	 */
+	override getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V>;
+
+	/**
+	 * Gets the value associated with the specified key. If the key does not exist, it will compute the value using the provided function, insert it, and return it.
+	 * @param key The key to get the value for.
+	 * @param compute The function to compute the value if the key does not exist.
+	 * @returns The value associated with the specified key, or the computed value if the key does not exist.
+	 */
+	override getOrInsertComputed(key: K, compute: (key: K) => V | List<V>): V | List<V> {
+		const values = super.get(key);
+
+		if (values !== undefined) { return values }
+
+		const defaultValue = compute(key);
+		super.set(key, defaultValue instanceof List ? defaultValue : (super.get(key) ?? new List<V>()).add(defaultValue));
+
+		return defaultValue;
 	}
 
 	/**
@@ -37,7 +104,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param iterator The iterator function to use to find the value.
 	 * @returns The value for the specified key
 	 */
-	find(key: K, iterator: (value: V) => boolean): V | undefined {
+	find(key: K, iterator: (value: V) => boolean) {
 		const values = this.get(key);
 
 		if (values !== undefined) {

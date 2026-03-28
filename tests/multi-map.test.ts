@@ -65,6 +65,68 @@ describe('MultiMap', () => {
 		expect(multiMap.get('nonExistingKey')).toBeUndefined();
 	});
 
+	describe('getOrInsert', () => {
+		it('should return the inserted value when the key does not exist', () => {
+			const value = multiMap.getOrInsert('key1', 'value1');
+
+			expect(value).toBe('value1');
+			expect(multiMap.get('key1')).toBeInstanceOf(List);
+			expect(multiMap.get('key1')?.size).toBe(1);
+			expect(multiMap.get('key1')?.get(0)).toBe('value1');
+		});
+
+		it('should insert the provided List when the key does not exist', () => {
+			const defaultValues = new List<string>().add('value1').add('value2');
+			const values = multiMap.getOrInsert('key1', defaultValues);
+
+			expect(values).toBe(defaultValues);
+			expect(values.size).toBe(2);
+			expect(values.get(0)).toBe('value1');
+			expect(values.get(1)).toBe('value2');
+		});
+
+		it('should return the existing List when the key already exists', () => {
+			multiMap.set('key1', 'value1');
+			const values = multiMap.getOrInsert('key1', 'value2');
+
+			expect(values).toBeInstanceOf(List);
+			expect(values.size).toBe(1);
+			expect(values.get(0)).toBe('value1');
+		});
+	});
+
+	describe('getOrInsertComputed', () => {
+		it('should return the computed value when the key does not exist', () => {
+			const value = multiMap.getOrInsertComputed('key1', () => 'value1');
+
+			expect(value).toBe('value1');
+			expect(multiMap.get('key1')).toBeInstanceOf(List);
+			expect(multiMap.get('key1')?.size).toBe(1);
+			expect(multiMap.get('key1')?.get(0)).toBe('value1');
+		});
+
+		it('should insert the computed List when the key does not exist', () => {
+			const values = multiMap.getOrInsertComputed('key1', () => new List<string>().add('value1').add('value2'));
+
+			expect(values).toBeInstanceOf(List);
+			expect(values.size).toBe(2);
+			expect(values.get(0)).toBe('value1');
+			expect(values.get(1)).toBe('value2');
+		});
+
+		it('should return the existing List without computing a new value', () => {
+			multiMap.set('key1', 'value1');
+			const compute = () => {
+				throw new Error('should not be called');
+			};
+
+			const values = multiMap.getOrInsertComputed('key1', compute);
+
+			expect(values.size).toBe(1);
+			expect(values.get(0)).toBe('value1');
+		});
+	});
+
 	describe('find', () => {
 		it('should return the value if it exists', () => {
 			multiMap.set('key1', 'value1');

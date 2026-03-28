@@ -54,6 +54,52 @@ describe('LinkedMap', () => {
 		});
 	});
 
+	describe('getOrInsert', () => {
+		it('should insert and return the default value when the key does not exist', () => {
+			const value = linkedMap.getOrInsert('key1', 'value1');
+
+			expect(value).toBe('value1');
+			expect(linkedMap.get('key1')).toBe('value1');
+			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
+		});
+
+		it('should return the existing value when the key already exists', () => {
+			linkedMap.set('key1', 'value1');
+
+			const value = linkedMap.getOrInsert('key1', 'value2');
+
+			expect(value).toBe('value1');
+			expect(linkedMap.get('key1')).toBe('value1');
+			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
+		});
+	});
+
+	describe('getOrInsertComputed', () => {
+		it('should compute, insert, and return the value when the key does not exist', () => {
+			const compute = vi.fn((key: string) => `${key}-value`);
+
+			const value = linkedMap.getOrInsertComputed('key1', compute);
+
+			expect(value).toBe('key1-value');
+			expect(compute).toHaveBeenCalledWith('key1');
+			expect(compute).toHaveBeenCalledTimes(1);
+			expect(linkedMap.get('key1')).toBe('key1-value');
+			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
+		});
+
+		it('should return the existing value without computing when the key already exists', () => {
+			linkedMap.set('key1', 'value1');
+			const compute = vi.fn(() => 'value2');
+
+			const value = linkedMap.getOrInsertComputed('key1', compute);
+
+			expect(value).toBe('value1');
+			expect(compute).not.toHaveBeenCalled();
+			expect(linkedMap.get('key1')).toBe('value1');
+			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
+		});
+	});
+
 	describe('addFirst', () => {
 		it('should add a key-value pair to the beginning of the map', () => {
 			linkedMap.addFirst('key1', 'value1');

@@ -37,11 +37,46 @@ export class LinkedMap<K, V> {
 	}
 
 	/**
+	 * Returns a specified element from the Map object.
+	 * If no element is associated with the specified key, a new element with the value `defaultValue` will be inserted into the Map and returned.
+	 * @param key The key to retrieve.
+	 * @param defaultValue The value to insert and return if the key is not already in the map.
+	 * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
+	 */
+	getOrInsert(key: K, defaultValue: V) {
+		const node = this.$map.get(key);
+
+		if (node !== undefined) { return node.value }
+
+		this.appendNewNode(key, defaultValue);
+
+		return defaultValue;
+	}
+
+	/**
+	 * Returns a specified element from the Map object.
+	 * If no element is associated with the specified key, the result of passing the specified key to the `callback` function will be inserted into the Map and returned.
+	 * @param key The key to retrieve.
+	 * @param callback The function to compute a value to insert and return if the key is not already in the map.
+	 * @returns The element associated with the specific key, which will be the newly computed value if no element previously existed.
+	 */
+	getOrInsertComputed(key: K, callback: (key: K) => V) {
+		const node = this.$map.get(key);
+
+		if (node !== undefined) { return node.value }
+
+		const value = callback(key);
+		this.appendNewNode(key, value);
+
+		return value;
+	}
+
+	/**
 	 * Removes the mapping for a key from this map if it is present.
 	 * @param key The key whose mapping is to be removed from the map.
 	 * @returns True if the map contained a mapping for the specified key, false otherwise.
 	 */
-	remove(key: K | null): boolean {
+	remove(key: K | null) {
 		if (key === null) { return false }
 		return this.unlinkNode(this.$map.get(key)) ? this.$map.delete(key) : false;
 	}

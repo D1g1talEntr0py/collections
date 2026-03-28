@@ -48,6 +48,68 @@ describe('SetMultiMap', () => {
 		});
 	});
 
+	describe('getOrInsert', () => {
+		it('should insert and return the default value when the key does not exist', () => {
+			const value = multiMap.getOrInsert('key1', 'value1');
+
+			expect(value).toBe('value1');
+			expect(multiMap.get('key1')).toBeInstanceOf(Set);
+			expect(multiMap.get('key1')?.has('value1')).toBe(true);
+		});
+
+		it('should insert and return the provided Set when the key does not exist', () => {
+			const values = new Set(['value1', 'value2']);
+
+			expect(multiMap.getOrInsert('key1', values)).toBe(values);
+			expect(multiMap.get('key1')).toBe(values);
+		});
+
+		it('should return the existing Set when the key already exists', () => {
+			multiMap.set('key1', 'value1');
+
+			const values = multiMap.getOrInsert('key1', 'value2');
+
+			expect(values).toBeInstanceOf(Set);
+			expect(values).toBe(multiMap.get('key1'));
+			expect(values.has('value1')).toBe(true);
+			expect(values.has('value2')).toBe(false);
+		});
+	});
+
+	describe('getOrInsertComputed', () => {
+		it('should compute, insert, and return the value when the key does not exist', () => {
+			const value = multiMap.getOrInsertComputed('key1', (key) => `${key}-value`);
+
+			expect(value).toBe('key1-value');
+			expect(multiMap.get('key1')).toBeInstanceOf(Set);
+			expect(multiMap.get('key1')?.has('key1-value')).toBe(true);
+		});
+
+		it('should compute, insert, and return the Set when the key does not exist', () => {
+			const values = multiMap.getOrInsertComputed('key1', () => new Set(['value1', 'value2']));
+
+			expect(values).toBeInstanceOf(Set);
+			expect(values).toBe(multiMap.get('key1'));
+			expect(values.has('value1')).toBe(true);
+			expect(values.has('value2')).toBe(true);
+		});
+
+		it('should return the existing Set without computing when the key already exists', () => {
+			multiMap.set('key1', 'value1');
+			let called = false;
+
+			const values = multiMap.getOrInsertComputed('key1', () => {
+				called = true;
+				return 'value2';
+			});
+
+			expect(called).toBe(false);
+			expect(values).toBeInstanceOf(Set);
+			expect(values).toBe(multiMap.get('key1'));
+			expect(values.has('value1')).toBe(true);
+		});
+	});
+
 	describe('find', () => {
 		it('should return the value if it exists', () => {
 			multiMap.set('key1', 'value1');
