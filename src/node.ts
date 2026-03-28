@@ -23,7 +23,7 @@ export class Node<E> {
 	 * Gets the previous node.
 	 * @returns The previous node.
 	 */
-	get previous(): Node<E> | null {
+	get previous() {
 		return this.$previous;
 	}
 
@@ -39,7 +39,7 @@ export class Node<E> {
 	 * Gets the next node.
 	 * @returns The next node.
 	 */
-	get next(): Node<E> | null {
+	get next() {
 		return this.$next;
 	}
 
@@ -55,7 +55,7 @@ export class Node<E> {
 	 * Gets the value of the node.
 	 * @returns The value of the node.
 	 */
-	get value(): E {
+	get value() {
 		return this.$value;
 	}
 
@@ -68,7 +68,7 @@ export class Node<E> {
 	}
 
 	/** Unlinks this node from the list */
-	unlink(): void {
+	unlink() {
 		if (this.$previous !== null) { this.$previous.next = this.$next }
 
 		if (this.$next !== null) { this.$next.previous = this.$previous }
@@ -80,7 +80,7 @@ export class Node<E> {
 	 * Returns a string description of the class.
 	 * @returns A string description of the class.
 	 */
-	get [Symbol.toStringTag](): string {
+	get [Symbol.toStringTag]() {
 		return 'Node';
 	}
 }

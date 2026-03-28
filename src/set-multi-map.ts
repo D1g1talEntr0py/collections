@@ -58,7 +58,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param value The value to check.
 	 * @returns True if the key has the value, false otherwise.
 	 */
-	hasValue(key: K, value: V): boolean {
+	hasValue(key: K, value: V) {
 		const values = super.get(key);
 
 		return values ? values.has(value) : false;
@@ -70,7 +70,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value: V | undefined): boolean {
+	deleteValue(key: K, value: V | undefined) {
 		if (value === undefined) { return this.delete(key) }
 
 		const values = super.get(key);
@@ -91,7 +91,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * The string tag of the SetMultiMap.
 	 * @returns The string tag of the SetMultiMap.
 	 */
-	override get [Symbol.toStringTag](): string {
+	override get [Symbol.toStringTag]() {
 		return 'SetMultiMap';
 	}
 }

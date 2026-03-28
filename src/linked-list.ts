@@ -23,7 +23,7 @@ export class LinkedList<E> {
 	 * Adds an element to the start of the list.
 	 * @param value The element to add.
 	 */
-	addFirst(value: E): void {
+	addFirst(value: E) {
 		const node = new Node({ next: this.$head, value });
 		if (this.$doublyLinked && this.$head) { this.$head.previous = node }
 
@@ -37,7 +37,7 @@ export class LinkedList<E> {
 	 * Adds an element to the end of the list.
 	 * @param value The element to add.
 	 */
-	addLast(value: E): void {
+	addLast(value: E) {
 		const node = new Node({ value, previous: this.$doublyLinked ? this.$tail : null });
 		if (this.$tail) { this.$tail.next = node }
 
@@ -51,7 +51,7 @@ export class LinkedList<E> {
 	 * Gets the first node in the list.
 	 * @returns The first node in the list, or null if the list is empty.
 	 */
-	getFirst(): E | null {
+	getFirst() {
 		return this.$head?.value ?? null;
 	}
 
@@ -59,7 +59,7 @@ export class LinkedList<E> {
 	 * Gets the last node in the list.
 	 * @returns The last node in the list, or null if the list is empty.
 	 */
-	getLast(): E | null {
+	getLast() {
 		return this.$tail?.value ?? null;
 	}
 
@@ -67,7 +67,7 @@ export class LinkedList<E> {
 	 * Removes the first element from the list.
 	 * @returns The removed element, or null if the list was empty.
 	 */
-	removeFirst(): E | null {
+	removeFirst() {
 		return this.removeNode(this.$head);
 	}
 
@@ -75,7 +75,7 @@ export class LinkedList<E> {
 	 * Removes the last element from the list.
 	 * @returns The removed element, or null if the list was empty.
 	 */
-	removeLast(): E | null {
+	removeLast() {
 		return this.removeNode(this.$tail);
 	}
 
@@ -84,7 +84,7 @@ export class LinkedList<E> {
 	 * @param value The element to remove.
 	 * @returns The removed element, or null if the element was not found.
 	 */
-	remove(value: E): E | null {
+	remove(value: E) {
 		for (let node = this.$head; node; node = node.next) {
 			if (node.value === value) {	return this.removeNode(node) }
 		}
@@ -97,7 +97,7 @@ export class LinkedList<E> {
 	 * @param index The index of the element to remove.
 	 * @returns The removed element, or null if the index was out of bounds.
 	 */
-	get(index: number): E | null {
+	get(index: number) {
 		return this.getNodeAt(index)?.value ?? null;
 	}
 
@@ -108,7 +108,7 @@ export class LinkedList<E> {
 	 * @param value The new value of the element.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	set(index: number, value: E): void {
+	set(index: number, value: E) {
 		const node = this.getNodeAt(index);
 		if (!node) { throw new RangeError('Index out of bounds') }
 
@@ -125,7 +125,7 @@ export class LinkedList<E> {
 	 * @param value The element to insert.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	insert(index: number, value: E): void {
+	insert(index: number, value: E) {
 		if (index < 0 || index > this.$size) { throw new RangeError('Index out of bounds') }
 
 		if (index === 0) {
@@ -145,7 +145,7 @@ export class LinkedList<E> {
 	 * @param value The element to check for.
 	 * @returns True if the list contains the element, false otherwise.
 	 */
-	contains(value: E): boolean {
+	contains(value: E) {
 		for (let node = this.$head; node; node = node.next) {
 			if (node.value === value) return true;
 		}
@@ -158,7 +158,7 @@ export class LinkedList<E> {
 	 * The first element becomes the last, and the last element becomes the first.
 	 * This method runs in linear time.
 	 */
-	reverse(): void {
+	reverse() {
 		let node = this.$head;
 		let prev = null;
 
@@ -178,7 +178,7 @@ export class LinkedList<E> {
 	 * The list will be empty after this call returns.
 	 * This method runs in linear time.
 	 */
-	clear(): void {
+	clear() {
 		for (let node = this.$head; node; node = node.next) {	node.unlink() }
 
 		this.$head = this.$tail = null;
@@ -189,7 +189,7 @@ export class LinkedList<E> {
 	 * Checks if the list is empty.
 	 * @returns True if the list is empty, false otherwise.
 	 */
-	isEmpty(): boolean {
+	isEmpty() {
 		return this.$size === 0;
 	}
 
@@ -201,7 +201,7 @@ export class LinkedList<E> {
 	 * @param value The value to search for.
 	 * @returns The index of the value in the list, or -1 if the value is not found.
 	 */
-	indexOf(value: E): number {
+	indexOf(value: E) {
 		for (let index = 0, node = this.$head; node; node = node.next, index++) {
 			if (node.value === value) return index;
 		}
@@ -215,7 +215,7 @@ export class LinkedList<E> {
 	 * @param consumer The consumer function to call for each element.
 	 * @param [context] The context to call the consumer function in.
 	 */
-	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context: object = this): void {
+	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context: object = this) {
 		for (let index = 0, node = this.$head; node; node = node.next, index++) {
 			consumer.call(context, node.value, index, this);
 		}
@@ -229,7 +229,7 @@ export class LinkedList<E> {
 	 * Modifying the list after getting the iterator, except through the iterator's own methods, will throw an error.
 	 * @yields {Generator<E, void, unknown>} An iterator over the values in the list.
 	 */
-	*values(): Generator<E, void, unknown> {
+	*values() {
 		yield* this;
 	}
 
@@ -237,7 +237,7 @@ export class LinkedList<E> {
 	 * Gets the size of the list.
 	 * @returns The size of the list.
 	 */
-	get size(): number {
+	get size() {
 		return this.$size;
 	}
 
@@ -249,7 +249,7 @@ export class LinkedList<E> {
 	 * Modifying the array will not modify the list.
 	 * @returns An array containing all the values in the list.
 	 */
-	toArray(): E[] {
+	toArray() {
 		return Array.from(this.values());
 	}
 
@@ -269,7 +269,7 @@ export class LinkedList<E> {
 	 * }
 	 * ````
 	 */
-	*[Symbol.iterator](): Generator<E, void, unknown> {
+	*[Symbol.iterator]() {
 		for (let node = this.$head; node; node = node.next) {
 			yield node.value;
 		}
@@ -279,7 +279,7 @@ export class LinkedList<E> {
 	 * Returns a string description of the list.
 	 * @returns A string description of the list.
 	 */
-	get [Symbol.toStringTag](): string {
+	get [Symbol.toStringTag]() {
 		return 'LinkedList';
 	}
 
@@ -289,7 +289,7 @@ export class LinkedList<E> {
 	 * @param index The index of the node to get.
 	 * @returns The node at the specified index, or null if the index is out of bounds.
 	 */
-	private getNodeAt(index: number): Node<E> | null {
+	private getNodeAt(index: number) {
 		if (index < 0 || index >= this.$size) { return null }
 
 		let node: Node<E> | null;
@@ -315,7 +315,7 @@ export class LinkedList<E> {
 	 * @param node The node to remove.
 	 * @returns The value of the removed node.
 	 */
-	private removeNode(node: Node<E> | null): E | null {
+	private removeNode(node: Node<E> | null) {
 		if (node === null) { return null }
 
 		const value = node.value;

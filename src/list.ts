@@ -20,7 +20,7 @@ export class List<E> {
 	 * @param element The element to add.
 	 * @returns The updated list.
 	 */
-	add(element: E): List<E> {
+	add(element: E) {
 		this.elements.push(element);
 
 		return this;
@@ -32,7 +32,7 @@ export class List<E> {
 	 * @param elements The elements to add.
 	 * @returns The updated list.
 	 */
-	addAll(...elements: Array<E>): List<E> {
+	addAll(...elements: Array<E>) {
 		this.elements.push(...elements);
 
 		return this;
@@ -45,7 +45,7 @@ export class List<E> {
 	 * @param element The entry to add to the list.
 	 * @returns The updated list.
 	 */
-	insert(index: number, element: E): List<E> {
+	insert(index: number, element: E) {
 		this.elements.splice(index, 0, element);
 
 		return this;
@@ -56,7 +56,7 @@ export class List<E> {
 	 * @param element The element to remove.
 	 * @returns The element that was removed.
 	 */
-	remove(element: E): E | undefined {
+	remove(element: E) {
 		return this.removeAt(this.indexOf(element));
 	}
 
@@ -65,7 +65,7 @@ export class List<E> {
 	 * @param index The index of the element to remove.
 	 * @returns The element that was removed.
 	 */
-	removeAt(index: number): E | undefined {
+	removeAt(index: number) {
 		if (index < 0 || this.elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
 
 		return this.elements.splice(index, 1)[0];
@@ -76,7 +76,7 @@ export class List<E> {
 	 * @param index The index of the element to get.
 	 * @returns The element at the given index.
 	 */
-	get(index: number): E | undefined {
+	get(index: number) {
 		return this.elements[index];
 	}
 
@@ -87,7 +87,7 @@ export class List<E> {
 	 * @param element The element to set.
 	 * @returns The updated list.
 	 */
-	set(index: number, element: E): List<E> {
+	set(index: number, element: E) {
 		if (index < 0 || this.elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
 
 		this.elements.splice(index, 1, element);
@@ -101,7 +101,7 @@ export class List<E> {
 	 * @param [fromIndex=0] The index to start searching from.
 	 * @returns The index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 */
-	indexOf(element: E, fromIndex: number = 0): number {
+	indexOf(element: E, fromIndex: number = 0) {
 		return this.elements.indexOf(element, fromIndex);
 	}
 
@@ -114,7 +114,7 @@ export class List<E> {
 	 * @param [fromIndex] The index to start searching from. If omitted, the search starts from the end of the list.
 	 * @returns The index of the last occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 */
-	lastIndexOf(element: E, fromIndex: number = this.elements.length - 1): number {
+	lastIndexOf(element: E, fromIndex: number = this.elements.length - 1) {
 		return this.elements.lastIndexOf(element, fromIndex);
 	}
 
@@ -123,7 +123,7 @@ export class List<E> {
 	 * If the list is empty, null is returned and the list is not modified.
 	 * @returns The last element in the list or null.
 	 */
-	removeLast(): E | null {
+	removeLast() {
 		return this.elements.pop() ?? null;
 	}
 
@@ -132,7 +132,7 @@ export class List<E> {
 	 * If the list is empty, null is returned and the list is not modified.
 	 * @returns The first element in the list or null.
 	 */
-	removeFirst(): E | null {
+	removeFirst() {
 		return this.elements.shift() ?? null;
 	}
 
@@ -141,7 +141,7 @@ export class List<E> {
 	 * This method mutates the list and returns a reference to the same list.
 	 * @returns The mutated list.
 	 */
-	reverse(): List<E> {
+	reverse() {
 		this.elements.reverse();
 
 		return this;
@@ -152,7 +152,7 @@ export class List<E> {
 	 * @param element The element to check for.
 	 * @returns `true` if the list contains the element, `false` otherwise.
 	 */
-	contains(element: E): boolean {
+	contains(element: E) {
 		return this.elements.includes(element);
 	}
 
@@ -162,7 +162,7 @@ export class List<E> {
 	 * @param elements The lists to concatenate.
 	 * @returns A new list with the elements from all the given lists.
 	 */
-	concat(...elements: List<E>[] | E[]): List<E> {
+	concat(...elements: List<E>[] | E[]) {
 		const array = [ ...this.elements ];
 		for (const element of elements) {
 			if (element instanceof List) {
@@ -181,12 +181,12 @@ export class List<E> {
 	 * If omitted, the list elements are separated with a comma (",") by default. If separator is an empty string, all elements are joined without any characters in between them.
 	 * @returns A string with all the elements of the list joined. If the list has only one element, then that element will be returned without using the separator.
 	 */
-	join(separator: string = ','): string {
+	join(separator: string = ',') {
 		return this.elements.join(separator);
 	}
 
 	/** Removes all elements from the list. */
-	clear(): void {
+	clear() {
 		this.elements.length = 0;
 	}
 
@@ -198,7 +198,7 @@ export class List<E> {
 	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
 	 * @returns true if all elements satisfy the specified test, false otherwise.
 	 */
-	every(predicate: (element: E, index: number | null, thisArg: unknown) => boolean, context?: unknown): boolean {
+	every(predicate: (element: E, index: number | null, thisArg: unknown) => boolean, context?: unknown) {
 		return this.elements.every((element, index, thisArg) => predicate.call(context, element, index, thisArg), context);
 	}
 
@@ -210,7 +210,7 @@ export class List<E> {
 	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
 	 * @returns true if any of the elements returns true from the predicate function, false otherwise.
 	 */
-	some(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): boolean {
+	some(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>) {
 		return this.elements.some((element, index) => predicate.call(context, element, index, this), context);
 	}
 
@@ -221,7 +221,7 @@ export class List<E> {
 	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
 	 * @returns A new list of elements that satisfied the predicate condition.
 	 */
-	filter(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): List<E> {
+	filter(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>) {
 		return new List(this.elements.filter((element, index) => predicate.call(context, element, index, this), context));
 	}
 
@@ -232,7 +232,7 @@ export class List<E> {
 	 * @param [context] If provided, it will be used as the this value for each invocation of predicate. If it is not provided, undefined is used instead.
 	 * @returns The element in the array.
 	 */
-	find(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): E | undefined {
+	find(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>) {
 		return this.elements.find((element, index) => predicate.call(context, element, index, this), context);
 	}
 
@@ -243,7 +243,7 @@ export class List<E> {
 	 * @param [context] If provided, it will be used as the this value for each invocation of predicate. If it is not provided, undefined is used instead.
 	 * @returns The index found.
 	 */
-	findIndex(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): number {
+	findIndex(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>) {
 		return this.elements.findIndex((element, index) => predicate.call(context, element, index, this), context);
 	}
 
@@ -256,7 +256,7 @@ export class List<E> {
 	 * @param [context] An object to which the this keyword can refer in the callbackfn function. If context is omitted, undefined is used as the this value.
 	 * @returns A new list with each element being the result of the callback function.
 	 */
-	map(mapper: (element: E, index: number | null, thisArg: List<E> | null) => unknown, context?: unknown): List<unknown> {
+	map(mapper: (element: E, index: number | null, thisArg: List<E> | null) => unknown, context?: unknown) {
 		return new List(this.elements.map((element, index) => mapper.call(context, element, index, this), context));
 	}
 
@@ -268,7 +268,7 @@ export class List<E> {
 	 * @param [initialValue] If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an list value.
 	 * @returns The value that results from the reduction.
 	 */
-	reduce(reducer: (previousValue: E, currentValue: E, currentIndex: number, array: E[]) => E, initialValue: E): E {
+	reduce(reducer: (previousValue: E, currentValue: E, currentIndex: number, array: E[]) => E, initialValue: E) {
 		return this.elements.reduce(reducer, initialValue);
 	}
 
@@ -280,7 +280,7 @@ export class List<E> {
 	 * @param [comparator] A function that defines the sort order. If omitted, the default (ascending order) comparator function will be used.
 	 * @returns The sorted list.
 	 */
-	sort(comparator: (a: E, b: E) => number = (a: E, b: E) => typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b))): List<E> {
+	sort(comparator: (a: E, b: E) => number = (a: E, b: E) => typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b)))	 {
 		this.elements.sort(comparator);
 
 		return this;
@@ -291,7 +291,7 @@ export class List<E> {
 	 * @param consumer A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.
 	 * @param [context] An object to which the this keyword can refer in the consumer function. If context is omitted, this is used as the this value.
 	 */
-	forEach(consumer: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context: List<E> = this): void {
+	forEach(consumer: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context: List<E> = this) {
 		this.elements.forEach((element, index) => consumer(element, index, context));
 	}
 
@@ -299,7 +299,7 @@ export class List<E> {
 	 * Checks to see if the list is empty.
 	 * @returns true if the list is empty, false otherwise.
 	 */
-	isEmpty(): boolean {
+	isEmpty() {
 		return this.elements.length === 0;
 	}
 
@@ -307,7 +307,7 @@ export class List<E> {
 	 * Returns a shallow copy of the list into a new list.
 	 * @returns A new array that is a shallow copy of this list.
 	 */
-	toArray(): Array<E> {
+	toArray() {
 		return [ ...this.elements ];
 	}
 
@@ -315,7 +315,7 @@ export class List<E> {
 	 * Returns the primitive value of the list.
 	 * @returns The primitive value of the list.
 	 */
-	valueOf(): object {
+	valueOf() {
 		return this.elements.valueOf();
 	}
 
@@ -323,7 +323,7 @@ export class List<E> {
 	 * Returns the number of elements in the list.
 	 * @returns The number of elements in the list.
 	 */
-	get size(): number {
+	get size() {
 		return this.elements.length;
 	}
 
@@ -331,7 +331,7 @@ export class List<E> {
 	 * Returns an iterator for the keys in the list.
 	 * @yields {Generator<number, void, undefined>} An iterator for the keys in the list.
 	 */
-	*keys(): Generator<number, void, undefined> {
+	*keys()	 {
 		yield* this.elements.keys();
 	}
 
@@ -339,7 +339,7 @@ export class List<E> {
 	 * Returns an iterator for the values in the list.
 	 * @yields {Generator<E, void, undefined>} An iterator for the values in the list.
 	 */
-	*values(): Generator<E, void, undefined> {
+	*values()	 {
 		yield* this.elements;
 	}
 
@@ -348,7 +348,7 @@ export class List<E> {
 	 * Each entry is an array of [index, value].
 	 * @yields {Generator<[number, E], void, undefined>} An iterator for the entries in the list.
 	 */
-	*entries(): Generator<[number, E], void, undefined> {
+	*entries() {
 		yield* this.elements.entries();
 	}
 
@@ -356,7 +356,7 @@ export class List<E> {
 	 * Creates an iterator for the elements in the list.
 	 * @yields {IterableIterator<E>} An iterator for the elements in the list.
 	 */
-	*[Symbol.iterator](): Generator<E, void, undefined> {
+	*[Symbol.iterator]() {
 		yield* this.elements;
 	}
 
@@ -364,7 +364,7 @@ export class List<E> {
 	 * Returns a string representation of the list.
 	 * @returns A string representation of the list.
 	 */
-	toString(): string {
+	toString() {
 		return this.elements.toString();
 	}
 
@@ -373,7 +373,7 @@ export class List<E> {
 	 * This property has the value "List".
 	 * @returns The string tag of the list.
 	 */
-	get [Symbol.toStringTag](): string {
+	get [Symbol.toStringTag]() {
 		return 'List';
 	}
 }

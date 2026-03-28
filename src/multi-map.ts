@@ -54,7 +54,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param value The value to check.
 	 * @returns True if the key has the value, false otherwise.
 	 */
-	hasValue(key: K, value: V): boolean {
+	hasValue(key: K, value: V) {
 		const values = super.get(key);
 
 		return values ? values.contains(value) : false;
@@ -66,7 +66,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value: V | undefined): boolean {
+	deleteValue(key: K, value: V | undefined) {
 		if (value === undefined) { return this.delete(key) }
 
 		const values = super.get(key);

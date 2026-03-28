@@ -39,7 +39,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the previous node.
 	 * @returns The previous node.
 	 */
-	override get previous(): KeyedNode<K, E> | null {
+	override get previous() {
 		return this.$previous as KeyedNode<K, E>;
 	}
 
@@ -55,7 +55,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the next node.
 	 * @returns The next node.
 	 */
-	override get next(): KeyedNode<K, E> | null {
+	override get next() {
 		return this.$next as KeyedNode<K, E>;
 	}
 
@@ -71,7 +71,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the value of the node.
 	 * @returns The value of the node.
 	 */
-	override get value(): E {
+	override get value() {
 		return this.$value;
 	}
 
@@ -87,7 +87,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the string description of the class.
 	 * @returns The string description of the class.
 	 */
-	override get [Symbol.toStringTag](): string {
+	override get [Symbol.toStringTag]() {
 		return 'KeyedNode';
 	}
 }

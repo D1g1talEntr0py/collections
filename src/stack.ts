@@ -13,7 +13,7 @@ export class Stack<E> {
 	 * Pushes a value onto the stack.
 	 * @param value - The value to be pushed.
 	 */
-	push(value: E): void {
+	push(value: E) {
 		this.items.push(value);
 	}
 
@@ -22,7 +22,7 @@ export class Stack<E> {
 	 * Returns undefined if the stack is empty.
 	 * @returns The popped value or undefined.
 	 */
-	pop(): E | undefined {
+	pop() {
 		return this.items.pop();
 	}
 
@@ -31,7 +31,7 @@ export class Stack<E> {
 	 * Returns undefined if the stack is empty.
 	 * @returns The top value of the stack or undefined.
 	 */
-	peek(): E | undefined {
+	peek() {
 		return this.items[this.items.length - 1];
 	}
 
@@ -39,7 +39,7 @@ export class Stack<E> {
 	 * Checks if the stack is empty.
 	 * @returns True if the stack is empty, false otherwise.
 	 */
-	isEmpty(): boolean {
+	isEmpty() {
 		return this.items.length === 0;
 	}
 
@@ -47,7 +47,7 @@ export class Stack<E> {
 	 * Returns the number of items in the stack.
 	 * @returns The number of items in the stack.
 	 */
-	get size(): number {
+	get size() {
 		return this.items.length;
 	}
 }
