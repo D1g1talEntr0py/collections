@@ -16,7 +16,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key to retrieve.
 	 * @returns The value associated with the key, or undefined if the key is not in the map.
 	 */
-	get(key: K) {
+	get(key: K): V | undefined {
 		return this.$map.get(key)?.value;
 	}
 
@@ -25,7 +25,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key with which the specified value is to be associated.
 	 * @param value The value to be associated with the specified key.
 	 */
-	set(key: K, value: V) {
+	set(key: K, value: V): void {
 		const node = this.$map.get(key);
 
 		if (node !== undefined) {
@@ -43,7 +43,7 @@ export class LinkedMap<K, V> {
 	 * @param defaultValue The value to insert and return if the key is not already in the map.
 	 * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
 	 */
-	getOrInsert(key: K, defaultValue: V) {
+	getOrInsert(key: K, defaultValue: V): V {
 		const node = this.$map.get(key);
 
 		if (node !== undefined) { return node.value }
@@ -60,7 +60,7 @@ export class LinkedMap<K, V> {
 	 * @param callback The function to compute a value to insert and return if the key is not already in the map.
 	 * @returns The element associated with the specific key, which will be the newly computed value if no element previously existed.
 	 */
-	getOrInsertComputed(key: K, callback: (key: K) => V) {
+	getOrInsertComputed(key: K, callback: (key: K) => V): V {
 		const node = this.$map.get(key);
 
 		if (node !== undefined) { return node.value }
@@ -76,7 +76,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key whose mapping is to be removed from the map.
 	 * @returns True if the map contained a mapping for the specified key, false otherwise.
 	 */
-	remove(key: K | null) {
+	remove(key: K | null): boolean {
 		if (key === null) { return false }
 		return this.unlinkNode(this.$map.get(key)) ? this.$map.delete(key) : false;
 	}
@@ -91,7 +91,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key of the new node.
 	 * @param value The value of the new node.
 	 */
-	addFirst(key: K, value: V) {
+	addFirst(key: K, value: V): void {
 		const node = this.$map.get(key);
 
 		if (node !== undefined) {
@@ -112,7 +112,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key of the new node.
 	 * @param value The value of the new node.
 	 */
-	addLast(key: K, value: V) {
+	addLast(key: K, value: V): void {
 		const node = this.$map.get(key);
 
 		if (node !== undefined) {
@@ -137,7 +137,7 @@ export class LinkedMap<K, V> {
 	 * If the node is not the tail, the next node's previous pointer will be updated to point to the previous node.
 	 * @param key The key of the node to move to the beginning of the list.
 	 */
-	moveToFirst(key: K) {
+	moveToFirst(key: K): void {
 		this.$moveToFirst(this.$map.get(key));
 	}
 
@@ -154,7 +154,7 @@ export class LinkedMap<K, V> {
 	 * If the key already exists, the value will be updated.
 	 * @param key The key of the node to move to the end of the list.
 	 */
-	moveToLast(key: K) {
+	moveToLast(key: K): void {
 		this.$moveToLast(this.$map.get(key));
 	}
 
@@ -162,7 +162,7 @@ export class LinkedMap<K, V> {
 	 * Returns the value to which the first key is mapped, or null if this map contains no mappings.
 	 * @returns The value to which the first key is mapped, or null if this map contains no mappings.
 	 */
-	getFirst() {
+	getFirst(): V | null {
 		return this.$head?.value ?? null;
 	}
 
@@ -170,7 +170,7 @@ export class LinkedMap<K, V> {
 	 * Returns the value to which the last key is mapped, or null if this map contains no mappings.
 	 * @returns The value to which the last key is mapped, or null if this map contains no mappings.
 	 */
-	getLast() {
+	getLast(): V | null {
 		return this.$tail?.value ?? null;
 	}
 
@@ -183,7 +183,7 @@ export class LinkedMap<K, V> {
 	 * The node's previous and next pointers will be updated to point to null.
 	 * @returns True if the first key and its corresponding value were removed, false otherwise.
 	 */
-	removeFirst() {
+	removeFirst(): boolean {
 		return this.$head === null ? false : this.remove(this.$head.key);
 	}
 
@@ -198,7 +198,7 @@ export class LinkedMap<K, V> {
 	 * If the node is already the tail, nothing will happen.
 	 * @returns True if the last key and its corresponding value were removed, false otherwise.
 	 */
-	removeLast() {
+	removeLast(): boolean {
 		return this.$tail === null ? false : this.remove(this.$tail.key);
 	}
 
@@ -207,7 +207,7 @@ export class LinkedMap<K, V> {
 	 * @param key The key to check.
 	 * @returns True if the map contains the key, false otherwise.
 	 */
-	has(key: K) {
+	has(key: K): boolean {
 		return this.$map.has(key);
 	}
 
@@ -216,12 +216,12 @@ export class LinkedMap<K, V> {
 	 * @param callback - Function to execute for each key-value pair.
 	 * @param thisArg - Value to use as `this` when executing the callback.
 	 */
-	forEach(callback: (value: V, key: K, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this) {
-		for (const [ key, value ] of this) { callback.call(thisArg, value as V, key as K, this) }
+	forEach(callback: (value: V | null, key: K | null, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this): void {
+		for (const [ key, value ] of this) { callback.call(thisArg, value, key, this) }
 	}
 
 	/** Removes all of the mappings from this map. The map will be empty after this call returns. */
-	clear() {
+	clear(): void {
 		this.$map.clear();
 		this.$head = this.$tail = null;
 	}
@@ -230,7 +230,7 @@ export class LinkedMap<K, V> {
 	 * Returns the number of key-value pairs in the map.
 	 * @returns The number of key-value pairs in the map.
 	 */
-	get size() {
+	get size(): number {
 		return this.$map.size;
 	}
 
@@ -238,7 +238,7 @@ export class LinkedMap<K, V> {
 	 * Returns an iterator that yields all keys in the map in their insertion order.
 	 * @yields {Generator<K | null, void, unknown>} An iterator for the keys in the map.
 	 */
-	*keys() {
+	*keys(): Generator<K | null, void, unknown> {
 		for (const [ key ] of this) { yield key }
 	}
 
@@ -246,7 +246,7 @@ export class LinkedMap<K, V> {
 	 * Returns an iterator that yields all values in the map in their insertion order.
 	 * @yields {Generator<V | null, void, unknown>} An iterator for the values in the map.
 	 */
-	*values() {
+	*values(): Generator<V | null, void, unknown> {
 		for (const [ _key , value ] of this) { yield value }
 	}
 
@@ -254,7 +254,7 @@ export class LinkedMap<K, V> {
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
 	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
 	 */
-	*entries() {
+	*entries(): Generator<[K | null, V | null], void, unknown> {
 		yield* this;
 	}
 
@@ -262,7 +262,7 @@ export class LinkedMap<K, V> {
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
 	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
 	 */
-	*[Symbol.iterator]() {
+	*[Symbol.iterator](): Generator<[K | null, V | null], void, unknown> {
 		for (let node = this.$head; node !== null; node = node.next) { yield [ node.key, node.value ] }
 	}
 

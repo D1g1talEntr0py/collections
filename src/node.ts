@@ -68,7 +68,7 @@ export class Node<E> {
 	}
 
 	/** Unlinks this node from the list */
-	unlink() {
+	unlink(): void {
 		if (this.$previous !== null) { this.$previous.next = this.$next }
 
 		if (this.$next !== null) { this.$next.previous = this.$previous }

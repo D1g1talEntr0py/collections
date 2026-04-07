@@ -102,7 +102,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param iterator The iterator function to use to find the value.
 	 * @returns The value for the specified key
 	 */
-	find(key: K, iterator: (value: V) => boolean) {
+	find(key: K, iterator: (value: V) => boolean): V | undefined {
 		const values = this.get(key);
 
 		if (values !== undefined) {
@@ -119,7 +119,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param value The value to check.
 	 * @returns True if the key has the value, false otherwise.
 	 */
-	hasValue(key: K, value: V) {
+	hasValue(key: K, value: V): boolean {
 		const values = super.get(key);
 
 		return values ? values.has(value) : false;
@@ -131,7 +131,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value: V | undefined) {
+	deleteValue(key: K, value: V | undefined): boolean {
 		if (value === undefined) { return this.delete(key) }
 
 		const values = super.get(key);
