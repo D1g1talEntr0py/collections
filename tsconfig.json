@@ -2,20 +2,18 @@
 	"compilerOptions": {
 		"sourceMap": true,
 		"declaration": true,
+		"isolatedDeclarations": true,
 		"isolatedModules": true,
-		"verbatimModuleSyntax": true,
-		"forceConsistentCasingInFileNames": true,
-		"erasableSyntaxOnly": true,
 		"allowUnusedLabels": false,
 		"allowUnreachableCode": false,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
+		"stableTypeOrdering": true,
 		"noUncheckedIndexedAccess": true,
-		"target": "ESNext",
-		"moduleResolution": "Bundler",
 		"rootDir": "./src",
-		"lib": [ "ESNext", "DOM" ]
+		"lib": [ "esnext", "dom" ],
+		"module": "preserve"
 	},
-	"include": [ "src/" ],
+	"include": [ "./src" ],
 	"tsbuild": { "bundle": false }
 }
