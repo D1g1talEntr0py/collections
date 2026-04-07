@@ -1,3 +1,22 @@
+## [2.2.1](https://github.com/D1g1talEntr0py/collections/compare/v2.2.0...v2.2.1) (2026-04-07)
+
+### Bug Fixes
+
+* update dependencies to address CVE-2026-39363 in Vite (2b353f84b3093bcb56c622058cc1c725a68cbc9c)
+Updates Vite and related dependencies to fix a security vulnerability. This addresses CVE-2026-39363 by bumping Vitest and its transient dependency Vite.
+
+
+### Code Refactoring
+
+* add explicit return types to public methods (fd77f735735336dfdd7b988c7e3edfe50530e421)
+Adds explicit return types to class methods across the project to improve code clarity and prepare for TypeScript's isolated declarations.
+
+
+### Build System
+
+* update typescript configuration and release rules (08c029410b19c1d0f6836aa98b7a64b53892e2b2)
+Enables isolated declarations in TypeScript and adds a release rule for breaking changes to automate major version bumps.
+
 ## [2.2.0](https://github.com/D1g1talEntr0py/collections/compare/v2.1.6...v2.2.0) (2026-03-28)
 
 ### Features
