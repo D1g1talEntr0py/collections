@@ -1,3 +1,20 @@
+## [2.2.2](https://github.com/D1g1talEntr0py/collections/compare/v2.2.1...v2.2.2) (2026-05-25)
+
+### Bug Fixes
+
+* **ci:** disabled minimum release age (sorry pnpm) (aa1cd218dc660b3ba96cbefe95ccc65f8a59ff9a)
+
+### Code Refactoring
+
+* transition to native ECMAScript private fields (2929ae5638f6b5bcd330ae30fe7e35a511168e3f)
+Replaces TypeScript's `private` keyword combined with `$` prefixes or internal naming with native ECMAScript private fields (`#`). Enhances true runtime encapsulation for data structures.
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependencies, package manager, and CI workflows (be39151c7880d11b6e05f2dca615f77c530d4d21)
+Updates development dependencies and bumps the pnpm package manager version. Changes the pnpm workspace configuration for build allowances. Updates GitHub Actions CI workflows to use newer action versions and supported Node.js versions.
+
 ## [2.2.1](https://github.com/D1g1talEntr0py/collections/compare/v2.2.0...v2.2.1) (2026-04-07)
 
 ### Bug Fixes
