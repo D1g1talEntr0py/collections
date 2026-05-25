@@ -4,7 +4,7 @@ type KeyedNodeOptions<K, E> = Partial<Omit<KeyedNode<K, E>, 'value' | 'key'>> & 
 
 /** JavaScript implementation of a Node that can be used in a linked list. */
 export class KeyedNode<K, E> extends Node<E> {
-	private $key: K | null;
+	#key: K | null;
 
 	/**
 	 * Creates a new node with the given value.
@@ -16,7 +16,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 */
 	constructor({ previous = null, next = null, key, value }: KeyedNodeOptions<K, E>) {
 		super({ previous, next, value });
-		this.$key = key;
+		this.#key = key;
 	}
 
 	/**
@@ -24,7 +24,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * @returns The key.
 	 */
 	get key(): K | null {
-		return this.$key;
+		return this.#key;
 	}
 
 	/**
@@ -32,7 +32,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * @param key The key.
 	 */
 	set key(key: K) {
-		this.$key = key;
+		this.#key = key;
 	}
 
 	/**

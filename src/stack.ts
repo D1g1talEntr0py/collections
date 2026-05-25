@@ -1,12 +1,12 @@
 /** JavaScript implementation of a Stack */
 export class Stack<E> {
-	private readonly items: Array<E>;
+	readonly #items: Array<E>;
 
 	/**
 	 * Creates a new stack.
 	 */
 	constructor() {
-		this.items = [];
+		this.#items = [];
 	}
 
 	/**
@@ -14,7 +14,7 @@ export class Stack<E> {
 	 * @param value - The value to be pushed.
 	 */
 	push(value: E): void {
-		this.items.push(value);
+		this.#items.push(value);
 	}
 
 	/**
@@ -23,7 +23,7 @@ export class Stack<E> {
 	 * @returns The popped value or undefined.
 	 */
 	pop(): E | undefined {
-		return this.items.pop();
+		return this.#items.pop();
 	}
 
 	/**
@@ -32,7 +32,7 @@ export class Stack<E> {
 	 * @returns The top value of the stack or undefined.
 	 */
 	peek(): E | undefined {
-		return this.items[this.items.length - 1];
+		return this.#items[this.#items.length - 1];
 	}
 
 	/**
@@ -40,7 +40,7 @@ export class Stack<E> {
 	 * @returns True if the stack is empty, false otherwise.
 	 */
 	isEmpty(): boolean {
-		return this.items.length === 0;
+		return this.#items.length === 0;
 	}
 
 	/**
@@ -48,6 +48,6 @@ export class Stack<E> {
 	 * @returns The number of items in the stack.
 	 */
 	get size(): number {
-		return this.items.length;
+		return this.#items.length;
 	}
 }
