@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+env:
+  PNPM_CONFIG_MINIMUM_RELEASE_AGE: ${{ vars.PNPM_CONFIG_MINIMUM_RELEASE_AGE || '0' }}
+
 permissions:
   contents: write
   issues: write
