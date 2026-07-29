@@ -133,7 +133,6 @@ export class LinkedList<E> {
 		} else if (index === this.#size) {
 			this.addLast(value);
 		} else {
-			// TODO: Fix ! assertion
 			const prevNode = this.getNodeAt(index - 1)!;
 			prevNode.next = new Node({ value, previous: this.#doublyLinked ? prevNode : null, next: prevNode.next });
 			this.#size++;
@@ -147,7 +146,7 @@ export class LinkedList<E> {
 	 */
 	contains(value: E): boolean {
 		for (let node = this.#head; node; node = node.next) {
-			if (node.value === value) return true;
+			if (node.value === value) { return true }
 		}
 
 		return false;

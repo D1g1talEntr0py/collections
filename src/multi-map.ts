@@ -107,11 +107,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	find(key: K, iterator: (value: V) => boolean): V | undefined {
 		const values = this.get(key);
 
-		if (values !== undefined) {
-			return Array.from(values).find(iterator);
-		}
-
-		return undefined;
+		return values !== undefined ? Array.from(values).find(iterator) : undefined;
 	}
 
 	/**
@@ -122,9 +118,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns True if the key has the value, false otherwise.
 	 */
 	hasValue(key: K, value: V): boolean {
-		const values = super.get(key);
-
-		return values ? values.contains(value) : false;
+		return super.get(key)?.contains(value) ?? false;
 	}
 
 	/**
@@ -133,7 +127,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value: V | undefined): boolean {
+	deleteValue(key: K, value?: V): boolean {
 		if (value === undefined) { return this.delete(key) }
 
 		const values = super.get(key);

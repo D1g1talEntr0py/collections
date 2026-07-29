@@ -2,9 +2,9 @@ import { KeyedNode } from './keyed-node';
 
 /** A Map that maintains insertion order. */
 export class LinkedMap<K, V> {
-	readonly #map: Map<K, KeyedNode<K, V>>;
 	#head: KeyedNode<K, V> | null = null;
 	#tail: KeyedNode<K, V> | null = null;
+	readonly #map: Map<K, KeyedNode<K, V>>;
 
 	/** Initializes an empty LinkedMap. */
 	constructor() {

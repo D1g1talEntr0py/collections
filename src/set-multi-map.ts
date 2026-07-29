@@ -105,11 +105,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	find(key: K, iterator: (value: V) => boolean): V | undefined {
 		const values = this.get(key);
 
-		if (values !== undefined) {
-			return Array.from(values).find(iterator);
-		}
-
-		return undefined;
+		return values !== undefined ? Array.from(values).find(iterator) : undefined;
 	}
 
 	/**
@@ -120,9 +116,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @returns True if the key has the value, false otherwise.
 	 */
 	hasValue(key: K, value: V): boolean {
-		const values = super.get(key);
-
-		return values ? values.has(value) : false;
+		return super.get(key)?.has(value) ?? false;
 	}
 
 	/**
@@ -138,9 +132,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 		if (values) {
 			const deleted = values.delete(value);
 
-			if (values.size === 0) {
-				super.delete(key);
-			}
+			if (values.size === 0) { super.delete(key) }
 
 			return deleted;
 		}

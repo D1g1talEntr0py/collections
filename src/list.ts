@@ -66,7 +66,7 @@ export class List<E> {
 	 * @returns The element that was removed.
 	 */
 	removeAt(index: number): E | undefined {
-		if (index < 0 || this.#elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
+		if (index < 0 || this.#elements.length <= index) { throw new RangeError(`Index ${index} out of bounds.`) }
 
 		return this.#elements.splice(index, 1)[0];
 	}
@@ -88,7 +88,7 @@ export class List<E> {
 	 * @returns The updated list.
 	 */
 	set(index: number, element: E): List<E> {
-		if (index < 0 || this.#elements.length <= index) {	throw new RangeError(`Index ${index} out of bounds.`) }
+		if (index < 0 || this.#elements.length <= index) { throw new RangeError(`Index ${index} out of bounds.`) }
 
 		this.#elements.splice(index, 1, element);
 
