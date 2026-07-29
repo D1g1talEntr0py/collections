@@ -1,3 +1,18 @@
+## [2.2.3](https://github.com/D1g1talEntr0py/collections/compare/v2.2.2...v2.2.3) (2026-07-29)
+* **deps:** update dependencies to fix the following security vulnerabilities (79fa3944c483340b35c2bb09648a92ffee3c7401)
+- [CWE-22, CWE-200] vite: `server.fs.deny` bypass on Windows alternate paths
+- [CWE-400, CWE-407] brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups
+- [CWE-73, CWE-522] launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows
+- [CWE-22] esbuild allows arbitrary file read when running the development server on Windows
+
+* replace public properties with private class fields in data structures (77ed52cc3f5d14a60fc32f5e1d5cfeab7d515e78)
+- Updated `KeyedNode`, `LinkedList`, `LinkedMap`, `List`, `MultiMap`, `SetMultiMap`, and `Stack` classes to use private class fields (e.g., `#key`, `#head`, `#tail`, `#elements`) instead of public properties (e.g., `$key`, `$head`, `$tail`, `elements`).
+- This change enhances encapsulation and aligns with modern JavaScript practices.
+- Adjusted all relevant methods to access the new private fields accordingly.
+
+* update actions and pnpm setup versions in CI and publish workflows (80ef7315b49a0ac0098bb65db8e3d4b5fb58d6ed)
+* update CI and codecov badge URLs in README (d44d7d171949149483dafdc27ab449f05da55791)
+
 ## [2.2.2](https://github.com/D1g1talEntr0py/collections/compare/v2.2.1...v2.2.2) (2026-05-25)
 
 ### Bug Fixes
