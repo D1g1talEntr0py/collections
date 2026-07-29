@@ -1,7 +1,7 @@
 {
   "name": "@d1g1tal/collections",
   "author": "D1g1talEntr0py",
-  "version": "2.2.2",
+  "version": "2.2.1",
   "license": "MIT",
   "description": "JavaScript Collections ES Modules",
   "homepage": "https://github.com/D1g1talEntr0py/collections#readme",
@@ -21,7 +21,7 @@
   "engines": {
     "node": ">=20.16.0"
   },
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.17.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
@@ -54,23 +54,23 @@
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@d1g1tal/tsbuild": "^1.9.0",
+    "@d1g1tal/tsbuild": "^2.1.0",
     "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
     "@types/benchmark": "^2.1.5",
-    "@types/node": "^25.9.1",
-    "@typescript-eslint/eslint-plugin": "8.59.4",
-    "@typescript-eslint/parser": "8.59.4",
-    "@vitest/coverage-v8": "^4.1.7",
+    "@types/node": "^26.1.2",
+    "@typescript-eslint/eslint-plugin": "8.65.0",
+    "@typescript-eslint/parser": "8.65.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "benchmark": "^2.1.4",
-    "eslint": "^10.4.0",
+    "eslint": "^10.8.0",
     "eslint-plugin-compat": "^7.0.2",
-    "eslint-plugin-jsdoc": "^63.0.0",
-    "globals": "^17.6.0",
+    "eslint-plugin-jsdoc": "^63.3.2",
+    "globals": "^17.8.0",
     "microtime": "^3.1.1",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "8.59.4",
-    "vitest": "^4.1.7"
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.65.0",
+    "vitest": "^4.1.10"
   },
   "browserslist": [
     "defaults",
