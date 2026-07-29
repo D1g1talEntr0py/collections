@@ -3,8 +3,8 @@ JavaScript Collections and Data Structures
 
 [![npm version](https://img.shields.io/npm/v/@d1g1tal/collections?color=blue)](https://www.npmjs.com/package/@d1g1tal/collections)
 [![npm downloads](https://img.shields.io/npm/dm/@d1g1tal/collections)](https://www.npmjs.com/package/@d1g1tal/collections)
-[![CI](https://github.com/D1g1talEntr0py/collections/actions/workflows/ci.yml/badge.svg)](https://github.com/D1g1talEntr0py/collections/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/D1g1talEntr0py/collections/graph/badge.svg)](https://codecov.io/gh/D1g1talEntr0py/collections)
+[![CI](https://img.shields.io/github/actions/workflow/status/D1g1talEntr0py/collections/ci.yml?branch=main&label=CI)](https://github.com/D1g1talEntr0py/collections/actions/workflows/ci.yml)
+[![codecov](https://img.shields.io/codecov/c/github/D1g1talEntr0py/collections?branch=main&label=coverage)](https://codecov.io/gh/D1g1talEntr0py/collections)
 [![License: MIT](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/node/v/@d1g1tal/collections)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript->=5.1.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
