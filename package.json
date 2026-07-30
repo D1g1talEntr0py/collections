@@ -21,7 +21,7 @@
   "engines": {
     "node": ">=20.16.0"
   },
-  "packageManager": "pnpm@11.17.0",
+  "packageManager": "pnpm@11.18.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
@@ -54,7 +54,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
-    "@d1g1tal/tsbuild": "^2.1.0",
+    "@d1g1tal/tsbuild": "^2.2.1",
     "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
     "@types/benchmark": "^2.1.5",
