@@ -1,3 +1,8 @@
+## [2.2.4](https://github.com/D1g1talEntr0py/collections/compare/v2.2.3...v2.2.4) (2026-07-30)
+* updated tsbuild to fix a problem with imports missing the file extension when building (2c8b2e07a780df2fa6c327569d14c85d4534915d)
+* update eslint config to TypeScript (5d37e9d7aa70ac283806e9925a13331f5a5a99cc)
+* replaced node v20 with v26 in the test matrix (778c5740647021645a0684ebe6429d0b6ee35cd0)
+
 ## [2.2.3](https://github.com/D1g1talEntr0py/collections/compare/v2.2.2...v2.2.3) (2026-07-29)
 * **deps:** update dependencies to fix the following security vulnerabilities (79fa3944c483340b35c2bb09648a92ffee3c7401)
 - [CWE-22, CWE-200] vite: `server.fs.deny` bypass on Windows alternate paths
