@@ -85,8 +85,9 @@ export class LinkedList<E> {
 	 * @returns The removed element, or null if the element was not found.
 	 */
 	remove(value: E): E | null {
-		for (let node = this.#head; node; node = node.next) {
-			if (node.value === value) {	return this.removeNode(node) }
+		let previous: Node<E> | null = null;
+		for (let node = this.#head; node; previous = node, node = node.next) {
+			if (node.value === value) { return this.removeNode(node, previous) }
 		}
 
 		return null;
@@ -134,7 +135,10 @@ export class LinkedList<E> {
 			this.addLast(value);
 		} else {
 			const prevNode = this.getNodeAt(index - 1)!;
-			prevNode.next = new Node({ value, previous: this.#doublyLinked ? prevNode : null, next: prevNode.next });
+			const nextNode = prevNode.next;
+			const node = new Node({ value, previous: this.#doublyLinked ? prevNode : null, next: nextNode });
+			prevNode.next = node;
+			if (this.#doublyLinked) { nextNode!.previous = node }
 			this.#size++;
 		}
 	}
@@ -164,7 +168,8 @@ export class LinkedList<E> {
 		while (node) {
 			const next = node.next;
 			node.next = prev;
-			if (prev) prev.previous = node;
+			node.previous = this.#doublyLinked ? next : null;
+
 			prev = node;
 			node = next;
 		}
@@ -178,7 +183,12 @@ export class LinkedList<E> {
 	 * This method runs in linear time.
 	 */
 	clear(): void {
-		for (let node = this.#head; node; node = node.next) {	node.unlink() }
+		let node = this.#head;
+		while (node) {
+			const next = node.next;
+			node.previous = node.next = null;
+			node = next;
+		}
 
 		this.#head = this.#tail = null;
 		this.#size = 0;
@@ -294,16 +304,10 @@ export class LinkedList<E> {
 		let node: Node<E> | null;
 		if (this.#doublyLinked && index >= this.#size / 2) {
 			node = this.#tail;
-			for (let i = this.#size - 1; i > index; i--) {
-				// TODO: Remove ugly TypeScript ! assertion
-				node = node!.previous;
-			}
+			for (let i = this.#size - 1; i > index; i--) { node = node!.previous }
 		} else {
 			node = this.#head;
-			for (let i = 0; i < index; i++) {
-				// TODO: Remove ugly TypeScript ! assertion
-				node = node!.next;
-			}
+			for (let i = 0; i < index; i++) { node = node!.next }
 		}
 
 		return node;
@@ -312,31 +316,34 @@ export class LinkedList<E> {
 	/**
 	 * Removes a node from the list.
 	 * @param node The node to remove.
+	 * @param previous The node preceding the node to remove, when already known.
 	 * @returns The value of the removed node.
 	 */
-	private removeNode(node: Node<E> | null) {
+	private removeNode(node: Node<E> | null, previous: Node<E> | null = null) {
 		if (node === null) { return null }
 
 		const value = node.value;
 
-		// If the node to be removed is the only node in the list
 		if (node === this.#head && node === this.#tail) {
 			this.#head = this.#tail = null;
+		} else if (node === this.#head) {
+			this.#head = node.next;
+			if (this.#doublyLinked) { this.#head!.previous = null }
+		} else if (this.#doublyLinked) {
+			if (node === this.#tail) { this.#tail = node.previous }
+			node.unlink();
 		} else {
-			// Update head or tail reference and unlink the node
-			if (node === this.#head) {
-				this.#head = node.next;
-			} else if (node === this.#tail) {
-				this.#tail = this.#doublyLinked ? node.previous : null;
-				if (this.#tail) this.#tail.next = null;
-			} else {
-				node.unlink();
+			if (previous === null) {
+				previous = this.#head;
+				while (previous?.next !== node) { previous = previous!.next }
 			}
+
+			previous.next = node.next;
+			if (node === this.#tail) { this.#tail = previous }
 		}
 
+		node.previous = node.next = null;
 		this.#size--;
-
-		// If there's only one node left, make sure head and tail point to it
 		if (this.#size === 1) { this.#tail = this.#head }
 
 		return value;

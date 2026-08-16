@@ -169,6 +169,16 @@ describe('Doubly LinkedList', () => {
 			expect(list.getFirst()).toBe(1);
 		});
 
+		it('maintains backward links after inserting in the middle', () => {
+			list.addLast(1);
+			list.addLast(3);
+			list.insert(1, 2);
+
+			expect(list.removeLast()).toBe(3);
+			expect(list.getLast()).toBe(2);
+			expect(list.toArray()).toEqual([1, 2]);
+		});
+
 		it('inserts a value at the end of the list', () => {
 			list.addLast(1);
 			list.addLast(2);
@@ -386,6 +396,19 @@ describe('Singly LinkedList', () => {
 		it('Returns null when the list is empty', () => {
 			expect(list.removeLast()).toBeNull();
 		});
+
+		it('unlinks the tail and allows another value to be appended', () => {
+			list.addLast(1);
+			list.addLast(2);
+			list.addLast(3);
+
+			expect(list.removeLast()).toBe(3);
+			list.addLast(4);
+
+			expect(list.getLast()).toBe(4);
+			expect(list.size).toBe(3);
+			expect(list.toArray()).toEqual([1, 2, 4]);
+		});
 	});
 
 	describe('remove', () => {
@@ -409,6 +432,16 @@ describe('Singly LinkedList', () => {
 			list.addLast(1);
 			expect(list.remove(1)).toBe(1);
 			expect(list.size).toBe(0);
+		});
+
+		it('unlinks an element from the middle of the list', () => {
+			list.addLast(1);
+			list.addLast(2);
+			list.addLast(3);
+
+			expect(list.remove(2)).toBe(2);
+			expect(list.size).toBe(2);
+			expect(list.toArray()).toEqual([1, 3]);
 		});
 	});
 
