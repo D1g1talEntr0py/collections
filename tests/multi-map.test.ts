@@ -69,10 +69,10 @@ describe('MultiMap', () => {
 		it('should return the inserted value when the key does not exist', () => {
 			const value = multiMap.getOrInsert('key1', 'value1');
 
-			expect(value).toBe('value1');
-			expect(multiMap.get('key1')).toBeInstanceOf(List);
-			expect(multiMap.get('key1')?.size).toBe(1);
-			expect(multiMap.get('key1')?.get(0)).toBe('value1');
+			expect(value).toBeInstanceOf(List);
+			expect(value.size).toBe(1);
+			expect(value.get(0)).toBe('value1');
+			expect(multiMap.get('key1')).toBe(value);
 		});
 
 		it('should insert the provided List when the key does not exist', () => {
@@ -99,10 +99,10 @@ describe('MultiMap', () => {
 		it('should return the computed value when the key does not exist', () => {
 			const value = multiMap.getOrInsertComputed('key1', () => 'value1');
 
-			expect(value).toBe('value1');
-			expect(multiMap.get('key1')).toBeInstanceOf(List);
-			expect(multiMap.get('key1')?.size).toBe(1);
-			expect(multiMap.get('key1')?.get(0)).toBe('value1');
+			expect(value).toBeInstanceOf(List);
+			expect(value.size).toBe(1);
+			expect(value.get(0)).toBe('value1');
+			expect(multiMap.get('key1')).toBe(value);
 		});
 
 		it('should insert the computed List when the key does not exist', () => {
@@ -193,6 +193,14 @@ describe('MultiMap', () => {
 		it('should return true if a value was removed', () => {
 			multiMap.set('key1', 'value1');
 			expect(multiMap.deleteValue('key1', 'value1')).toBe(true);
+		});
+
+		it('should return true if a falsy value was removed', () => {
+			const numericMap = new MultiMap<string, number>();
+			numericMap.set('key1', 0);
+
+			expect(numericMap.deleteValue('key1', 0)).toBe(true);
+			expect(numericMap.has('key1')).toBe(false);
 		});
 
 		it('should return false if a value does not exist', () => {

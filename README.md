@@ -45,8 +45,8 @@ For `LinkedMap`, both methods return the map value type (`V`).
 For `MultiMap` and `SetMultiMap`, behavior matches `Map` semantics:
 
 - If the key exists, they return the existing stored collection (`List<V>` or `Set<V>`).
-- If the key does not exist and you pass a scalar (`V`), they return that inserted scalar.
-- If the key does not exist and you pass a collection (`List<V>` or `Set<V>`), they return that inserted collection.
+- If the key does not exist and you pass a scalar (`V`), they wrap it in the collection, insert it, and return that collection.
+- If the key does not exist and you pass a collection (`List<V>` or `Set<V>`), they insert and return that collection.
 
 ## Collection Types
 
@@ -226,7 +226,8 @@ console.log(Array.from(ticketsByStatus.get('open') ?? []));
 // ['INC-101', 'INC-101']
 
 const insertedTicket = ticketsByStatus.getOrInsert('pending', 'INC-200');
-console.log(insertedTicket); // INC-200
+console.log(Array.from(insertedTicket));
+// ['INC-200']
 console.log(Array.from(ticketsByStatus.get('pending') ?? []));
 // ['INC-200']
 
@@ -263,7 +264,8 @@ console.log(Array.from(rolesByUser.get('jason') ?? []));
 // ['editor']
 
 const insertedRole = rolesByUser.getOrInsert('alice', 'viewer');
-console.log(insertedRole); // viewer
+console.log(Array.from(insertedRole));
+// ['viewer']
 console.log(Array.from(rolesByUser.get('alice') ?? []));
 // ['viewer']
 

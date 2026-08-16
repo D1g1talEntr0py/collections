@@ -52,9 +52,9 @@ describe('SetMultiMap', () => {
 		it('should insert and return the default value when the key does not exist', () => {
 			const value = multiMap.getOrInsert('key1', 'value1');
 
-			expect(value).toBe('value1');
-			expect(multiMap.get('key1')).toBeInstanceOf(Set);
-			expect(multiMap.get('key1')?.has('value1')).toBe(true);
+			expect(value).toBeInstanceOf(Set);
+			expect(value.has('value1')).toBe(true);
+			expect(multiMap.get('key1')).toBe(value);
 		});
 
 		it('should insert and return the provided Set when the key does not exist', () => {
@@ -80,9 +80,9 @@ describe('SetMultiMap', () => {
 		it('should compute, insert, and return the value when the key does not exist', () => {
 			const value = multiMap.getOrInsertComputed('key1', (key) => `${key}-value`);
 
-			expect(value).toBe('key1-value');
-			expect(multiMap.get('key1')).toBeInstanceOf(Set);
-			expect(multiMap.get('key1')?.has('key1-value')).toBe(true);
+			expect(value).toBeInstanceOf(Set);
+			expect(value.has('key1-value')).toBe(true);
+			expect(multiMap.get('key1')).toBe(value);
 		});
 
 		it('should compute, insert, and return the Set when the key does not exist', () => {
