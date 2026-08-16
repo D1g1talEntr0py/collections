@@ -371,6 +371,25 @@ describe('LinkedMap', () => {
 			expect(keys.next().value).toBe('key2');
 			expect(keys.next().done).toBe(true);
 		});
+
+		it('should support closing the iterator early', () => {
+			linkedMap.set('key1', 'value1');
+			linkedMap.set('key2', 'value2');
+			const keys = linkedMap.keys();
+
+			expect(keys.next()).toEqual({ done: false, value: 'key1' });
+			expect(keys.return()).toEqual({ done: true, value: undefined });
+			expect(keys.next()).toEqual({ done: true, value: undefined });
+		});
+
+		it('should close the iterator when an error is thrown into it', () => {
+			linkedMap.set('key1', 'value1');
+			const keys = linkedMap.keys();
+			const error = new Error('iteration failed');
+
+			expect(() => keys.throw(error)).toThrow(error);
+			expect(keys.next()).toEqual({ done: true, value: undefined });
+		});
 	});
 
 	describe('values', () => {
@@ -379,9 +398,29 @@ describe('LinkedMap', () => {
 			linkedMap.set('key2', 'value2');
 
 			const values = linkedMap.values();
+			expect(values[Symbol.iterator]()).toBe(values);
 			expect(values.next().value).toBe('value1');
 			expect(values.next().value).toBe('value2');
 			expect(values.next().done).toBe(true);
+		});
+
+		it('should close the iterator when an error is thrown into it', () => {
+			linkedMap.set('key1', 'value1');
+			const values = linkedMap.values();
+			const error = new Error('iteration failed');
+
+			expect(() => values.throw(error)).toThrow(error);
+			expect(values.next()).toEqual({ done: true, value: undefined });
+		});
+
+		it('should support closing the iterator early', () => {
+			linkedMap.set('key1', 'value1');
+			linkedMap.set('key2', 'value2');
+			const values = linkedMap.values();
+
+			expect(values.next()).toEqual({ done: false, value: 'value1' });
+			expect(values.return()).toEqual({ done: true, value: undefined });
+			expect(values.next()).toEqual({ done: true, value: undefined });
 		});
 	});
 
@@ -391,9 +430,29 @@ describe('LinkedMap', () => {
 			linkedMap.set('key2', 'value2');
 
 			const entries = linkedMap.entries();
+			expect(entries[Symbol.iterator]()).toBe(entries);
 			expect(entries.next().value).toEqual(['key1', 'value1']);
 			expect(entries.next().value).toEqual(['key2', 'value2']);
 			expect(entries.next().done).toBe(true);
+		});
+
+		it('should support closing the iterator early', () => {
+			linkedMap.set('key1', 'value1');
+			linkedMap.set('key2', 'value2');
+			const entries = linkedMap.entries();
+
+			expect(entries.next()).toEqual({ done: false, value: ['key1', 'value1'] });
+			expect(entries.return()).toEqual({ done: true, value: undefined });
+			expect(entries.next()).toEqual({ done: true, value: undefined });
+		});
+
+		it('should close the iterator when an error is thrown into it', () => {
+			linkedMap.set('key1', 'value1');
+			const entries = linkedMap.entries();
+			const error = new Error('iteration failed');
+
+			expect(() => entries.throw(error)).toThrow(error);
+			expect(entries.next()).toEqual({ done: true, value: undefined });
 		});
 	});
 

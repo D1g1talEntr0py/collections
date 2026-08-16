@@ -108,6 +108,19 @@ backlog.forEach((step) => {
 
 ```
 
+`List` also provides array-style functional methods such as `filter`, `map`, `find`, `every`, `some`, and `reduce`. Callback arguments follow the native array convention: `(element, index, array)`. Methods that create results return a `List`, and `map` preserves the mapped element type.
+
+```javascript
+const completed = backlog
+	.filter((step) => step !== 'verify')
+	.map((step) => step.toUpperCase());
+
+console.log(completed.toArray());
+// ['TRIAGE', 'DESIGN', 'SHIP']
+```
+
+`List.keys()`, `List.values()`, and `List.entries()` return the corresponding native array iterators. `LinkedList` and `LinkedMap` expose iterators over their linked nodes, so `for...of`, `keys()`, `values()`, and `entries()` do not allocate an intermediate array.
+
 ### LinkedList
 
 Use case: manage a queue, playlist, or work stream where items are frequently added or removed from either end.

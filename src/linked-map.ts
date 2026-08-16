@@ -1,6 +1,134 @@
 import { KeyedNode } from './keyed-node';
 
-/** A Map that maintains insertion order. */
+type LinkedIterator<E> = IterableIterator<E> & {
+	return: (value?: void) => IteratorResult<E, void>;
+	throw: (error?: unknown) => never;
+};
+
+/**
+ * Creates an iterator over a keyed node chain's keys.
+ * @param first The first node to visit.
+ * @returns An iterator over node keys.
+ */
+const createKeyIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<K | null> => {
+	let node = first;
+
+	return {
+		/** @returns This iterator. */
+		[Symbol.iterator]() { return this },
+		/** @returns The next iteration result. */
+		next() {
+			if (node === null) { return { done: true, value: undefined } }
+
+			const current = node;
+			node = current.next;
+
+			return { done: false, value: current.key };
+		},
+		/**
+		 * Completes iteration.
+		 * @param _value The optional completion value.
+		 * @returns A completed iteration result.
+		 */
+		return(_value?: void) {
+			node = null;
+
+			return { done: true, value: undefined };
+		},
+		/**
+		 * Stops iteration and throws the provided error.
+		 * @param error The error to throw.
+		 */
+		throw(error?: unknown): never {
+			node = null;
+			throw error;
+		}
+	};
+};
+
+/**
+ * Creates an iterator over a keyed node chain's values.
+ * @param first The first node to visit.
+ * @returns An iterator over node values.
+ */
+const createValueIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<V | null> => {
+	let node = first;
+
+	return {
+		/** @returns This iterator. */
+		[Symbol.iterator]() { return this },
+		/** @returns The next iteration result. */
+		next() {
+			if (node === null) { return { done: true, value: undefined } }
+
+			const current = node;
+			node = current.next;
+
+			return { done: false, value: current.value };
+		},
+		/**
+		 * Completes iteration.
+		 * @param _value The optional completion value.
+		 * @returns A completed iteration result.
+		 */
+		return(_value?: void) {
+			node = null;
+
+			return { done: true, value: undefined };
+		},
+		/**
+		 * Stops iteration and throws the provided error.
+		 * @param error The error to throw.
+		 */
+		throw(error?: unknown): never {
+			node = null;
+			throw error;
+		}
+	};
+};
+
+/**
+ * Creates an iterator over a keyed node chain's entries.
+ * @param first The first node to visit.
+ * @returns An iterator over node entries.
+ */
+const createEntryIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<[K | null, V | null]> => {
+	let node = first;
+
+	return {
+		/** @returns This iterator. */
+		[Symbol.iterator]() { return this },
+		/** @returns The next iteration result. */
+		next() {
+			if (node === null) { return { done: true, value: undefined } }
+
+			const current = node;
+			node = current.next;
+
+			return { done: false, value: [ current.key, current.value ] };
+		},
+		/**
+		 * Completes iteration.
+		 * @param _value The optional completion value.
+		 * @returns A completed iteration result.
+		 */
+		return(_value?: void) {
+			node = null;
+
+			return { done: true, value: undefined };
+		},
+		/**
+		 * Stops iteration and throws the provided error.
+		 * @param error The error to throw.
+		 */
+		throw(error?: unknown): never {
+			node = null;
+			throw error;
+		}
+	};
+};
+
+/** A Map that maintains an explicit linked order for its key-value pairs. */
 export class LinkedMap<K, V> {
 	#head: KeyedNode<K, V> | null = null;
 	#tail: KeyedNode<K, V> | null = null;
@@ -22,6 +150,7 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Associates the specified value with the specified key in this map.
+	 * If the key already exists, its value is updated and the key is moved to the end of the order.
 	 * @param key The key with which the specified value is to be associated.
 	 * @param value The value to be associated with the specified key.
 	 */
@@ -78,6 +207,7 @@ export class LinkedMap<K, V> {
 	 */
 	remove(key: K | null): boolean {
 		if (key === null) { return false }
+
 		return this.#unlinkNode(this.#map.get(key)) ? this.#map.delete(key) : false;
 	}
 
@@ -213,11 +343,14 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Executes a provided function once for each key-value pair in the map.
-	 * @param callback - Function to execute for each key-value pair.
-	 * @param thisArg - Value to use as `this` when executing the callback.
+	 * The callback receives the value, key, and this map, matching the native {@link Map} convention.
+	 * @param callback Function to execute for each key-value pair.
+	 * @param [thisArg] The value to use as `this` when executing the callback. If omitted, this map is used.
 	 */
 	forEach(callback: (value: V | null, key: K | null, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this): void {
-		for (const [ key, value ] of this) { callback.call(thisArg, value, key, this) }
+		for (let node = this.#head; node !== null; node = node.next) {
+			callback.call(thisArg, node.value, node.key, this);
+		}
 	}
 
 	/** Removes all of the mappings from this map. The map will be empty after this call returns. */
@@ -236,34 +369,38 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Returns an iterator that yields all keys in the map in their insertion order.
-	 * @yields {Generator<K | null, void, unknown>} An iterator for the keys in the map.
+	 * The iterator follows the map's current linked order.
+	 * @returns An iterator for the keys in the map.
 	 */
-	*keys(): Generator<K | null, void, unknown> {
-		for (const [ key ] of this) { yield key }
+	keys(): LinkedIterator<K | null> {
+		return createKeyIterator(this.#head);
 	}
 
 	/**
 	 * Returns an iterator that yields all values in the map in their insertion order.
-	 * @yields {Generator<V | null, void, unknown>} An iterator for the values in the map.
+	 * The iterator follows the map's current linked order.
+	 * @returns An iterator for the values in the map.
 	 */
-	*values(): Generator<V | null, void, unknown> {
-		for (const [ _key , value ] of this) { yield value }
+	values(): LinkedIterator<V | null> {
+		return createValueIterator(this.#head);
 	}
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
-	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
+	 * The iterator follows the map's current linked order.
+	 * @returns An iterator for the key-value pairs in the map.
 	 */
-	*entries(): Generator<[K | null, V | null], void, unknown> {
-		yield* this;
+	entries(): LinkedIterator<[K | null, V | null]> {
+		return this[Symbol.iterator]();
 	}
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
-	 * @yields {Generator<[K | null, V | null], void, unknown>} An iterator for the key-value pairs in the map.
+	 * The iterator follows the map's current linked order.
+	 * @returns An iterator for the key-value pairs in the map.
 	 */
-	*[Symbol.iterator](): Generator<[K | null, V | null], void, unknown> {
-		for (let node = this.#head; node !== null; node = node.next) { yield [ node.key, node.value ] }
+	[Symbol.iterator](): LinkedIterator<[K | null, V | null]> {
+		return createEntryIterator(this.#head);
 	}
 
 	/**

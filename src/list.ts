@@ -1,10 +1,16 @@
+type Predicate<E> = (element: E, index: number, array: E[]) => boolean;
+type Mapper<E, R> = (element: E, index: number, array: E[]) => R;
+type Reducer<E, R> = (previousValue: R, currentValue: E, currentIndex: number, array: E[]) => R;
+type Comparator<E> = (a: E, b: E) => number;
+type Consumer<E> = (element: E, index: number, array: E[]) => void;
+
 /**
- * A simple List class in ECMAScript. This class is based on the {@link Array} class.
- * The List class is a wrapper around the Array class and provides a more functional approach to working with arrays.
+ * A simple List class in ECMAScript based on the {@link Array} class.
+ * The List class wraps an array and provides a fluent collection API while retaining array-style functional methods.
  * The List class is not meant to be a replacement for the Array class.
  */
 export class List<E> {
-	readonly #elements: Array<E> = [];
+	#elements: Array<E> = [];
 
 	/**
 	 * Creates a new List from the shallow-copied array.
@@ -90,7 +96,7 @@ export class List<E> {
 	set(index: number, element: E): List<E> {
 		if (index < 0 || this.#elements.length <= index) { throw new RangeError(`Index ${index} out of bounds.`) }
 
-		this.#elements.splice(index, 1, element);
+		this.#elements[index] = element;
 
 		return this;
 	}
@@ -157,22 +163,13 @@ export class List<E> {
 	}
 
 	/**
-	 * Returns a new {@link List} with the elements from all the given lists.
+	 * Returns a new {@link List} with the elements from all the given lists and values.
 	 * This method does not mutate the list.
-	 * @param elements The lists to concatenate.
-	 * @returns A new list with the elements from all the given lists.
+	 * @param elements The lists and values to concatenate.
+	 * @returns A new list with the elements from all the given lists and values.
 	 */
-	concat(...elements: List<E>[] | E[]): List<E> {
-		const array = [ ...this.#elements ];
-		for (const element of elements) {
-			if (element instanceof List) {
-			  array.push(...element);
-			} else {
-			  array.push(element);
-			}
-		}
-
-		return new List(array);
+	concat(...elements: Array<E | List<E>>): List<E> {
+		return List.#newInstance(this.#elements.concat(...elements.map(List.#concatMapper<E>)));
 	}
 
 	/**
@@ -192,83 +189,80 @@ export class List<E> {
 
 	/**
 	 * Determines whether all the members of an list satisfy the specified test.
-	 * @param predicate A function that accepts up to three arguments. The every method calls
-	 * the predicate function for each element in the list until the predicate returns a value
-	 * which is coercible to the {@link Boolean} value false, or until the end of the list.
-	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
-	 * @returns true if all elements satisfy the specified test, false otherwise.
+	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * The every method calls the predicate for each element until it returns false or until the end of the list.
+	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
+	 * @returns `true` if all elements satisfy the specified test, `false` otherwise.
 	 */
-	every(predicate: (element: E, index: number | null, thisArg: unknown) => boolean, context?: unknown): boolean {
-		return this.#elements.every((element, index, thisArg) => predicate.call(context, element, index, thisArg), context);
+	every(predicate: Predicate<E>, context?: unknown): boolean {
+		return this.#elements.every(predicate, context);
 	}
 
 	/**
 	 * Determines whether the specified callback function returns true for any element in the list.
-	 * @param predicate A function that accepts up to three arguments. The some method calls
-	 * the predicate function for each element in the list until the predicate returns a value
-	 * which is coercible to the Boolean value true, or until the end of the list.
-	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
-	 * @returns true if any of the elements returns true from the predicate function, false otherwise.
+	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * The some method calls the predicate for each element until it returns true or until the end of the list.
+	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
+	 * @returns `true` if any element satisfies the predicate, `false` otherwise.
 	 */
-	some(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): boolean {
-		return this.#elements.some((element, index) => predicate.call(context, element, index, this), context);
+	some(predicate: Predicate<E>, context?: unknown): boolean {
+		return this.#elements.some(predicate, context);
 	}
 
 	/**
 	 * Returns the elements of the list that meet the condition specified in a predicate function.
 	 * The method returns a new list with the elements that satisfy the condition.
-	 * @param predicate A function that accepts up to three arguments. The filter method calls the predicate function one time for each element in the list.
-	 * @param [context] An object to which the this keyword can refer in the predicate function. If context is omitted, undefined is used as the this value.
+	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns A new list of elements that satisfied the predicate condition.
 	 */
-	filter(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): List<E> {
-		return new List(this.#elements.filter((element, index) => predicate.call(context, element, index, this), context));
+	filter(predicate: Predicate<E>, context?: unknown): List<E> {
+		return List.#newInstance(this.#elements.filter(predicate, context));
 	}
 
 	/**
 	 * Returns the value of the first element in the array where predicate is true, and undefined otherwise.
-	 * @param predicate find calls predicate once for each element of the array, in ascending
+	 * @param predicate find calls predicate once for each element of the list, in ascending
 	 * order, until it finds one where predicate returns true. If such an element is found, find immediately returns that element value. Otherwise, find returns undefined.
-	 * @param [context] If provided, it will be used as the this value for each invocation of predicate. If it is not provided, undefined is used instead.
+	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns The element in the array.
 	 */
-	find(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): E | undefined {
-		return this.#elements.find((element, index) => predicate.call(context, element, index, this), context);
+	find(predicate: Predicate<E>, context?: unknown): E | undefined {
+		return this.#elements.find(predicate, context);
 	}
 
 	/**
 	 * Returns the index of the first element in the array where predicate is true, and -1 otherwise.
-	 * @param predicate find calls predicate once for each element of the array, in ascending
+	 * @param predicate findIndex calls predicate once for each element of the list, in ascending
 	 * order, until it finds one where predicate returns true. If such an element is found, findIndex immediately returns that element index. Otherwise, findIndex returns -1.
-	 * @param [context] If provided, it will be used as the this value for each invocation of predicate. If it is not provided, undefined is used instead.
+	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns The index found.
 	 */
-	findIndex(predicate: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context?: List<E>): number {
-		return this.#elements.findIndex((element, index) => predicate.call(context, element, index, this), context);
+	findIndex(predicate: Predicate<E>, context?: unknown): number {
+		return this.#elements.findIndex(predicate, context);
 	}
 
 	/**
 	 * Calls a defined callback function on each element of the list, and returns a list that contains the results.
-	 * The callback function is called with up to three arguments: the value of the element, the index of the element,
-	 * and the list object being traversed. If a thisArg parameter is provided, it will be used as the this value for each invocation of the callback.
-	 * The map method does not mutate the list on which it is called (although callback, if invoked, may do so).
-	 * @param mapper A function that accepts up to three arguments. The map method calls the callbackfn function one time for each element in the array.
-	 * @param [context] An object to which the this keyword can refer in the callbackfn function. If context is omitted, undefined is used as the this value.
-	 * @returns A new list with each element being the result of the callback function.
+	 * The callback receives the element, its index, and the list's backing array. If a context is provided, it is used as the this value for each invocation.
+	 * The map method does not mutate the list on which it is called (although the callback may do so).
+	 * @param mapper A function that returns the mapped value for each element.
+	 * @param [context] The value to use as `this` when invoking the mapper. If omitted, `undefined` is used.
+	 * @returns A new list containing the mapped values.
 	 */
-	map(mapper: (element: E, index: number | null, thisArg: List<E> | null) => unknown, context?: unknown): List<unknown> {
-		return new List(this.#elements.map((element, index) => mapper.call(context, element, index, this), context));
+	map<R>(mapper: Mapper<E, R>, context?: unknown): List<R> {
+		return List.#newInstance(this.#elements.map(mapper, context));
 	}
 
 	/**
 	 * Executes a user-supplied "reducer" callback function on each element of the list, in order,
 	 * passing in the return value from the calculation on the preceding element. The final result
 	 * of running the reducer across all elements of the list is a single value.
-	 * @param reducer A function that accepts up to four arguments. The reduce method calls the reducer function one time for each element in the list.
-	 * @param [initialValue] If initialValue is specified, it is used as the initial value to start the accumulation. The first call to the callbackfn function provides this value as an argument instead of an list value.
+	 * @param reducer A function that receives the accumulated value, the current element, its index, and the list's backing array.
+	 * @param initialValue The initial value for the accumulation.
 	 * @returns The value that results from the reduction.
 	 */
-	reduce(reducer: (previousValue: E, currentValue: E, currentIndex: number, array: E[]) => E, initialValue: E): E {
+	reduce<R>(reducer: Reducer<E, R>, initialValue: R): R {
 		return this.#elements.reduce(reducer, initialValue);
 	}
 
@@ -280,7 +274,7 @@ export class List<E> {
 	 * @param [comparator] A function that defines the sort order. If omitted, the default (ascending order) comparator function will be used.
 	 * @returns The sorted list.
 	 */
-	sort(comparator: (a: E, b: E) => number = (a: E, b: E) => typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b))): List<E> {
+	sort(comparator: Comparator<E> = List.#defaultComparator): List<E> {
 		this.#elements.sort(comparator);
 
 		return this;
@@ -289,10 +283,10 @@ export class List<E> {
 	/**
 	 * Performs the specified action for each element in an list.
 	 * @param consumer A function that accepts up to three arguments. forEach calls the callbackfn function one time for each element in the array.
-	 * @param [context] An object to which the this keyword can refer in the consumer function. If context is omitted, this is used as the this value.
+	 * @param [context] The value to use as `this` when invoking the consumer. If omitted, `undefined` is used.
 	 */
-	forEach(consumer: (element: E, index: number | null, thisArg: List<E> | null) => boolean, context: List<E> = this): void {
-		this.#elements.forEach((element, index) => consumer(element, index, context));
+	forEach(consumer: Consumer<E>, context?: unknown): void {
+		this.#elements.forEach(consumer, context);
 	}
 
 	/**
@@ -329,35 +323,35 @@ export class List<E> {
 
 	/**
 	 * Returns an iterator for the keys in the list.
-	 * @yields {Generator<number, void, undefined>} An iterator for the keys in the list.
+	 * @returns An iterator for the keys in the list.
 	 */
-	*keys(): Generator<number, void, undefined> {
-		yield* this.#elements.keys();
+	keys(): ArrayIterator<number> {
+		return this.#elements.keys();
 	}
 
 	/**
 	 * Returns an iterator for the values in the list.
-	 * @yields {Generator<E, void, undefined>} An iterator for the values in the list.
+	 * @returns An iterator for the values in the list.
 	 */
-	*values(): Generator<E, void, undefined> {
-		yield* this.#elements;
+	values(): ArrayIterator<E> {
+		return this.#elements.values();
 	}
 
 	/**
 	 * Returns an iterator for the entries in the list.
 	 * Each entry is an array of [index, value].
-	 * @yields {Generator<[number, E], void, undefined>} An iterator for the entries in the list.
+	 * @returns An iterator for the entries in the list.
 	 */
-	*entries(): Generator<[number, E], void, undefined> {
-		yield* this.#elements.entries();
+	entries(): ArrayIterator<[number, E]> {
+		return this.#elements.entries();
 	}
 
 	/**
 	 * Creates an iterator for the elements in the list.
-	 * @yields {IterableIterator<E>} An iterator for the elements in the list.
+	 * @returns An iterator for the elements in the list.
 	 */
-	*[Symbol.iterator](): Generator<E, void, undefined> {
-		yield* this.#elements;
+	[Symbol.iterator](): ArrayIterator<E> {
+		return this.#elements[Symbol.iterator]();
 	}
 
 	/**
@@ -375,5 +369,38 @@ export class List<E> {
 	 */
 	get [Symbol.toStringTag](): string {
 		return 'List';
+	}
+
+	/**
+	 * A default comparator function that compares two elements of the list.
+	 * @param a The first element to compare.
+	 * @param b The second element to compare.
+	 * @returns A negative number if a < b, zero if a === b, a positive number if a > b.
+	 */
+	static #defaultComparator<E>(a: E, b: E): number {
+		return typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b));
+	}
+
+	/**
+	 * Creates a list that takes ownership of an internally allocated array.
+	 * @param elements The internally allocated elements.
+	 * @returns A list backed by the provided array.
+	 */
+	static #newInstance<E>(elements: Array<E>): List<E> {
+		const list = new List<E>();
+		list.#elements = elements;
+
+		return list;
+	}
+
+	/**
+	 * A helper function that maps an element to an array of elements.
+	 * If the element is a List, it returns the elements of the List as an array.
+	 * If the element is not a List, it returns an array with the element as its only item.
+	 * @param element The element to map.
+	 * @returns An array of elements.
+	 */
+	static #concatMapper<E>(element: E | List<E>): E[] {
+		return element instanceof List ? element.#elements : [ element ];
 	}
 }

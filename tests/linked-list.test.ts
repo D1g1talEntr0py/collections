@@ -293,6 +293,25 @@ describe('Doubly LinkedList', () => {
 			values.forEach(v => list.addLast(v));
 			expect(Array.from(list.values())).toEqual(values);
 		});
+
+		it('supports closing the iterator early', () => {
+			list.addLast(1);
+			list.addLast(2);
+			const iterator = list.values();
+
+			expect(iterator.next()).toEqual({ done: false, value: 1 });
+			expect(iterator.return()).toEqual({ done: true, value: undefined });
+			expect(iterator.next()).toEqual({ done: true, value: undefined });
+		});
+
+		it('closes the iterator when an error is thrown into it', () => {
+			list.addLast(1);
+			const iterator = list.values();
+			const error = new Error('iteration failed');
+
+			expect(() => iterator.throw(error)).toThrow(error);
+			expect(iterator.next()).toEqual({ done: true, value: undefined });
+		});
 	});
 
 	describe('#size', () => {

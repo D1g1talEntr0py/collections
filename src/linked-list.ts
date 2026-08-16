@@ -1,6 +1,47 @@
 import { Node } from './node';
 
 type LinkedListType = (typeof LinkedList.Type)[keyof typeof LinkedList.Type];
+type LinkedIterator<E> = IterableIterator<E> & {
+	return: () => IteratorResult<E, void>;
+	throw: (error: unknown) => never;
+};
+
+/**
+ * Creates an iterator over a node chain's values.
+ * @param first The first node to visit.
+ * @returns An iterator over node values.
+ */
+const createValueIterator = <E>(first: Node<E> | null): LinkedIterator<E> => {
+	let node = first;
+
+	return {
+		/** @returns This iterator. */
+		[Symbol.iterator]() { return this },
+		/** @returns The next iteration result. */
+		next() {
+			if (node === null) { return { done: true, value: undefined } }
+
+			const current = node;
+			node = current.next;
+
+			return { done: false, value: current.value };
+		},
+		/** @returns A completed iteration result. */
+		return() {
+			node = null;
+
+			return { done: true, value: undefined };
+		},
+		/**
+		 * Stops iteration and throws the provided error.
+		 * @param error The error to throw.
+		 */
+		throw(error: unknown): never {
+			node = null;
+			throw error;
+		}
+	};
+};
 
 /** JavaScript implementation of a LinkedList */
 export class LinkedList<E> {
@@ -212,7 +253,7 @@ export class LinkedList<E> {
 	 */
 	indexOf(value: E): number {
 		for (let index = 0, node = this.#head; node; node = node.next, index++) {
-			if (node.value === value) return index;
+			if (node.value === value) { return index }
 		}
 
 		return -1;
@@ -234,12 +275,10 @@ export class LinkedList<E> {
 	 * Returns an iterator over the values in the list.
 	 * The values are returned in order from the first to the last element.
 	 * This method runs in constant time.
-	 * The returned iterator is fail-fast.
-	 * Modifying the list after getting the iterator, except through the iterator's own methods, will throw an error.
-	 * @yields {Generator<E, void, unknown>} An iterator over the values in the list.
+	 * @returns An iterator over the values in the list.
 	 */
-	*values(): Generator<E, void, unknown> {
-		yield* this;
+	values(): LinkedIterator<E> {
+		return createValueIterator(this.#head);
 	}
 
 	/**
@@ -266,11 +305,9 @@ export class LinkedList<E> {
 	 * Returns an iterator over the values in the list.
 	 * The values are returned in order from the first to the last element.
 	 * This method runs in constant time.
-	 * The returned iterator is fail-fast.
-	 * Modifying the list after getting the iterator, except through the iterator's own methods, will throw an error.
-	 * The iterator does not support modifying the list during iteration.
+	 * The iterator exposes `next`, `return`, and `throw`, but does not provide list mutation methods.
 	 * This method is called when the list is used in a for-of loop.
-	 * @yields {Iterable<E>} An iterator over the values in the list.
+	 * @returns An iterator over the values in the list.
 	 * @example
 	 * ````js
 	 * for (const value of list) {
@@ -278,10 +315,8 @@ export class LinkedList<E> {
 	 * }
 	 * ````
 	 */
-	*[Symbol.iterator](): Generator<E, void, unknown> {
-		for (let node = this.#head; node; node = node.next) {
-			yield node.value;
-		}
+	[Symbol.iterator](): LinkedIterator<E> {
+		return this.values();
 	}
 
 	/**

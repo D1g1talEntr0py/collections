@@ -13,6 +13,14 @@ describe('List class', () => {
 		expect(list.toArray()).toEqual(initialItems);
 	});
 
+	it('should copy the initial items', () => {
+		const items = [1, 2, 3];
+		const list = new List(items);
+		items.push(4);
+
+		expect(list.toArray()).toEqual([1, 2, 3]);
+	});
+
 	it('should initialize with an empty list if no items are given', () => {
 		list = new List();
 		expect(list.toArray()).toEqual([]);
