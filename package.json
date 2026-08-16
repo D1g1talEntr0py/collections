@@ -21,7 +21,7 @@
   "engines": {
     "node": ">=20.16.0"
   },
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.22.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
@@ -51,31 +51,28 @@
     "lint": "eslint --flag unstable_native_nodejs_ts_config ./src",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "benchmark": "pnpm build && node --expose-gc tests/benchmark/collections.benchmark.ts"
   },
   "devDependencies": {
-    "@d1g1tal/tsbuild": "^2.2.1",
+    "@d1g1tal/tsbuild": "^2.3.1",
     "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
-    "@types/benchmark": "^2.1.5",
-    "@types/node": "^26.1.2",
-    "@typescript-eslint/eslint-plugin": "8.65.0",
-    "@typescript-eslint/parser": "8.65.0",
+    "@types/node": "^26.2.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^4.1.10",
-    "benchmark": "^2.1.4",
-    "eslint": "^10.8.0",
+    "eslint": "^10.8.1",
     "eslint-plugin-compat": "^7.0.2",
-    "eslint-plugin-jsdoc": "^63.3.2",
-    "globals": "^17.8.0",
-    "microtime": "^3.1.1",
-    "typescript": "6.0.3",
-    "typescript-eslint": "8.65.0",
+    "eslint-plugin-jsdoc": "^64.2.0",
+    "globals": "^17.11.0",
+    "mitata": "^1.0.34",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "8.67.0",
     "vitest": "^4.1.10"
   },
   "browserslist": [
-    "defaults",
-    "not ios_saf < 15",
-    "not op_mini all"
+    "defaults and fully supports es6",
+    "maintained node versions"
   ],
   "keywords": [
     "Collections",

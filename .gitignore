@@ -17,4 +17,5 @@ dist
 node_modules
 
 tests/coverage/
-benchmark/
+tests/benchmark/*
+!tests/benchmark/*.ts

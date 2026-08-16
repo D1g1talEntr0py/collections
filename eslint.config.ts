@@ -1,7 +1,5 @@
 import eslint from '@eslint/js';
-import tsEslint from 'typescript-eslint';
-import tsParser from '@typescript-eslint/parser';
-import typeScriptEslint from '@typescript-eslint/eslint-plugin';
+import tslint from 'typescript-eslint';
 import eslintPluginCompat from 'eslint-plugin-compat';
 import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
@@ -10,21 +8,18 @@ import { defineConfig } from 'eslint/config';
 export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**', '*.config.[tj]s', 'benchmark/**' ] }, {
 	extends: [
 		eslint.configs.recommended,
-		...tsEslint.configs.recommended,
-		...tsEslint.configs.recommendedTypeChecked,
+		...tslint.configs.recommended,
+		...tslint.configs.recommendedTypeChecked,
 		jsdoc.configs['flat/recommended-typescript'],
 		eslintPluginCompat.configs['flat/recommended']
 	],
-	// @ts-expect-error - ESLint Flat Config types do not yet include `plugins`?
-	plugins: { eslintPluginCompat, typeScriptEslint, jsdoc },
+	plugins: { '@typescript-eslint': tslint.plugin, eslintPluginCompat, jsdoc },
 	languageOptions: {
 		globals: { ...globals['shared-node-browser'] },
+		parser: tslint.parser,
 		parserOptions: {
 			project: true,
-			parser: tsParser,
-			parserOptions: {
-				ecmaFeatures: { impliedStrict: true }
-			},
+			ecmaFeatures: { impliedStrict: true },
 			tsconfigRootDir: import.meta.dirname,
 			allowAutomaticSingleRunInference: true,
 			warnOnUnsupportedTypeScriptVersion: false
@@ -34,10 +29,7 @@ export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**
 		jsdoc: {
 			mode: 'typescript',
 			structuredTags: {
-				template: {
-					name: 'namepath-defining',
-					type: true
-				}
+				template: { name: 'namepath-defining', type: true }
 			}
 		}
 	},

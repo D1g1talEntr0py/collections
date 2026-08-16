@@ -31,7 +31,7 @@ jobs:
       - run: pnpm test:coverage
       - run: pnpm build
       - name: Upload coverage to Codecov
-        if: matrix.node-version == 24
+        if: matrix.node-version == 26
         uses: codecov/codecov-action@v7
         with:
           files: tests/coverage/coverage-final.json

@@ -7,7 +7,7 @@ JavaScript Collections and Data Structures
 [![codecov](https://img.shields.io/codecov/c/github/D1g1talEntr0py/collections?branch=main&label=coverage)](https://codecov.io/gh/D1g1talEntr0py/collections)
 [![License: MIT](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/node/v/@d1g1tal/collections)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript->=5.1.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript->=6.0.2-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## About
 This is a collection of TypeScript data structures and algorithms. The goal is to provide a comprehensive set of data structures and algorithms that can be used in TypeScript/JavaScript programs.
@@ -23,6 +23,8 @@ pnpm add @d1g1tal/collections
 // npm 😒
 npm install @d1g1tal/collections
 ```
+
+The package is ESM-only and requires Node.js 20.16 or newer. TypeScript projects should use TypeScript 6 or newer.
 
 ## Usage
 Both root imports and subpath imports are supported.
@@ -306,3 +308,11 @@ Use `Node` when you want to build your own linked structure with `previous`, `ne
 Use `KeyedNode` when you need the same linked behavior plus a stored key for ordered key/value structures.
 
 Most application code should prefer `LinkedList` or `LinkedMap` over working with nodes directly.
+
+## Benchmarks
+
+The repository includes Mitata benchmarks for comparing `List` with native arrays and the linked collections with their native counterparts. Build the project before running the full collection benchmark suite:
+
+```bash
+pnpm benchmark   # Build, then run all benchmark suites
+```
