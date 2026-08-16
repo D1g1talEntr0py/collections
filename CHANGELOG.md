@@ -1,3 +1,14 @@
+## [3.0.1](https://github.com/D1g1talEntr0py/collections/compare/v3.0.0...v3.0.1) (2026-08-16)
+* **types:** support typescript 5.1.3 consumers (a7e2bdab6c320a991bc2d220a27760faed4e15e8)
+The published declarations used the 'override' modifier on Map helper
+methods that only exist in TS 6 lib types, breaking consumers on TS 5.x.
+- remove 'override' from getOrInsert/getOrInsertComputed in MultiMap and SetMultiMap
+- disable noImplicitOverride so the compiler allows the omission
+
+* **readme:** document typescript 5.1.3 support (848094290c79391ed59dd75d854b2cc5d647bde7)
+Clarifies that the repo develops on TS 6 while published types work
+with TS 5.1.3+, and drops the TS 6-specific framing of the Map helpers.
+
 ## [3.0.0](https://github.com/D1g1talEntr0py/collections/compare/v2.2.4...v3.0.0) (2026-08-16)
 * **multi-map:** return stored collection from getOrInsert (23fcd04ac87512165ef5d6ce1838a3fef2c3f281)
 * **linked-list:** repair node unlinking and reversal (f3de4eb45cfa5f21147de7a56577b02b297cd635)
