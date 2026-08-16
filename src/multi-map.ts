@@ -48,7 +48,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The value to wrap in a List and insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: V): List<V>;
+	getOrInsert(key: K, defaultValue: V): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the supplied List and returns it.
@@ -56,7 +56,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: List<V>): List<V>;
+	getOrInsert(key: K, defaultValue: List<V>): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the default value or List and returns the resulting List.
@@ -64,7 +64,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The value or List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: V | List<V>): List<V> {
+	getOrInsert(key: K, defaultValue: V | List<V>): List<V> {
 		const values = super.get(key);
 
 		if (values !== undefined) { return values }
@@ -81,7 +81,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the value to wrap in a List and insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V): List<V>;
+	getOrInsertComputed(key: K, compute: (key: K) => V): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a List, inserts it, and returns it.
@@ -89,7 +89,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V>;
+	getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a value or List, inserts the resulting List, and returns it.
@@ -97,7 +97,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the value or List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V | List<V>): List<V> {
+	getOrInsertComputed(key: K, compute: (key: K) => V | List<V>): List<V> {
 		const values = super.get(key);
 
 		if (values !== undefined) { return values }

@@ -7,7 +7,7 @@
 		"isolatedModules": true,
 		"allowUnusedLabels": false,
 		"allowUnreachableCode": false,
-		"noImplicitOverride": true,
+		"noImplicitOverride": false,
 		"noImplicitReturns": true,
 		"noUncheckedIndexedAccess": true,
 		"rootDir": "./src",

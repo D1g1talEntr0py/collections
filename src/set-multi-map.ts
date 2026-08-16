@@ -50,7 +50,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param defaultValue The value to wrap in a Set and insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: V): Set<V>;
+	getOrInsert(key: K, defaultValue: V): Set<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the supplied Set and returns it.
@@ -58,7 +58,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param defaultValue The Set to insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: Set<V>): Set<V>;
+	getOrInsert(key: K, defaultValue: Set<V>): Set<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the default value or Set and returns the resulting Set.
@@ -66,7 +66,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param defaultValue The value or Set to insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsert(key: K, defaultValue: V | Set<V>): Set<V> {
+	getOrInsert(key: K, defaultValue: V | Set<V>): Set<V> {
 		const values = super.get(key);
 
 		if (values !== undefined) { return values }
@@ -83,7 +83,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param compute The function to compute the value to wrap in a Set and insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V): Set<V>;
+	getOrInsertComputed(key: K, compute: (key: K) => V): Set<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a Set, inserts it, and returns it.
@@ -91,7 +91,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param compute The function to compute the Set to insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => Set<V>): Set<V>;
+	getOrInsertComputed(key: K, compute: (key: K) => Set<V>): Set<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a value or Set, inserts the resulting Set, and returns it.
@@ -99,7 +99,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	 * @param compute The function to compute the value or Set to insert if the key does not exist.
 	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V | Set<V>): Set<V> {
+	getOrInsertComputed(key: K, compute: (key: K) => V | Set<V>): Set<V> {
 		const values = super.get(key);
 
 		if (values !== undefined) { return values }
