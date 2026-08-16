@@ -1,3 +1,22 @@
+## [3.0.0](https://github.com/D1g1talEntr0py/collections/compare/v2.2.4...v3.0.0) (2026-08-16)
+* **multi-map:** return stored collection from getOrInsert (23fcd04ac87512165ef5d6ce1838a3fef2c3f281)
+* **linked-list:** repair node unlinking and reversal (f3de4eb45cfa5f21147de7a56577b02b297cd635)
+- insert() left the following node's previous pointer stale in doubly-linked lists
+- removeNode() failed to unlink singly-linked tails, so removed nodes were still reachable
+- reverse() now maintains previous pointers correctly per list type
+- clear() fully detaches every node to avoid leaked references
+
+* **collections:** replace generator iterators and delegate list to native arrays (eeec774b108664f366ea23e87fdcd72b09100538)
+- LinkedList and LinkedMap iterators are now hand-rolled objects exposing next/return/throw, avoiding generator overhead
+
+* upgrade to typescript 6 toolchain and add mitata benchmarks (f37f8552e1890c795d96797f5460aeb3f6f6789b)
+- moves typescript to the @typescript/typescript6 alias and adds @typescript/native
+- swaps benchmark/microtime for mitata and adds a pnpm benchmark script with new benchmark suites
+- bumps pnpm, eslint, jsdoc plugin, tsbuild; updates browserslist and lockfile
+- unifies the eslint flat config on typescript-eslint's bundled parser/plugin
+- drops the unsupported stableTypeOrdering tsconfig option and adds the tsbuild schema
+- CI coverage upload now keyed to node 26; README reflects TypeScript 6 and Node 20.16 requirements
+
 ## [2.2.4](https://github.com/D1g1talEntr0py/collections/compare/v2.2.3...v2.2.4) (2026-07-30)
 * updated tsbuild to fix a problem with imports missing the file extension when building (2c8b2e07a780df2fa6c327569d14c85d4534915d)
 * update eslint config to TypeScript (5d37e9d7aa70ac283806e9925a13331f5a5a99cc)
