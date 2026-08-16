@@ -7,7 +7,7 @@ JavaScript Collections and Data Structures
 [![codecov](https://img.shields.io/codecov/c/github/D1g1talEntr0py/collections?branch=main&label=coverage)](https://codecov.io/gh/D1g1talEntr0py/collections)
 [![License: MIT](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/node/v/@d1g1tal/collections)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript->=6.0.2-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript->=5.1.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## About
 This is a collection of TypeScript data structures and algorithms. The goal is to provide a comprehensive set of data structures and algorithms that can be used in TypeScript/JavaScript programs.
@@ -24,7 +24,7 @@ pnpm add @d1g1tal/collections
 npm install @d1g1tal/collections
 ```
 
-The package is ESM-only and requires Node.js 20.16 or newer. TypeScript projects should use TypeScript 6 or newer.
+The package is ESM-only and requires Node.js 20.16 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.1.3 and newer.
 
 ## Usage
 Both root imports and subpath imports are supported.
@@ -35,9 +35,9 @@ import { List } from '@d1g1tal/collections';
 import { List } from '@d1g1tal/collections/list';
 ```
 
-## TypeScript 6 Map Methods
+## Map Helper Methods
 
-`LinkedMap`, `MultiMap`, and `SetMultiMap` support the TypeScript 6 `Map` helper methods:
+`LinkedMap`, `MultiMap`, and `SetMultiMap` provide the following Map-style helper methods:
 
 - `getOrInsert(key, defaultValue)`
 - `getOrInsertComputed(key, compute)`
