@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { barplot, bench, do_not_optimize, group, run, summary } from 'mitata';
-import { LinkedList, LinkedMap, List, MultiMap, SetMultiMap } from '../../dist';
+import { LinkedList, LinkedMap, List, MultiMap, SetMultiMap } from '../../dist/index.js';
 
 const SIZE = 10_000;
 const source = Array.from({ length: SIZE }, (_, index) => index);
