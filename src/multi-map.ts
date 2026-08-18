@@ -1,4 +1,5 @@
 import { List } from './list';
+import './map-upsert-polyfill';
 
 /** A {@link Map} that can contain multiple values for the same key */
 export class MultiMap<K, V> extends Map<K, List<V>> {
@@ -48,7 +49,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The value to wrap in a List and insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsert(key: K, defaultValue: V): List<V>;
+	override getOrInsert(key: K, defaultValue: V): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the supplied List and returns it.
@@ -56,7 +57,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsert(key: K, defaultValue: List<V>): List<V>;
+	override getOrInsert(key: K, defaultValue: List<V>): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it inserts the default value or List and returns the resulting List.
@@ -64,15 +65,8 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param defaultValue The value or List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsert(key: K, defaultValue: V | List<V>): List<V> {
-		const values = super.get(key);
-
-		if (values !== undefined) { return values }
-
-		const newList = defaultValue instanceof List ? defaultValue : new List<V>().add(defaultValue);
-		super.set(key, newList);
-
-		return newList;
+	override getOrInsert(key: K, defaultValue: V | List<V>): List<V> {
+		return defaultValue instanceof List ? super.getOrInsert(key, defaultValue) : super.getOrInsertComputed(key, () => new List<V>().add(defaultValue));
 	}
 
 	/**
@@ -81,7 +75,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the value to wrap in a List and insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsertComputed(key: K, compute: (key: K) => V): List<V>;
+	override getOrInsertComputed(key: K, compute: (key: K) => V): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a List, inserts it, and returns it.
@@ -89,7 +83,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V>;
+	override getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V>;
 
 	/**
 	 * Gets the values associated with the specified key. If the key does not exist, it computes a value or List, inserts the resulting List, and returns it.
@@ -97,26 +91,22 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @param compute The function to compute the value or List to insert if the key does not exist.
 	 * @returns The List associated with the specified key, whether it was inserted or already existed.
 	 */
-	getOrInsertComputed(key: K, compute: (key: K) => V | List<V>): List<V> {
-		const values = super.get(key);
+	override getOrInsertComputed(key: K, compute: (key: K) => V | List<V>): List<V> {
+		return super.getOrInsertComputed(key, (insertedKey) => {
+			const defaultValue = compute(insertedKey);
 
-		if (values !== undefined) { return values }
-
-		const defaultValue = compute(key);
-		const newList = defaultValue instanceof List ? defaultValue : new List<V>().add(defaultValue);
-		super.set(key, newList);
-
-		return newList;
+			return defaultValue instanceof List ? defaultValue : new List<V>().add(defaultValue);
+		});
 	}
 
 	/**
 	 * Finds a specific value for a specific key using an iterator function.
 	 * @param key The key to find the value for.
-	 * @param iterator The iterator function to use to find the value.
-	 * @returns The value for the specified key
+	 * @param predicate The iterator function to use to find the value.
+	 * @returns The value for the specified key that satisfies the predicate function, otherwise `undefined`.
 	 */
-	find(key: K, iterator: (value: V) => boolean): V | undefined {
-		return super.get(key)?.find(iterator);
+	find(key: K, predicate: (value: V) => boolean): V | undefined {
+		return super.get(key)?.find(predicate);
 	}
 
 	/**

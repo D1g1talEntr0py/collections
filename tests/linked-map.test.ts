@@ -98,6 +98,19 @@ describe('LinkedMap', () => {
 			expect(linkedMap.get('key1')).toBe('value1');
 			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
 		});
+
+		it('should preserve linked nodes when the callback inserts the same key', () => {
+			const value = linkedMap.getOrInsertComputed('key1', () => {
+				linkedMap.set('key1', 'from-callback');
+
+				return 'computed';
+			});
+
+			expect(value).toBe('computed');
+			expect(linkedMap.get('key1')).toBe('computed');
+			expect(linkedMap.size).toBe(1);
+			expect(Array.from(linkedMap.keys())).toEqual(['key1']);
+		});
 	});
 
 	describe('addFirst', () => {

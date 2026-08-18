@@ -1,4 +1,5 @@
 import { KeyedNode } from './keyed-node';
+import './map-upsert-polyfill';
 
 type LinkedIterator<E> = IterableIterator<E> & {
 	return: (value?: void) => IteratorResult<E, void>;
@@ -173,13 +174,7 @@ export class LinkedMap<K, V> {
 	 * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
 	 */
 	getOrInsert(key: K, defaultValue: V): V {
-		const node = this.#map.get(key);
-
-		if (node !== undefined) { return node.value }
-
-		this.#appendNewNode(key, defaultValue);
-
-		return defaultValue;
+		return this.#map.getOrInsertComputed(key, (insertedKey) => this.#createAppendedNode(insertedKey, defaultValue)).value;
 	}
 
 	/**
@@ -190,12 +185,20 @@ export class LinkedMap<K, V> {
 	 * @returns The element associated with the specific key, which will be the newly computed value if no element previously existed.
 	 */
 	getOrInsertComputed(key: K, callback: (key: K) => V): V {
-		const node = this.#map.get(key);
+		const existingNode = this.#map.get(key);
 
-		if (node !== undefined) { return node.value }
+		if (existingNode !== undefined) { return existingNode.value }
 
 		const value = callback(key);
-		this.#appendNewNode(key, value);
+		const insertedNode = this.#map.get(key);
+
+		if (insertedNode !== undefined) {
+			insertedNode.value = value;
+
+			return value;
+		}
+
+		this.#map.set(key, this.#createAppendedNode(key, value));
 
 		return value;
 	}
@@ -485,9 +488,17 @@ export class LinkedMap<K, V> {
 	 * @param value The value of the node to add.
 	 */
 	#appendNewNode(key: K, value: V) {
-		const newNode = new KeyedNode({ key, value });
+		this.#map.set(key, this.#createAppendedNode(key, value));
+	}
 
-		this.#map.set(key, newNode);
+	/**
+	 * Creates a node and links it at the end of the list without registering it in the map.
+	 * @param key The key of the node to create.
+	 * @param value The value of the node to create.
+	 * @returns The newly linked node.
+	 */
+	#createAppendedNode(key: K, value: V): KeyedNode<K, V> {
+		const newNode = new KeyedNode({ key, value });
 
 		if (this.#head === null) {
 			this.#head = this.#tail = newNode;
@@ -496,6 +507,8 @@ export class LinkedMap<K, V> {
 			this.#tail!.next = newNode;
 			this.#tail = newNode;
 		}
+
+		return newNode;
 	}
 
 	/**
