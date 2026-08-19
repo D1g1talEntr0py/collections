@@ -1,3 +1,16 @@
+# [3.1.0](https://github.com/D1g1talEntr0py/collections/compare/v3.0.1...v3.1.0) (2026-08-19)
+
+
+### Features
+
+* **map-upsert-polyfill:** polyfill map upsert and delegate collections ([e2c11c2](https://github.com/D1g1talEntr0py/collections/commit/e2c11c208c80b08fa57f19fae8f2c860a2ad2dfb))
+* **release-config:** migrate to release.config.js and remove .releaserc.json ([f90624c](https://github.com/D1g1talEntr0py/collections/commit/f90624c6868ac17d0901ffa8815e0878a686a6a3))
+
+
+### Miscellaneous Chores
+
+* update lockfile and fix benchmark import path ([b8eb7aa](https://github.com/D1g1talEntr0py/collections/commit/b8eb7aa8f07f2968867e816675ae9baa3cc026c8))
+
 ## [3.0.1](https://github.com/D1g1talEntr0py/collections/compare/v3.0.0...v3.0.1) (2026-08-16)
 * **types:** support typescript 5.1.3 consumers (a7e2bdab6c320a991bc2d220a27760faed4e15e8)
 The published declarations used the 'override' modifier on Map helper
