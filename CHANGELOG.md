@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/D1g1talEntr0py/collections/compare/v3.1.0...v3.1.1) (2026-08-19)
+
+
+### Bug Fixes
+
+* **release:** update dependencies and migrate release configuration to .releaserc.json ([f131b81](https://github.com/D1g1talEntr0py/collections/commit/f131b81bef42ed467aaaf3ed3cf7db4007248348))
+
 # [3.1.0](https://github.com/D1g1talEntr0py/collections/compare/v3.0.1...v3.1.0) (2026-08-19)
 
 
