@@ -108,16 +108,13 @@ describe('Doubly LinkedList', () => {
 		});
 
 		it('should return the correct node when index is in the second half of a doubly linked list', () => {
-			// Assuming a method add to add elements to the list
 			for (let i = 0; i < 10; i++) {
 				list.addLast(i);
 			}
 
-			// The list should now contain numbers 0-9. Let's get a node in the second half.
-			const value = list.get(7);
-
-			// Assuming the node has a 'value' property
-			expect(value).toBe(7);
+			expect(list.get(0)).toBe(0);
+			expect(list.get(7)).toBe(7);
+			expect(list.get(9)).toBe(9);
 		});
 
 		it('should return null if the index is out of bounds', () => {

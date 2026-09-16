@@ -16,7 +16,9 @@ const createValueIterator = <E>(first: Node<E> | null): LinkedIterator<E> => {
 
 	return {
 		/** @returns This iterator. */
-		[Symbol.iterator]() { return this },
+		[Symbol.iterator]() {
+			return this;
+		},
 		/** @returns The next iteration result. */
 		next() {
 			if (node === null) { return { done: true, value: undefined } }
@@ -109,7 +111,7 @@ export class LinkedList<E> {
 	 * @returns The removed element, or null if the list was empty.
 	 */
 	removeFirst(): E | null {
-		return this.removeNode(this.#head);
+		return this.#removeNode(this.#head);
 	}
 
 	/**
@@ -117,7 +119,7 @@ export class LinkedList<E> {
 	 * @returns The removed element, or null if the list was empty.
 	 */
 	removeLast(): E | null {
-		return this.removeNode(this.#tail);
+		return this.#removeNode(this.#tail);
 	}
 
 	/**
@@ -128,7 +130,7 @@ export class LinkedList<E> {
 	remove(value: E): E | null {
 		let previous: Node<E> | null = null;
 		for (let node = this.#head; node; previous = node, node = node.next) {
-			if (node.value === value) { return this.removeNode(node, previous) }
+			if (node.value === value) { return this.#removeNode(node, previous) }
 		}
 
 		return null;
@@ -140,7 +142,7 @@ export class LinkedList<E> {
 	 * @returns The removed element, or null if the index was out of bounds.
 	 */
 	get(index: number): E | null {
-		return this.getNodeAt(index)?.value ?? null;
+		return this.#getNodeAt(index)?.value ?? null;
 	}
 
 	/**
@@ -151,7 +153,7 @@ export class LinkedList<E> {
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
 	set(index: number, value: E): void {
-		const node = this.getNodeAt(index);
+		const node = this.#getNodeAt(index);
 		if (!node) { throw new RangeError('Index out of bounds') }
 
 		node.value = value;
@@ -175,11 +177,14 @@ export class LinkedList<E> {
 		} else if (index === this.#size) {
 			this.addLast(value);
 		} else {
-			const prevNode = this.getNodeAt(index - 1)!;
+			const prevNode = this.#getNodeAt(index - 1)!;
 			const nextNode = prevNode.next;
 			const node = new Node({ value, previous: this.#doublyLinked ? prevNode : null, next: nextNode });
+
 			prevNode.next = node;
+
 			if (this.#doublyLinked) { nextNode!.previous = node }
+
 			this.#size++;
 		}
 	}
@@ -208,6 +213,7 @@ export class LinkedList<E> {
 
 		while (node) {
 			const next = node.next;
+
 			node.next = prev;
 			node.previous = this.#doublyLinked ? next : null;
 
@@ -225,8 +231,10 @@ export class LinkedList<E> {
 	 */
 	clear(): void {
 		let node = this.#head;
+
 		while (node) {
 			const next = node.next;
+
 			node.previous = node.next = null;
 			node = next;
 		}
@@ -333,16 +341,16 @@ export class LinkedList<E> {
 	 * @param index The index of the node to get.
 	 * @returns The node at the specified index, or null if the index is out of bounds.
 	 */
-	private getNodeAt(index: number) {
+	#getNodeAt(index: number) {
 		if (index < 0 || index >= this.#size) { return null }
 
 		let node: Node<E> | null;
 		if (this.#doublyLinked && index >= this.#size / 2) {
 			node = this.#tail;
-			for (let i = this.#size - 1; i > index; i--) { node = node!.previous }
+			for (let i = this.#size - 1; i > index; i--) { node = node?.previous ?? null }
 		} else {
 			node = this.#head;
-			for (let i = 0; i < index; i++) { node = node!.next }
+			for (let i = 0; i < index; i++) { node = node?.next ?? null }
 		}
 
 		return node;
@@ -354,7 +362,7 @@ export class LinkedList<E> {
 	 * @param previous The node preceding the node to remove, when already known.
 	 * @returns The value of the removed node.
 	 */
-	private removeNode(node: Node<E> | null, previous: Node<E> | null = null) {
+	#removeNode(node: Node<E> | null, previous: Node<E> | null = null) {
 		if (node === null) { return null }
 
 		const value = node.value;
@@ -363,14 +371,14 @@ export class LinkedList<E> {
 			this.#head = this.#tail = null;
 		} else if (node === this.#head) {
 			this.#head = node.next;
-			if (this.#doublyLinked) { this.#head!.previous = null }
+			if (this.#doublyLinked && this.#head !== null) { this.#head.previous = null }
 		} else if (this.#doublyLinked) {
 			if (node === this.#tail) { this.#tail = node.previous }
 			node.unlink();
 		} else {
 			if (previous === null) {
 				previous = this.#head;
-				while (previous?.next !== node) { previous = previous!.next }
+				while (previous?.next !== node) { previous = previous?.next ?? null }
 			}
 
 			previous.next = node.next;
