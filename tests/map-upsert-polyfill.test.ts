@@ -1,24 +1,31 @@
-import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const nativeGetOrInsert = Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsert');
 const nativeGetOrInsertComputed = Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsertComputed');
 
+const removeUpsertMethods = (): void => {
+	Reflect.deleteProperty(Map.prototype, 'getOrInsert');
+	Reflect.deleteProperty(Map.prototype, 'getOrInsertComputed');
+};
+
+const restoreNativeMethods = (): void => {
+	removeUpsertMethods();
+
+	if (nativeGetOrInsert) { Object.defineProperty(Map.prototype, 'getOrInsert', nativeGetOrInsert) }
+	if (nativeGetOrInsertComputed) { Object.defineProperty(Map.prototype, 'getOrInsertComputed', nativeGetOrInsertComputed) }
+};
+
 describe('map-upsert-polyfill', () => {
-	beforeAll(async () => {
+	beforeEach(async () => {
 		// Force the polyfill to install by removing any native implementation first.
-		expect(Reflect.deleteProperty(Map.prototype, 'getOrInsert')).toBe(true);
-		expect(Reflect.deleteProperty(Map.prototype, 'getOrInsertComputed')).toBe(true);
+		removeUpsertMethods();
 		vi.resetModules();
-		const { installMapUpsert } = await import('../src/map-upsert-polyfill');
-		installMapUpsert();
+		await import('../src/map-upsert-polyfill');
 	});
 
-	afterAll(() => {
-		expect(Reflect.deleteProperty(Map.prototype, 'getOrInsert')).toBe(true);
-		expect(Reflect.deleteProperty(Map.prototype, 'getOrInsertComputed')).toBe(true);
-
-		if (nativeGetOrInsert) { Object.defineProperty(Map.prototype, 'getOrInsert', nativeGetOrInsert) }
-		if (nativeGetOrInsertComputed) { Object.defineProperty(Map.prototype, 'getOrInsertComputed', nativeGetOrInsertComputed) }
+	afterEach(() => {
+		restoreNativeMethods();
+		vi.resetModules();
 	});
 
 	it('should install non-enumerable methods', () => {
@@ -29,10 +36,10 @@ describe('map-upsert-polyfill', () => {
 	});
 
 	it('should not replace an already installed implementation', async () => {
-		const { installMapUpsert } = await import('../src/map-upsert-polyfill');
 		const installed = Map.prototype.getOrInsert;
 
-		installMapUpsert();
+		vi.resetModules();
+		await import('../src/map-upsert-polyfill');
 
 		expect(Map.prototype.getOrInsert).toBe(installed);
 	});

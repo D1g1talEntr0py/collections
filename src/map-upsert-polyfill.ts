@@ -68,18 +68,22 @@ function getOrInsertComputed<K, V>(this: Map<K, V>, key: K, callback: (key: K) =
 }
 
 /** Installs the upsert methods on `Map.prototype` when the runtime does not already provide them. Repeat calls are no-ops. */
-export const installMapUpsert = (): void => {
+((): void => {
+	let defineProperties = false;
 	const methods: PropertyDescriptorMap = {};
+	const propertyDescriptor: PropertyDescriptor = { writable: true, enumerable: false, configurable: true };
 
 	if (typeof Map.prototype.getOrInsert !== 'function') {
-		methods.getOrInsert = { value: getOrInsert, writable: true, enumerable: false, configurable: true };
+		methods.getOrInsert = { value: getOrInsert, ...propertyDescriptor };
+		defineProperties = true;
 	}
 
 	if (typeof Map.prototype.getOrInsertComputed !== 'function') {
-		methods.getOrInsertComputed = { value: getOrInsertComputed, writable: true, enumerable: false, configurable: true };
+		methods.getOrInsertComputed = { value: getOrInsertComputed, ...propertyDescriptor };
+		defineProperties = true;
 	}
 
-	Object.defineProperties(Map.prototype, methods);
-};
+	if (defineProperties) { Object.defineProperties(Map.prototype, methods) }
+})();
 
-installMapUpsert();
+export {};
