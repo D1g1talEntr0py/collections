@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/D1g1talEntr0py/collections/compare/v3.2.0...v3.2.1) (2026-09-16)
+
+
+### Bug Fixes
+
+* **ci:** remove Node 22 from CI test matrix as some dev dependencies dropped support ([dc11588](https://github.com/D1g1talEntr0py/collections/commit/dc11588badc8085b9c53dba3d8e8b3f23db1d136))
+
 # [3.2.0](https://github.com/D1g1talEntr0py/collections/compare/v3.1.1...v3.2.0) (2026-09-16)
 
 
