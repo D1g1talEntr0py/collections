@@ -377,7 +377,7 @@ export class List<E> {
 	 * @param b The second element to compare.
 	 * @returns A negative number if a < b, zero if a === b, a positive number if a > b.
 	 */
-	static #defaultComparator<E>(a: E, b: E): number {
+	static #defaultComparator<E>(a: E, b: E) {
 		return typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b));
 	}
 
@@ -386,7 +386,7 @@ export class List<E> {
 	 * @param elements The internally allocated elements.
 	 * @returns A list backed by the provided array.
 	 */
-	static #newInstance<E>(elements: Array<E>): List<E> {
+	static #newInstance<E>(elements: Array<E>) {
 		const list = new List<E>();
 		list.#elements = elements;
 
@@ -400,7 +400,7 @@ export class List<E> {
 	 * @param element The element to map.
 	 * @returns An array of elements.
 	 */
-	static #concatMapper<E>(element: E | List<E>): E[] {
+	static #concatMapper<E>(element: E | List<E>) {
 		return element instanceof List ? element.#elements : [ element ];
 	}
 }

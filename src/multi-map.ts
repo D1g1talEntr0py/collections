@@ -133,9 +133,11 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 
 		if (values) {
 			const index = values.indexOf(value);
+
 			if (index === -1) { return false }
 
 			values.removeAt(index);
+
 			if (values.size === 0) { super.delete(key) }
 
 			return true;
