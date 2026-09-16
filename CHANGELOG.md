@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/D1g1talEntr0py/collections/compare/v3.1.1...v3.2.0) (2026-09-16)
+
+
+### Features
+
+* **stack:** add Symbol.toStringTag support ([f76fc4a](https://github.com/D1g1talEntr0py/collections/commit/f76fc4afe5d3bdfbef76e632452e0c1a2c8040bb))
+
 ## [3.1.1](https://github.com/D1g1talEntr0py/collections/compare/v3.1.0...v3.1.1) (2026-08-19)
 
 
