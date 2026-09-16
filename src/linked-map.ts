@@ -16,7 +16,9 @@ const createKeyIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<
 
 	return {
 		/** @returns This iterator. */
-		[Symbol.iterator]() { return this },
+		[Symbol.iterator]() {
+			return this;
+		},
 		/** @returns The next iteration result. */
 		next() {
 			if (node === null) { return { done: true, value: undefined } }
@@ -57,7 +59,9 @@ const createValueIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterato
 
 	return {
 		/** @returns This iterator. */
-		[Symbol.iterator]() { return this },
+		[Symbol.iterator]() {
+			return this;
+		},
 		/** @returns The next iteration result. */
 		next() {
 			if (node === null) { return { done: true, value: undefined } }
@@ -98,7 +102,9 @@ const createEntryIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterato
 
 	return {
 		/** @returns This iterator. */
-		[Symbol.iterator]() { return this },
+		[Symbol.iterator]() {
+			return this;
+		},
 		/** @returns The next iteration result. */
 		next() {
 			if (node === null) { return { done: true, value: undefined } }
@@ -530,7 +536,9 @@ export class LinkedMap<K, V> {
 
 		// Add the node at the start
 		node.next = this.#head;
-		this.#head!.previous = node;
+
+		if (this.#head !== null) { this.#head.previous = node }
+
 		this.#head = node;
 	}
 
@@ -552,7 +560,9 @@ export class LinkedMap<K, V> {
 
 		// Add the node at the end
 		node.previous = this.#tail;
-		this.#tail!.next = node;
+
+		if (this.#tail !== null) { this.#tail.next = node }
+
 		this.#tail = node;
 	}
 }
