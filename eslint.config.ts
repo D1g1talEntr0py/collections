@@ -5,7 +5,7 @@ import jsdoc from 'eslint-plugin-jsdoc';
 import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 
-export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**', '*.config.[tj]s', 'benchmark/**' ] }, {
+export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**', '*.config.ts', 'benchmark/**' ] }, {
 	extends: [
 		eslint.configs.recommended,
 		...tslint.configs.recommended,
