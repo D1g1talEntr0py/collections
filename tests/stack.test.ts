@@ -73,4 +73,11 @@ describe('Stack', () => {
 			expect(stack.isEmpty()).toBe(false);
 		});
 	});
+
+	describe('Symbol.toStringTag', () => {
+		test('should return the correct Symbol.toStringTag', () => {
+			expect(stack[Symbol.toStringTag]).toBe('Stack');
+			expect(Object.prototype.toString.call(stack)).toBe('[object Stack]');
+		});
+	});
 });

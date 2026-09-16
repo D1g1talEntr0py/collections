@@ -50,4 +50,12 @@ export class Stack<E> {
 	get size(): number {
 		return this.#items.length;
 	}
+
+	/**
+	 * Gets the string tag for the class.
+	 * @returns The string tag of the Stack class.
+	 */
+	get [Symbol.toStringTag](): string {
+		return 'Stack';
+	}
 }
