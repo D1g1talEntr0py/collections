@@ -1,8 +1,12 @@
 /**
  * Polyfill for the TC39 "upsert" proposal: `Map.prototype.getOrInsert` and `Map.prototype.getOrInsertComputed`.
- * Importing this module installs the methods only when the host runtime does not already provide them,
- * so native implementations are always preferred.
+ * Importing this module installs the methods only when the host runtime does not already provide them, so native implementations are always preferred.
+ *
+ * This file augments the global `Map` interface via `declare global`, so it must be treated as a module.
+ * Without this empty export, TypeScript would parse the file as a script and `declare global` would be invalid.
  */
+
+export {};
 
 declare global {
 	interface Map<K, V> {
@@ -13,7 +17,6 @@ declare global {
 		 * @param defaultValue The value to insert when the key is absent.
 		 * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
 		 */
-		// eslint-disable-next-line @typescript-eslint/method-signature-style -- must be method style to merge as an overload with lib.esnext.collection
 		getOrInsert(key: K, defaultValue: V): V;
 
 		/**
@@ -23,7 +26,6 @@ declare global {
 		 * @param callback The function computing the value to insert when the key is absent.
 		 * @returns The element associated with the specific key, which will be the newly computed value if no element previously existed.
 		 */
-		// eslint-disable-next-line @typescript-eslint/method-signature-style -- must be method style to merge as an overload with lib.esnext.collection
 		getOrInsertComputed(key: K, callback: (key: K) => V): V;
 	}
 }
@@ -85,5 +87,3 @@ function getOrInsertComputed<K, V>(this: Map<K, V>, key: K, callback: (key: K) =
 
 	if (defineProperties) { Object.defineProperties(Map.prototype, methods) }
 })();
-
-export {};
