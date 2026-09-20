@@ -59,7 +59,6 @@ export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**
 		'@typescript-eslint/unbound-method': 'off',
 		'@typescript-eslint/restrict-template-expressions': 'off',
 		'@typescript-eslint/no-unsafe-enum-comparison': 'off',
-		"@typescript-eslint/method-signature-style": ["error", "property"],
 		'@typescript-eslint/no-unused-vars': ['error', {
 			args: 'all',
 			argsIgnorePattern: '^_',
