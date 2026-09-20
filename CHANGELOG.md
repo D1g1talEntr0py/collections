@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/D1g1talEntr0py/collections/compare/v3.2.1...v3.2.2) (2026-09-20)
+
+
+### Bug Fixes
+
+* **types:** move export statement to the top to ensure it is treated as a module in map-upsert-polyfill ([74cfc1c](https://github.com/D1g1talEntr0py/collections/commit/74cfc1c9fc4148f61f890a90284f7c1e873ee514))
+
 ## [3.2.1](https://github.com/D1g1talEntr0py/collections/compare/v3.2.0...v3.2.1) (2026-09-16)
 
 
