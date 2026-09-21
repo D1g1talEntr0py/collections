@@ -1,3 +1,15 @@
+# [4.0.0](https://github.com/D1g1talEntr0py/collections/compare/v3.2.2...v4.0.0) (2026-09-21)
+
+
+* feat(multi-map)!: replace value-set overload with dedicated add method ([6a0a60a](https://github.com/D1g1talEntr0py/collections/commit/6a0a60a77d1cacde6518bb442a97985bc000fbcf))
+* feat(set-multi-map)!: replace value-set overload with dedicated add method ([1caf3a4](https://github.com/D1g1talEntr0py/collections/commit/1caf3a409c6cbae3fa8452d6970dcfeeefd231cb))
+
+
+### BREAKING CHANGES
+
+* `SetMultiMap#set` no longer accepts a single value; use the new `add()` method instead. `getOrInsert()` and `getOrInsertComputed()` no longer accept single values or value-computing callbacks; pass/compute a `Set<V>` instead.
+* `MultiMap#set` no longer accepts a single value; use the new `add()` method instead. `getOrInsert()` and `getOrInsertComputed()` no longer accept single values or value-computing callbacks; pass/compute a `List<V>` instead.
+
 ## [3.2.2](https://github.com/D1g1talEntr0py/collections/compare/v3.2.1...v3.2.2) (2026-09-20)
 
 
