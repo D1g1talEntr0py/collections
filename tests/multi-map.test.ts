@@ -10,7 +10,7 @@ describe('MultiMap', () => {
 	});
 
 	it('should add a key-value pair correctly', () => {
-		multiMap.set('testKey', 'testValue');
+		multiMap.add('testKey', 'testValue');
 		const values = multiMap.get('testKey')!;
 
 		expect(values).toBeInstanceOf(List);
@@ -19,8 +19,8 @@ describe('MultiMap', () => {
 	});
 
 	it('should add multiple values for the same key correctly', () => {
-		multiMap.set('testKey', 'testValue1');
-		multiMap.set('testKey', 'testValue2');
+		multiMap.add('testKey', 'testValue1');
+		multiMap.add('testKey', 'testValue2');
 		const values = multiMap.get('testKey')!;
 
 		expect(values).toBeInstanceOf(List);
@@ -45,7 +45,7 @@ describe('MultiMap', () => {
 	});
 
 	it('should replace existing values when setting a List', () => {
-		multiMap.set('key1', 'value1');
+		multiMap.add('key1', 'value1');
 		const valueList = new List<string>();
 		valueList.add('value2');
 		valueList.add('value3');
@@ -67,7 +67,7 @@ describe('MultiMap', () => {
 
 	describe('getOrInsert', () => {
 		it('should return the inserted value when the key does not exist', () => {
-			const value = multiMap.getOrInsert('key1', 'value1');
+			const value = multiMap.getOrInsert('key1', new List<string>().add('value1'));
 
 			expect(value).toBeInstanceOf(List);
 			expect(value.size).toBe(1);
@@ -86,8 +86,8 @@ describe('MultiMap', () => {
 		});
 
 		it('should return the existing List when the key already exists', () => {
-			multiMap.set('key1', 'value1');
-			const values = multiMap.getOrInsert('key1', 'value2');
+			multiMap.add('key1', 'value1');
+			const values = multiMap.getOrInsert('key1', new List<string>().add('value2'));
 
 			expect(values).toBeInstanceOf(List);
 			expect(values.size).toBe(1);
@@ -97,7 +97,7 @@ describe('MultiMap', () => {
 
 	describe('getOrInsertComputed', () => {
 		it('should return the computed value when the key does not exist', () => {
-			const value = multiMap.getOrInsertComputed('key1', () => 'value1');
+			const value = multiMap.getOrInsertComputed('key1', () => new List<string>().add('value1'));
 
 			expect(value).toBeInstanceOf(List);
 			expect(value.size).toBe(1);
@@ -115,7 +115,7 @@ describe('MultiMap', () => {
 		});
 
 		it('should return the existing List without computing a new value', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			const compute = () => {
 				throw new Error('should not be called');
 			};
@@ -129,19 +129,19 @@ describe('MultiMap', () => {
 
 	describe('find', () => {
 		it('should return the value if it exists', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.find('key1', () => true)).toBe('value1');
 		});
 
 		it('should return the correct value using iterator function', () => {
-			multiMap.set('key1', 'value1');
-			multiMap.set('key1', 'value2');
-			multiMap.set('key1', 'value3');
+			multiMap.add('key1', 'value1');
+			multiMap.add('key1', 'value2');
+			multiMap.add('key1', 'value3');
 			expect(multiMap.find('key1', (value) => value === 'value2')).toBe('value2');
 		});
 
 		it('should return undefined if the value does not exist', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.find('key1', () => false)).toBe(undefined);
 		});
 
@@ -152,19 +152,19 @@ describe('MultiMap', () => {
 
 	describe('hasValue', () => {
 		it('should return true if a key has a specific value', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.hasValue('key1', 'value1')).toBe(true);
 		});
 
 		it('should return true if a key has a specific value among multiple values', () => {
-			multiMap.set('key1', 'value1');
-			multiMap.set('key1', 'value2');
-			multiMap.set('key1', 'value3');
+			multiMap.add('key1', 'value1');
+			multiMap.add('key1', 'value2');
+			multiMap.add('key1', 'value3');
 			expect(multiMap.hasValue('key1', 'value2')).toBe(true);
 		});
 
 		it('should return false if a key does not have a specific value', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.hasValue('key1', 'value2')).toBe(false);
 		});
 
@@ -175,15 +175,15 @@ describe('MultiMap', () => {
 
 	describe('deleteValue', () => {
 		it('should remove a value from a key', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			multiMap.deleteValue('key1', 'value1');
 			expect(multiMap.hasValue('key1', 'value1')).toBe(false);
 		});
 
 		it('should remove only the specified value from a key with multiple values', () => {
-			multiMap.set('key1', 'value1');
-			multiMap.set('key1', 'value2');
-			multiMap.set('key1', 'value3');
+			multiMap.add('key1', 'value1');
+			multiMap.add('key1', 'value2');
+			multiMap.add('key1', 'value3');
 			multiMap.deleteValue('key1', 'value2');
 			expect(multiMap.hasValue('key1', 'value1')).toBe(true);
 			expect(multiMap.hasValue('key1', 'value2')).toBe(false);
@@ -191,20 +191,20 @@ describe('MultiMap', () => {
 		});
 
 		it('should return true if a value was removed', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.deleteValue('key1', 'value1')).toBe(true);
 		});
 
 		it('should return true if a falsy value was removed', () => {
 			const numericMap = new MultiMap<string, number>();
-			numericMap.set('key1', 0);
+			numericMap.add('key1', 0);
 
 			expect(numericMap.deleteValue('key1', 0)).toBe(true);
 			expect(numericMap.has('key1')).toBe(false);
 		});
 
 		it('should return false if a value does not exist', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			expect(multiMap.deleteValue('key1', 'value2')).toBe(false);
 		});
 
@@ -213,20 +213,20 @@ describe('MultiMap', () => {
 		});
 
 		it('should delete the key if the value is undefined', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			multiMap.deleteValue('key1', undefined);
 			expect(multiMap.has('key1')).toBe(false);
 		});
 
 		it('should remove the key when the last value is deleted', () => {
-			multiMap.set('key1', 'value1');
+			multiMap.add('key1', 'value1');
 			multiMap.deleteValue('key1', 'value1');
 			expect(multiMap.has('key1')).toBe(false);
 		});
 
 		it('should keep the key when there are remaining values after deletion', () => {
-			multiMap.set('key1', 'value1');
-			multiMap.set('key1', 'value2');
+			multiMap.add('key1', 'value1');
+			multiMap.add('key1', 'value2');
 			multiMap.deleteValue('key1', 'value1');
 			expect(multiMap.has('key1')).toBe(true);
 			expect(multiMap.get('key1')?.size).toBe(1);

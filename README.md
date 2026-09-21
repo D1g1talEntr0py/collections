@@ -44,11 +44,12 @@ import { List } from '@d1g1tal/collections/list';
 
 For `LinkedMap`, both methods return the map value type (`V`).
 
-For `MultiMap` and `SetMultiMap`, behavior matches `Map` semantics:
+For `MultiMap` and `SetMultiMap`, `defaultValue`/`compute` must be a collection (`List<V>` or `Set<V>`), matching `Map` semantics:
 
-- If the key exists, they return the existing stored collection (`List<V>` or `Set<V>`).
-- If the key does not exist and you pass a scalar (`V`), they wrap it in the collection, insert it, and return that collection.
-- If the key does not exist and you pass a collection (`List<V>` or `Set<V>`), they insert and return that collection.
+- If the key exists, they return the existing stored collection.
+- If the key does not exist, they insert the supplied (or computed) collection and return it.
+
+Use `add(key, value)` on `MultiMap` and `SetMultiMap` to append a single value to the collection for a key, creating it if necessary.
 
 ## Collection Types
 
@@ -213,9 +214,9 @@ import { List, MultiMap } from '@d1g1tal/collections';
 
 const ticketsByStatus = new MultiMap();
 
-ticketsByStatus.set('open', 'INC-100');
-ticketsByStatus.set('open', 'INC-101');
-ticketsByStatus.set('open', 'INC-101');
+ticketsByStatus.add('open', 'INC-100');
+ticketsByStatus.add('open', 'INC-101');
+ticketsByStatus.add('open', 'INC-101');
 
 console.log(Array.from(ticketsByStatus.get('open') ?? []));
 // ['INC-100', 'INC-101', 'INC-101']
@@ -227,13 +228,13 @@ ticketsByStatus.deleteValue('open', 'INC-100');
 console.log(Array.from(ticketsByStatus.get('open') ?? []));
 // ['INC-101', 'INC-101']
 
-const insertedTicket = ticketsByStatus.getOrInsert('pending', 'INC-200');
+const insertedTicket = ticketsByStatus.getOrInsert('pending', new List(['INC-200']));
 console.log(Array.from(insertedTicket));
 // ['INC-200']
 console.log(Array.from(ticketsByStatus.get('pending') ?? []));
 // ['INC-200']
 
-const existingPending = ticketsByStatus.getOrInsert('pending', 'INC-201');
+const existingPending = ticketsByStatus.getOrInsert('pending', new List(['INC-201']));
 console.log(Array.from(existingPending));
 // ['INC-200']
 
