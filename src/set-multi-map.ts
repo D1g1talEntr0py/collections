@@ -1,128 +1,69 @@
 import './map-upsert-polyfill';
 
 /** A {@link Map} that can contain multiple, unique, values for the same key. */
-export class SetMultiMap<K, V> extends Map<K, Set<V>>{
+export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 	/**
-	 * Adds a new element with a specified key and value to the SetMultiMap.
-	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
-	 * If the value already exists in the {@link Set}, it will not be added again.
-	 *
-	 * @param key - The key to set.
-	 * @param value - The value to add to the SetMultiMap.
-	 * @returns The SetMultiMap with the updated key and value.
-	 */
-	override set(key: K, value: V): this;
-	/**
-	 * Adds a new Set with a specified key and value to the SetMultiMap.
-	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
-	 * If the value already exists in the {@link Set}, it will not be added again.
-	 *
-	 * @param key - The key to set.
-	 * @param value - The set of values to add to the SetMultiMap.
-	 * @returns The SetMultiMap with the updated key and value.
-	 */
-	override set(key: K, value: Set<V>): this;
-	/**
-	 * Adds a new element with a specified key and value to the SetMultiMap.
-	 * If an element with the same key already exists, the value will be added to the underlying {@link Set}.
-	 * If the value already exists in the {@link Set}, it will not be added again.
-	 *
+	 * Replaces the values associated with a key.
 	 * @param key The key to set.
-	 * @param value The value to add to the SetMultiMap
+	 * @param value The set of values to associate with the key.
 	 * @returns The SetMultiMap with the updated key and value.
 	 */
-	override set(key: K, value: V | Set<V>) {
-		if (value instanceof Set) {
-			super.set(key, value);
-		} else {
-			const values = super.get(key);
-			if (values === undefined) {
-				super.set(key, new Set<V>().add(value));
-			} else {
-				values.add(value);
-			}
-		}
+	override set(key: K, value: Set<V>): this {
+		return super.set(key, value);
+	}
+
+	/**
+	 * Adds a value to the set associated with a key.
+	 * @param key The key to add the value to.
+	 * @param value The value to add.
+	 * @returns The SetMultiMap with the updated key and value.
+	 */
+	add(key: K, value: V): this {
+		super.getOrInsertComputed(key, () => new Set<V>()).add(value);
 
 		return this;
 	}
 
 	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it wraps the default value in a Set, inserts it, and returns that Set.
-	 * @param key The key to get the value for.
-	 * @param defaultValue The value to wrap in a Set and insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
-	 */
-	override getOrInsert(key: K, defaultValue: V): Set<V>;
-
-	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it inserts the supplied Set and returns it.
-	 * @param key The key to get the value for.
+	 * Gets the values associated with a key, inserting the supplied Set when the key does not exist.
+	 * @param key The key to get the values for.
 	 * @param defaultValue The Set to insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
+	 * @returns The Set associated with the key.
 	 */
-	override getOrInsert(key: K, defaultValue: Set<V>): Set<V>;
-
-	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it inserts the default value or Set and returns the resulting Set.
-	 * @param key The key to get the value for.
-	 * @param defaultValue The value or Set to insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
-	 */
-	override getOrInsert(key: K, defaultValue: V | Set<V>): Set<V> {
-		return defaultValue instanceof Set ? super.getOrInsert(key, defaultValue) : super.getOrInsertComputed(key, () => new Set<V>().add(defaultValue));
+	override getOrInsert(key: K, defaultValue: Set<V>): Set<V> {
+		return super.getOrInsert(key, defaultValue);
 	}
 
 	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it computes a value, wraps it in a Set, inserts it, and returns that Set.
-	 * @param key The key to get the value for.
-	 * @param compute The function to compute the value to wrap in a Set and insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
-	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V): Set<V>;
-
-	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it computes a Set, inserts it, and returns it.
-	 * @param key The key to get the value for.
+	 * Gets the values associated with a key, computing and inserting a Set when the key does not exist.
+	 * @param key The key to get the values for.
 	 * @param compute The function to compute the Set to insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
+	 * @returns The Set associated with the key.
 	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => Set<V>): Set<V>;
-
-	/**
-	 * Gets the values associated with the specified key. If the key does not exist, it computes a value or Set, inserts the resulting Set, and returns it.
-	 * @param key The key to get the value for.
-	 * @param compute The function to compute the value or Set to insert if the key does not exist.
-	 * @returns The Set associated with the specified key, whether it was inserted or already existed.
-	 */
-	override getOrInsertComputed(key: K, compute: (key: K) => V | Set<V>): Set<V> {
-		return super.getOrInsertComputed(key, (insertedKey) => {
-			const defaultValue = compute(insertedKey);
-
-			return defaultValue instanceof Set ? defaultValue : new Set<V>().add(defaultValue);
-		});
+	override getOrInsertComputed(key: K, compute: (key: K) => Set<V>): Set<V> {
+		return super.getOrInsertComputed(key, compute);
 	}
 
 	/**
-	 * Finds a specific value for a specific key using an iterator function.
+	 * Finds a value for a key using a predicate function.
 	 * @param key The key to find the value for.
-	 * @param iterator The iterator function to use to find the value.
-	 * @returns The value for the specified key
+	 * @param predicate The predicate function to use to find the value.
+	 * @returns The value that satisfies the predicate, otherwise `undefined`.
 	 */
-	find(key: K, iterator: (value: V) => boolean): V | undefined {
+	find(key: K, predicate: (value: V) => boolean): V | undefined {
 		const values = super.get(key);
 
 		if (values === undefined) { return undefined }
 
 		for (const value of values) {
-			if (iterator(value)) { return value }
+			if (predicate(value)) { return value }
 		}
 
 		return undefined;
 	}
 
 	/**
-	 * Checks if a specific key has a specific value.
-	 *
+	 * Checks if a key has a specific value.
 	 * @param key The key to check.
 	 * @param value The value to check.
 	 * @returns True if the key has the value, false otherwise.
@@ -132,7 +73,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>>{
 	}
 
 	/**
-	 * Removes a specific value from a specific key.
+	 * Removes a specific value from a key.
 	 * @param key The key to remove the value from.
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.

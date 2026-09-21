@@ -252,9 +252,9 @@ import { SetMultiMap } from '@d1g1tal/collections';
 
 const rolesByUser = new SetMultiMap();
 
-rolesByUser.set('jason', 'admin');
-rolesByUser.set('jason', 'editor');
-rolesByUser.set('jason', 'editor');
+rolesByUser.add('jason', 'admin');
+rolesByUser.add('jason', 'editor');
+rolesByUser.add('jason', 'editor');
 
 console.log(Array.from(rolesByUser.get('jason') ?? []));
 // ['admin', 'editor']
@@ -266,13 +266,13 @@ rolesByUser.deleteValue('jason', 'admin');
 console.log(Array.from(rolesByUser.get('jason') ?? []));
 // ['editor']
 
-const insertedRole = rolesByUser.getOrInsert('alice', 'viewer');
+const insertedRole = rolesByUser.getOrInsert('alice', new Set(['viewer']));
 console.log(Array.from(insertedRole));
 // ['viewer']
 console.log(Array.from(rolesByUser.get('alice') ?? []));
 // ['viewer']
 
-const existingAlice = rolesByUser.getOrInsertComputed('alice', () => 'admin');
+const existingAlice = rolesByUser.getOrInsertComputed('alice', () => new Set(['admin']));
 console.log(Array.from(existingAlice));
 // ['viewer']
 
