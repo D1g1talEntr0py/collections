@@ -55,20 +55,20 @@
     "benchmark": "pnpm build && node --expose-gc tests/benchmark/collections.benchmark.ts"
   },
   "devDependencies": {
-    "@d1g1tal/tsbuild": "^3.0.2",
+    "@d1g1tal/tsbuild": "^3.0.3",
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.2",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/coverage-v8": "^5.0.2",
     "eslint": "^10.11.0",
     "eslint-plugin-compat": "^7.0.2",
     "eslint-plugin-jsdoc": "^64.5.4",
     "globals": "^17.12.0",
     "mitata": "^1.0.34",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "typescript-eslint": "8.70.0",
-    "vitest": "^5.0.1"
+    "typescript-eslint": "8.70.1",
+    "vitest": "^5.0.2"
   },
   "browserslist": [
     "defaults and fully supports es6",
