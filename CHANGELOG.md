@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/D1g1talEntr0py/collections/compare/v4.0.0...v4.0.1) (2026-09-26)
+
+
+### Bug Fixes
+
+* **build:** preserve empty exports in bundled declarations ([9a52fc0](https://github.com/D1g1talEntr0py/collections/commit/9a52fc01a04584b66e02f3fe00045edee344cdff))
+
 # [4.0.0](https://github.com/D1g1talEntr0py/collections/compare/v3.2.2...v4.0.0) (2026-09-21)
 
 
