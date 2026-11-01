@@ -1,3 +1,10 @@
+## [4.1.1](https://github.com/D1g1talEntr0py/collections/compare/v4.1.0...v4.1.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **ci:** align Node.js versions with toolchain requirements ([372cf11](https://github.com/D1g1talEntr0py/collections/commit/372cf11c6051c0ee2d642c208953b70d496c85e2))
+
 # [4.1.0](https://github.com/D1g1talEntr0py/collections/compare/v4.0.1...v4.1.0) (2026-11-01)
 
 
