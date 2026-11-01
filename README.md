@@ -111,7 +111,7 @@ backlog.forEach((step) => {
 
 ```
 
-`List` also provides array-style functional methods such as `filter`, `map`, `find`, `every`, `some`, and `reduce`. Callback arguments follow the native array convention: `(element, index, array)`. Methods that create results return a `List`, and `map` preserves the mapped element type.
+`List` wraps a JavaScript array, so indexed reads are constant-time while inserting or removing near the front or middle shifts later elements. It is not intended to replace native arrays, but provides a fluent collection API. It also provides array-style methods such as `at`, `slice`, `filter`, `map`, `flatMap`, `find`, `findLast`, `findLastIndex`, `every`, `some`, `removeIf`, `toSorted`, and `reduce`. Callback arguments are `(element, index, list)`; the third argument is the `List`, not its backing array. Methods that create results return a `List`, and `map` preserves the mapped element type. `addAllFrom(iterable)` appends large or streaming inputs without expanding them into function arguments.
 
 ```javascript
 const completed = backlog

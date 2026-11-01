@@ -441,7 +441,7 @@ group('List sort', () => {
 	const newUnsortedList = (): List<number> => new List(unsortedList);
 
 	summary(() => {
-		bench('Array#sort', function* () {
+		bench('Array#sort (numeric comparator)', function* () {
 			yield { [0]: newUnsortedArray, bench: (target: number[]) => do_not_optimize(target.sort(numeric)) };
 		});
 

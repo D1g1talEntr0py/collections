@@ -38,6 +38,24 @@ describe('List class', () => {
 			list.addAll(4, 5, 6);
 			expect(list.toArray()).toEqual([...initialItems, 4, 5, 6]);
 		});
+
+		it('should add large inputs without spreading into Array.push', () => {
+			const elements = Array.from({ length: 100_000 }, (_, index) => index);
+
+			expect(() => list.addAll(...elements)).not.toThrow();
+			expect(list.size).toBe(100_003);
+			expect(list.get(100_002)).toBe(99_999);
+		});
+	});
+
+	describe('addAllFrom method', () => {
+		it('should append 200,000 iterable values without call-site argument spreading', () => {
+			const elements = Array.from({ length: 200_000 }, (_, index) => index);
+
+			expect(list.addAllFrom(elements)).toBe(list);
+			expect(list.size).toBe(200_003);
+			expect(list.get(200_002)).toBe(199_999);
+		});
 	});
 
 	describe('insert method', () => {
@@ -45,12 +63,38 @@ describe('List class', () => {
 			list.insert(1, 4);
 			expect(list.toArray()).toEqual([1, 4, 2, 3]);
 		});
+
+		it('should allow insertion at the end', () => {
+			list.insert(list.size, 4);
+			expect(list.toArray()).toEqual([1, 2, 3, 4]);
+		});
+
+		it('should throw RangeError when the index is outside the list bounds', () => {
+			expect(() => list.insert(-1, 4)).toThrow(RangeError);
+			expect(() => list.insert(list.size + 1, 4)).toThrow(RangeError);
+		});
 	});
 
 	describe('remove method', () => {
 		it('should remove an item from the list', () => {
 			list.remove(2);
 			expect(list.toArray()).toEqual([1, 3]);
+		});
+
+		it('should return undefined when the element is absent', () => {
+			expect(list.remove(99)).toBeUndefined();
+			expect(list.toArray()).toEqual(initialItems);
+		});
+	});
+
+	describe('iterable constructor', () => {
+		it('should copy values from an Iterable', () => {
+			function* values(): Generator<number> {
+				yield 4;
+				yield 5;
+			}
+
+			expect(new List(values()).toArray()).toEqual([4, 5]);
 		});
 	});
 
@@ -94,10 +138,17 @@ describe('List class', () => {
 			expect(list.toArray()).toEqual([1, 2]);
 		});
 
-		it('should return null if the list is empty', () => {
+		it('should return undefined if the list is empty', () => {
 			list.clear();
 			const last = list.removeLast();
-			expect(last).toBe(null);
+			expect(last).toBeUndefined();
+		});
+
+		it('should preserve null as a removed value', () => {
+			const nullable = new List<number | null>([null]);
+
+			expect(nullable.removeLast()).toBeNull();
+			expect(nullable.removeLast()).toBeUndefined();
 		});
 	});
 
@@ -108,10 +159,17 @@ describe('List class', () => {
 			expect(list.toArray()).toEqual([2, 3]);
 		});
 
-		it('should return null if the list is empty', () => {
+		it('should return undefined if the list is empty', () => {
 			list.clear();
 			const first = list.removeFirst();
-			expect(first).toBe(null);
+			expect(first).toBeUndefined();
+		});
+
+		it('should preserve null as a removed value', () => {
+			const nullable = new List<number | null>([null]);
+
+			expect(nullable.removeFirst()).toBeNull();
+			expect(nullable.removeFirst()).toBeUndefined();
 		});
 	});
 
@@ -287,9 +345,14 @@ describe('List class', () => {
 		});
 
 		it('should sort a list of strings in ascending order without providing a comparator function', () => {
-			const list = new List(['c', 'a', 'b']);
+			const list = new List(['b', 'B', 'a']);
 			list.sort();
-			expect(list.toArray()).toEqual(['a', 'b', 'c']);
+			expect(list.toArray()).toEqual(['B', 'a', 'b']);
+		});
+
+		it('should compare numbers numerically and mixed values by string order', () => {
+			expect(new List([20, 3, 100]).sort().toArray()).toEqual([3, 20, 100]);
+			expect(new List([2, '10']).sort().toArray()).toEqual(['10', 2]);
 		});
 
 		it('should sort the list in reverse when a comparator function is supplied', () => {
@@ -312,12 +375,6 @@ describe('List class', () => {
 	describe('toArray method', () => {
 		it('should return an array that matches the list', () => {
 			expect(list.toArray()).toEqual([1, 2, 3]);
-		});
-	});
-
-	describe('valueOf method', () => {
-		it('should return an array that matches the list', () => {
-			expect(list.valueOf()).toEqual([1, 2, 3]);
 		});
 	});
 
@@ -384,6 +441,258 @@ describe('List class', () => {
 	describe('Symbol.toStringTag method', () => {
 		it('should return a string representation of the list', () => {
 			expect(list[Symbol.toStringTag]).toEqual('List');
+		});
+	});
+
+	describe('Stage 1 list methods', () => {
+		it('returns elements for positive and negative at indices', () => {
+			expect(list.at(0)).toBe(1);
+			expect(list.at(-1)).toBe(3);
+			expect(list.at(-3)).toBe(1);
+			expect(list.at(3)).toBeUndefined();
+			expect(list.at(-4)).toBeUndefined();
+		});
+
+		it('slices into a separate List and supports negative bounds', () => {
+			const result = list.slice(0, -1);
+
+			expect(result).toBeInstanceOf(List);
+			expect(result.toArray()).toEqual([1, 2]);
+			result.add(4);
+			expect(list.toArray()).toEqual([1, 2, 3]);
+			expect(list.slice(-2).toArray()).toEqual([2, 3]);
+		});
+
+		it('flatMaps values and passes the List as the callback collection', () => {
+			let callbackList: List<number> | undefined;
+			const result = list.flatMap((value, _index, source) => {
+				callbackList = source;
+
+				return [value, value * 10];
+			});
+
+			expect(result.toArray()).toEqual([1, 10, 2, 20, 3, 30]);
+			expect(callbackList).toBe(list);
+		});
+
+		it('supports findLast and findLastIndex', () => {
+			const values = new List([1, 2, 3, 2]);
+
+			expect(values.findLast((value) => value === 2)).toBe(2);
+			expect(values.findLastIndex((value) => value === 2)).toBe(3);
+			expect(values.findLast((value) => value > 3)).toBeUndefined();
+			expect(values.findLastIndex((value) => value > 3)).toBe(-1);
+		});
+
+		it('removes matching values in place and returns the removed count', () => {
+			const originalArray = list.toArray();
+			const removed = list.removeIf((value) => value % 2 === 1);
+
+			expect(removed).toBe(2);
+			expect(list.toArray()).toEqual([2]);
+			expect(originalArray).toEqual([1, 2, 3]);
+		});
+
+		it('returns a sorted copy without mutating the source', () => {
+			const values = new List([20, 3, 100]);
+			const sorted = values.toSorted();
+
+			expect(sorted).not.toBe(values);
+			expect(sorted.toArray()).toEqual([3, 20, 100]);
+			expect(values.toArray()).toEqual([20, 3, 100]);
+			expect(new List(['b', 'B', 'a']).toSorted().toArray()).toEqual(['B', 'a', 'b']);
+			expect(values.toSorted((a, b) => b - a).toArray()).toEqual([100, 20, 3]);
+		});
+
+		it('reduces without an initial value and throws RangeError on an empty List', () => {
+			expect(list.reduce((sum, value) => sum + value)).toBe(6);
+			expect(() => new List<number>().reduce((sum, value) => sum + value)).toThrow(RangeError);
+			expect(new List<number>().reduce((sum, value) => sum + value, 7)).toBe(7);
+		});
+
+		it('creates Lists from iterables, mapped iterables, and elements', () => {
+			const source = new Set([1, 2, 3]);
+			const listFrom = List.from(source);
+			let mappedSource: List<number> | undefined;
+			const mapped = List.from(source, (value, _index, callbackList) => {
+				mappedSource = callbackList;
+
+				return String(value * 2);
+			});
+
+			expect(listFrom).toBeInstanceOf(List);
+			expect(listFrom.toArray()).toEqual([1, 2, 3]);
+			expect(mapped.toArray()).toEqual(['2', '4', '6']);
+			expect(mappedSource?.toArray()).toEqual([1, 2, 3]);
+			expect(List.of(4, 5).toArray()).toEqual([4, 5]);
+		});
+
+		it('returns shallow copies from toArray and has no valueOf override', () => {
+			const nested = { value: 1 };
+			const values = new List([nested]);
+			const copy = values.toArray();
+
+			expect(copy).not.toBe(values);
+			expect(copy).not.toBe(values.toArray());
+			expect(copy[0]).toBe(nested);
+			copy.push({ value: 2 });
+			expect(values.size).toBe(1);
+			expect(Object.hasOwn(List.prototype, 'valueOf')).toBe(false);
+		});
+
+		it('passes the List as the callback collection and honors callback this-args', () => {
+			const receiver = { factor: 10 };
+			const callback = function(this: typeof receiver, value: number, _index: number, callbackList: List<number>): number {
+				expect(callbackList).toBe(list);
+				expect(Array.isArray(callbackList)).toBe(false);
+
+				return value * this.factor;
+			};
+
+			expect(list.map(callback, receiver).toArray()).toEqual([10, 20, 30]);
+
+			const observedLists: Array<List<number>> = [];
+			list.forEach((_value, _index, callbackList) => observedLists.push(callbackList));
+			expect(observedLists).toEqual([list, list, list]);
+		});
+
+		it('passes the List to predicate and reducer callbacks and honors predicate this-args', () => {
+			const receiver = { minimum: 2 };
+			const predicate = function(this: typeof receiver, value: number, _index: number, callbackList: List<number>): boolean {
+				expect(callbackList).toBe(list);
+				return value >= this.minimum;
+			};
+
+			expect(list.filter(predicate, receiver).toArray()).toEqual([2, 3]);
+			expect(list.find(predicate, receiver)).toBe(2);
+
+			let reducerList: List<number> | undefined;
+			expect(list.reduce((sum, value, _index, callbackList) => {
+				reducerList = callbackList;
+
+				return sum + value;
+			}, 0)).toBe(6);
+			expect(reducerList).toBe(list);
+		});
+
+		it('passes this List as the third argument to every callback API', () => {
+			const predicate = (_value: number, _index: number, callbackList: List<number>): boolean => {
+				expect(callbackList).toBe(list);
+				expect(Array.isArray(callbackList)).toBe(false);
+
+				return true;
+			};
+
+			list.every(predicate);
+			list.some(predicate);
+			list.filter(predicate);
+			list.find(predicate);
+			list.findIndex(predicate);
+			list.findLast(predicate);
+			list.findLastIndex(predicate);
+			list.map((_value, _index, callbackList) => {
+				expect(callbackList).toBe(list);
+				return 0;
+			});
+			list.flatMap((_value, _index, callbackList) => {
+				expect(callbackList).toBe(list);
+				return [];
+			});
+			list.forEach((_value, _index, callbackList) => expect(callbackList).toBe(list));
+			list.reduce((previous, value, _index, callbackList) => {
+				expect(callbackList).toBe(list);
+				return previous + value;
+			}, 0);
+			list.removeIf((_value, _index, callbackList) => {
+				expect(callbackList).toBe(list);
+
+				return false;
+			});
+		});
+
+		it('returns this from fluent mutators including clear', () => {
+			expect(list.add(4)).toBe(list);
+			expect(list.addAll(5)).toBe(list);
+			expect(list.addAllFrom([6])).toBe(list);
+			expect(list.insert(0, 0)).toBe(list);
+			expect(list.set(0, 1)).toBe(list);
+			expect(list.reverse()).toBe(list);
+			expect(list.sort()).toBe(list);
+			expect(list.clear()).toBe(list);
+		});
+	});
+
+	describe('callback methods when the list is mutated during iteration', () => {
+		type Visit = [ number | undefined, number ];
+		type Mutation = 'grows' | 'shrinks';
+
+		const methods = [ 'every', 'some', 'filter', 'find', 'findIndex', 'findLast', 'findLastIndex', 'map', 'flatMap', 'forEach', 'reduce' ] as const;
+
+		const results: Record<(typeof methods)[number], (element: number | undefined, index: number) => unknown> = {
+			every: () => true,
+			some: () => false,
+			filter: (_, index) => index % 2 === 0,
+			find: () => false,
+			findIndex: () => false,
+			findLast: () => false,
+			findLastIndex: () => false,
+			map: (element) => element,
+			flatMap: (element) => [ element, element ],
+			forEach: () => undefined,
+			reduce: () => undefined
+		};
+
+		const run = (method: (typeof methods)[number], mutation: Mutation, target: 'array' | 'list') => {
+			const visits: Visit[] = [];
+			const array = [ 1, 2, 3, 4 ];
+			const list = new List(array);
+			const mutate = target === 'array'
+				? (mutation === 'grows' ? () => array.push(99) : () => array.pop())
+				: (mutation === 'grows' ? () => list.add(99) : () => list.removeLast());
+			const callback = (element: number | undefined, index: number) => {
+				if (visits.push([ element, index ]) === 1) { mutate() }
+
+				return results[method](element, index);
+			};
+			const reducer = (accumulator: number, element: number | undefined, index: number) => {
+				callback(element, index);
+
+				return accumulator + 1;
+			};
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const source: any = target === 'array' ? array : list;
+			const result = method === 'reduce' ? source.reduce(reducer, 0) : source[method](callback);
+
+			return { visits, result: result instanceof List ? result.toArray() : result, contents: target === 'array' ? array.slice() : list.toArray() };
+		};
+
+		for (const method of methods) {
+			for (const mutation of [ 'grows', 'shrinks' ] as const) {
+				it(`${method} matches native Array behavior when the callback ${mutation} the list`, () => {
+					expect(run(method, mutation, 'list')).toEqual(run(method, mutation, 'array'));
+				});
+			}
+		}
+
+		it('flatMap flattens arrays one level like native Array, skipping holes and keeping non-array values', () => {
+			// eslint-disable-next-line no-sparse-arrays
+			const mapper = (element: number) => element === 1 ? [ 1, , 2 ] : element === 2 ? [ [ 3 ] ] : element;
+
+			expect(list.flatMap(mapper).toArray()).toEqual(initialItems.flatMap(mapper));
+		});
+
+		it('removeIf only visits the original elements when the predicate grows the list', () => {
+			const visited: number[] = [];
+
+			list.removeIf((element, index, self) => {
+				if (visited.push(element) === 1) { self.add(99) }
+
+				return index === 1;
+			});
+
+			expect(visited).toEqual([ 1, 2, 3 ]);
+			expect(list.toArray()).toEqual([ 1, 3 ]);
 		});
 	});
 });

@@ -1,8 +1,10 @@
-type Predicate<E> = (element: E, index: number, array: E[]) => boolean;
-type Mapper<E, R> = (element: E, index: number, array: E[]) => R;
-type Reducer<E, R> = (previousValue: R, currentValue: E, currentIndex: number, array: E[]) => R;
+import { naturalComparator } from './internal/comparator';
+
+type Predicate<E> = (element: E, index: number, list: List<E>) => boolean;
+type Mapper<E, R> = (element: E, index: number, list: List<E>) => R;
+type Reducer<E, R> = (previousValue: R, currentValue: E, currentIndex: number, list: List<E>) => R;
 type Comparator<E> = (a: E, b: E) => number;
-type Consumer<E> = (element: E, index: number, array: E[]) => void;
+type Consumer<E> = (element: E, index: number, list: List<E>) => void;
 
 /**
  * A simple List class in ECMAScript based on the {@link Array} class.
@@ -10,14 +12,14 @@ type Consumer<E> = (element: E, index: number, array: E[]) => void;
  * The List class is not meant to be a replacement for the Array class.
  */
 export class List<E> {
-	#elements: Array<E> = [];
+	#elements: Array<E>;
 
 	/**
 	 * Creates a new List from the shallow-copied array.
 	 * @param elements The initial elements in the list.
 	 */
-	constructor(elements: Array<E> = []) {
-		this.#elements = [ ...elements ];
+	constructor(elements: Iterable<E> = []) {
+		this.#elements = Array.from(elements);
 	}
 
 	/**
@@ -26,7 +28,7 @@ export class List<E> {
 	 * @param element The element to add.
 	 * @returns The updated list.
 	 */
-	add(element: E): List<E> {
+	add(element: E): this {
 		this.#elements.push(element);
 
 		return this;
@@ -38,8 +40,20 @@ export class List<E> {
 	 * @param elements The elements to add.
 	 * @returns The updated list.
 	 */
-	addAll(...elements: Array<E>): List<E> {
-		this.#elements.push(...elements);
+	addAll(...elements: Array<E>): this {
+		for (const element of elements) { this.#elements.push(element) }
+
+		return this;
+	}
+
+	/**
+	 * Adds all elements from an iterable to the list.
+	 * This method supports large or streaming inputs without expanding them into function arguments.
+	 * @param elements The iterable whose elements to add.
+	 * @returns The updated list.
+	 */
+	addAllFrom(elements: Iterable<E>): this {
+		for (const element of elements) { this.#elements.push(element) }
 
 		return this;
 	}
@@ -51,7 +65,9 @@ export class List<E> {
 	 * @param element The entry to add to the list.
 	 * @returns The updated list.
 	 */
-	insert(index: number, element: E): List<E> {
+	insert(index: number, element: E): this {
+		if (index < 0 || index > this.#elements.length) { throw new RangeError(`Index ${index} out of bounds.`) }
+
 		this.#elements.splice(index, 0, element);
 
 		return this;
@@ -63,7 +79,9 @@ export class List<E> {
 	 * @returns The element that was removed.
 	 */
 	remove(element: E): E | undefined {
-		return this.removeAt(this.indexOf(element));
+		const index = this.indexOf(element);
+
+		return index === -1 ? undefined : this.removeAt(index);
 	}
 
 	/**
@@ -93,7 +111,7 @@ export class List<E> {
 	 * @param element The element to set.
 	 * @returns The updated list.
 	 */
-	set(index: number, element: E): List<E> {
+	set(index: number, element: E): this {
 		if (index < 0 || this.#elements.length <= index) { throw new RangeError(`Index ${index} out of bounds.`) }
 
 		this.#elements[index] = element;
@@ -126,20 +144,20 @@ export class List<E> {
 
 	/**
 	 * Removes the last element from the list and returns it.
-	 * If the list is empty, null is returned and the list is not modified.
-	 * @returns The last element in the list or null.
+	 * If the list is empty, undefined is returned and the list is not modified.
+	 * @returns The last element in the list or undefined.
 	 */
-	removeLast(): E | null {
-		return this.#elements.pop() ?? null;
+	removeLast(): E | undefined {
+		return this.#elements.pop();
 	}
 
 	/**
 	 * Removes the first element from the list and returns it.
-	 * If the list is empty, null is returned and the list is not modified.
-	 * @returns The first element in the list or null.
+	 * If the list is empty, undefined is returned and the list is not modified.
+	 * @returns The first element in the list or undefined.
 	 */
-	removeFirst(): E | null {
-		return this.#elements.shift() ?? null;
+	removeFirst(): E | undefined {
+		return this.#elements.shift();
 	}
 
 	/**
@@ -147,7 +165,7 @@ export class List<E> {
 	 * This method mutates the list and returns a reference to the same list.
 	 * @returns The mutated list.
 	 */
-	reverse(): List<E> {
+	reverse(): this {
 		this.#elements.reverse();
 
 		return this;
@@ -160,6 +178,25 @@ export class List<E> {
 	 */
 	contains(element: E): boolean {
 		return this.#elements.includes(element);
+	}
+
+	/**
+	 * Returns the element at the given index, counting from the end when the index is negative.
+	 * @param index The index of the element to return.
+	 * @returns The element at the index, or undefined if the index is out of range.
+	 */
+	at(index: number): E | undefined {
+		return this.#elements.at(index);
+	}
+
+	/**
+	 * Returns a new list containing the elements within the given range.
+	 * @param start The zero-based index at which to begin, or an offset from the end when negative.
+	 * @param end The zero-based index before which to end, or an offset from the end when negative.
+	 * @returns A new list containing the selected elements.
+	 */
+	slice(start?: number, end?: number): List<E> {
+		return List.#newInstance(this.#elements.slice(start, end));
 	}
 
 	/**
@@ -182,42 +219,68 @@ export class List<E> {
 		return this.#elements.join(separator);
 	}
 
-	/** Removes all elements from the list. */
-	clear(): void {
+	/**
+	 * Removes all elements from the list.
+	 * @returns This list.
+	 */
+	clear(): this {
 		this.#elements.length = 0;
+
+		return this;
 	}
 
 	/**
 	 * Determines whether all the members of an list satisfy the specified test.
-	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * @param predicate A function that receives the element, its index, and this list.
 	 * The every method calls the predicate for each element until it returns false or until the end of the list.
 	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns `true` if all elements satisfy the specified test, `false` otherwise.
 	 */
 	every(predicate: Predicate<E>, context?: unknown): boolean {
-		return this.#elements.every(predicate, context);
+		const elements = this.#elements;
+
+		for (let index = 0, length = elements.length; index < length && index < elements.length; index++) {
+			if (!predicate.call(context, elements[index] as E, index, this)) { return false }
+		}
+
+		return true;
 	}
 
 	/**
 	 * Determines whether the specified callback function returns true for any element in the list.
-	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * @param predicate A function that receives the element, its index, and this list.
 	 * The some method calls the predicate for each element until it returns true or until the end of the list.
 	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns `true` if any element satisfies the predicate, `false` otherwise.
 	 */
 	some(predicate: Predicate<E>, context?: unknown): boolean {
-		return this.#elements.some(predicate, context);
+		const elements = this.#elements;
+
+		for (let index = 0, length = elements.length; index < length && index < elements.length; index++) {
+			if (predicate.call(context, elements[index] as E, index, this)) { return true }
+		}
+
+		return false;
 	}
 
 	/**
 	 * Returns the elements of the list that meet the condition specified in a predicate function.
 	 * The method returns a new list with the elements that satisfy the condition.
-	 * @param predicate A function that receives the element, its index, and the list's backing array.
+	 * @param predicate A function that receives the element, its index, and this list.
 	 * @param [context] The value to use as `this` when invoking the predicate. If omitted, `undefined` is used.
 	 * @returns A new list of elements that satisfied the predicate condition.
 	 */
 	filter(predicate: Predicate<E>, context?: unknown): List<E> {
-		return List.#newInstance(this.#elements.filter(predicate, context));
+		const elements = this.#elements;
+		const result: E[] = [];
+
+		for (let index = 0, length = elements.length; index < length && index < elements.length; index++) {
+			const element = elements[index] as E;
+
+			if (predicate.call(context, element, index, this)) { result.push(element) }
+		}
+
+		return List.#newInstance(result);
 	}
 
 	/**
@@ -228,7 +291,15 @@ export class List<E> {
 	 * @returns The element in the array.
 	 */
 	find(predicate: Predicate<E>, context?: unknown): E | undefined {
-		return this.#elements.find(predicate, context);
+		const elements = this.#elements;
+
+		for (let index = 0, length = elements.length; index < length; index++) {
+			const element = elements[index] as E;
+
+			if (predicate.call(context, element, index, this)) { return element }
+		}
+
+		return undefined;
 	}
 
 	/**
@@ -239,31 +310,148 @@ export class List<E> {
 	 * @returns The index found.
 	 */
 	findIndex(predicate: Predicate<E>, context?: unknown): number {
-		return this.#elements.findIndex(predicate, context);
+		const elements = this.#elements;
+
+		for (let index = 0, length = elements.length; index < length; index++) {
+			if (predicate.call(context, elements[index] as E, index, this)) { return index }
+		}
+
+		return -1;
+	}
+
+	/**
+	 * Returns the last element that satisfies the predicate, or undefined if none does.
+	 * @param predicate A function that receives the element, its index, and this list.
+	 * @param context The value to use as `this` when invoking the predicate.
+	 * @returns The last matching element, or undefined.
+	 */
+	findLast(predicate: Predicate<E>, context?: unknown): E | undefined {
+		const elements = this.#elements;
+
+		for (let index = elements.length - 1; index >= 0; index--) {
+			const element = elements[index] as E;
+
+			if (predicate.call(context, element, index, this)) { return element }
+		}
+
+		return undefined;
+	}
+
+	/**
+	 * Returns the index of the last element that satisfies the predicate, or -1 if none does.
+	 * @param predicate A function that receives the element, its index, and this list.
+	 * @param context The value to use as `this` when invoking the predicate.
+	 * @returns The last matching index, or -1.
+	 */
+	findLastIndex(predicate: Predicate<E>, context?: unknown): number {
+		const elements = this.#elements;
+
+		for (let index = elements.length - 1; index >= 0; index--) {
+			if (predicate.call(context, elements[index] as E, index, this)) { return index }
+		}
+
+		return -1;
 	}
 
 	/**
 	 * Calls a defined callback function on each element of the list, and returns a list that contains the results.
-	 * The callback receives the element, its index, and the list's backing array. If a context is provided, it is used as the this value for each invocation.
+	 * The callback receives the element, its index, and this list. If a context is provided, it is used as the this value for each invocation.
 	 * The map method does not mutate the list on which it is called (although the callback may do so).
 	 * @param mapper A function that returns the mapped value for each element.
 	 * @param [context] The value to use as `this` when invoking the mapper. If omitted, `undefined` is used.
 	 * @returns A new list containing the mapped values.
 	 */
 	map<R>(mapper: Mapper<E, R>, context?: unknown): List<R> {
-		return List.#newInstance(this.#elements.map(mapper, context));
+		const elements = this.#elements;
+		const length = elements.length;
+		const result = new Array<R>(length);
+
+		for (let index = 0; index < length && index < elements.length; index++) {
+			result[index] = mapper.call(context, elements[index] as E, index, this);
+		}
+
+		return List.#newInstance(result);
+	}
+
+	/**
+	 * Maps each element to a value or array of values, then flattens the results by one level.
+	 * @param mapper A function that receives the element, its index, and this list.
+	 * @param context The value to use as `this` when invoking the mapper.
+	 * @returns A new list containing the mapped values flattened by one level.
+	 */
+	flatMap<R>(mapper: (element: E, index: number, list: List<E>) => R | ReadonlyArray<R>, context?: unknown): List<R> {
+		const elements = this.#elements;
+		const result: R[] = [];
+
+		for (let index = 0, length = elements.length; index < length && index < elements.length; index++) {
+			const mapped = mapper.call(context, elements[index] as E, index, this);
+
+			if (Array.isArray(mapped)) {
+				for (let inner = 0, innerLength = mapped.length; inner < innerLength; inner++) {
+					if (inner in mapped) { result.push(mapped[inner] as R) }
+				}
+			} else {
+				result.push(mapped as R);
+			}
+		}
+
+		return List.#newInstance(result);
 	}
 
 	/**
 	 * Executes a user-supplied "reducer" callback function on each element of the list, in order,
 	 * passing in the return value from the calculation on the preceding element. The final result
 	 * of running the reducer across all elements of the list is a single value.
-	 * @param reducer A function that receives the accumulated value, the current element, its index, and the list's backing array.
+	 * Without an initial value, an empty list throws a RangeError. Native Array.reduce throws a TypeError in this case.
+	 * @param reducer A function that receives the accumulated value, the current element, its index, and this list.
 	 * @param initialValue The initial value for the accumulation.
 	 * @returns The value that results from the reduction.
 	 */
-	reduce<R>(reducer: Reducer<E, R>, initialValue: R): R {
-		return this.#elements.reduce(reducer, initialValue);
+	reduce(reducer: Reducer<E, E>): E;
+	reduce<R>(reducer: Reducer<E, R>, initialValue: R): R;
+	reduce<R>(reducer: Reducer<E, R>, initialValue?: R): R {
+		const elements = this.#elements;
+		const length = elements.length;
+		let previousValue = initialValue as R;
+		let index = 0;
+
+		if (arguments.length === 1) {
+			if (length === 0) { throw new RangeError('Reduce of empty list with no initial value.') }
+
+			previousValue = elements[index++] as R;
+		}
+
+		for (; index < length && index < elements.length; index++) {
+			previousValue = reducer(previousValue, elements[index] as E, index, this);
+		}
+
+		return previousValue;
+	}
+
+	/**
+	 * Removes every element that satisfies the predicate.
+	 * @param predicate A function that receives the element, its index, and this list.
+	 * @param context The value to use as `this` when invoking the predicate.
+	 * @returns The number of removed elements.
+	 */
+	removeIf(predicate: Predicate<E>, context?: unknown): number {
+		const elements = this.#elements;
+		const previousLength = elements.length;
+		const remaining: E[] = [];
+
+		for (let index = 0; index < previousLength && index < elements.length; index++) {
+			const element = elements[index] as E;
+
+			if (!predicate.call(context, element, index, this)) { remaining.push(element) }
+		}
+
+		const remainingLength = remaining.length;
+
+		for (let index = 0; index < remainingLength; index++) { elements[index] = remaining[index] as E }
+
+		elements.length = remainingLength;
+
+		return previousLength - remainingLength;
 	}
 
 	/**
@@ -274,10 +462,19 @@ export class List<E> {
 	 * @param [comparator] A function that defines the sort order. If omitted, the default (ascending order) comparator function will be used.
 	 * @returns The sorted list.
 	 */
-	sort(comparator: Comparator<E> = List.#defaultComparator): List<E> {
+	sort(comparator: Comparator<E> = naturalComparator): this {
 		this.#elements.sort(comparator);
 
 		return this;
+	}
+
+	/**
+	 * Returns a sorted copy of this list without modifying it.
+	 * @param comparator A function that defines the sort order. Defaults to naturalComparator.
+	 * @returns A new sorted list.
+	 */
+	toSorted(comparator: Comparator<E> = naturalComparator): List<E> {
+		return List.#newInstance(this.#elements.slice().sort(comparator));
 	}
 
 	/**
@@ -286,7 +483,11 @@ export class List<E> {
 	 * @param [context] The value to use as `this` when invoking the consumer. If omitted, `undefined` is used.
 	 */
 	forEach(consumer: Consumer<E>, context?: unknown): void {
-		this.#elements.forEach(consumer, context);
+		const elements = this.#elements;
+
+		for (let index = 0, length = elements.length; index < length && index < elements.length; index++) {
+			consumer.call(context, elements[index] as E, index, this);
+		}
 	}
 
 	/**
@@ -302,15 +503,7 @@ export class List<E> {
 	 * @returns A new array that is a shallow copy of this list.
 	 */
 	toArray(): E[] {
-		return [ ...this.#elements ];
-	}
-
-	/**
-	 * Returns the primitive value of the list.
-	 * @returns The primitive value of the list.
-	 */
-	valueOf(): object {
-		return this.#elements.valueOf();
+		return this.#elements.slice();
 	}
 
 	/**
@@ -372,13 +565,27 @@ export class List<E> {
 	}
 
 	/**
-	 * A default comparator function that compares two elements of the list.
-	 * @param a The first element to compare.
-	 * @param b The second element to compare.
-	 * @returns A negative number if a < b, zero if a === b, a positive number if a > b.
+	 * Creates a list from an iterable, optionally mapping each element.
+	 * When provided, the mapper receives the source List as its third argument.
+	 * @param elements The iterable to copy.
+	 * @param mapFn A function to call on every element.
+	 * @returns The new list.
 	 */
-	static #defaultComparator<E>(a: E, b: E) {
-		return typeof(a) === 'number' && typeof(b) === 'number' ? a - b : String(a).localeCompare(String(b));
+	static from<E>(elements: Iterable<E>): List<E>;
+	static from<E, R>(elements: Iterable<E>, mapFn: Mapper<E, R>): List<R>;
+	static from<E, R>(elements: Iterable<E>, mapFn?: Mapper<E, R>): List<E | R> {
+		const source = new List(elements);
+
+		return mapFn === undefined ? source : source.map<E | R>(mapFn);
+	}
+
+	/**
+	 * Creates a list from the provided elements.
+	 * @param elements The elements to include.
+	 * @returns The new list.
+	 */
+	static of<E>(...elements: Array<E>): List<E> {
+		return new List(elements);
 	}
 
 	/**

@@ -27,6 +27,7 @@
 			"linked-map": "./src/linked-map.ts",
 			"multi-map": "./src/multi-map.ts",
 			"set-multi-map": "./src/set-multi-map.ts",
+			"internal/comparator": "./src/internal/comparator.ts",
 			"internal/map-upsert": "./src/internal/map-upsert.ts",
 			"internal/node-iterator": "./src/internal/node-iterator.ts"
 		}
