@@ -1,149 +1,52 @@
 import { KeyedNode } from './keyed-node';
-import './map-upsert-polyfill';
+import { createNodeIterator, markNodeRemoved, type NodeSource } from './internal/node-iterator';
 
-type LinkedIterator<E> = IterableIterator<E> & {
-	return: (value?: void) => IteratorResult<E, void>;
-	throw: (error?: unknown) => never;
-};
+type LinkedIterator<E> = IteratorObject<E, undefined, unknown>;
 
 /**
- * Creates an iterator over a keyed node chain's keys.
- * @param first The first node to visit.
- * @returns An iterator over node keys.
+ * Projects a node to its key.
+ * @param node The node to project.
+ * @returns The node's key.
  */
-const createKeyIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<K | null> => {
-	let node = first;
-
-	return {
-		/** @returns This iterator. */
-		[Symbol.iterator]() {
-			return this;
-		},
-		/** @returns The next iteration result. */
-		next() {
-			if (node === null) { return { done: true, value: undefined } }
-
-			const current = node;
-			node = current.next;
-
-			return { done: false, value: current.key };
-		},
-		/**
-		 * Completes iteration.
-		 * @param _value The optional completion value.
-		 * @returns A completed iteration result.
-		 */
-		return(_value?: void) {
-			node = null;
-
-			return { done: true, value: undefined };
-		},
-		/**
-		 * Stops iteration and throws the provided error.
-		 * @param error The error to throw.
-		 */
-		throw(error?: unknown): never {
-			node = null;
-			throw error;
-		}
-	};
-};
+function nodeKey<K, V>(node: KeyedNode<K, V>): K {
+	return node.key;
+}
 
 /**
- * Creates an iterator over a keyed node chain's values.
- * @param first The first node to visit.
- * @returns An iterator over node values.
+ * Projects a node to its value.
+ * @param node The node to project.
+ * @returns The node's value.
  */
-const createValueIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<V | null> => {
-	let node = first;
-
-	return {
-		/** @returns This iterator. */
-		[Symbol.iterator]() {
-			return this;
-		},
-		/** @returns The next iteration result. */
-		next() {
-			if (node === null) { return { done: true, value: undefined } }
-
-			const current = node;
-			node = current.next;
-
-			return { done: false, value: current.value };
-		},
-		/**
-		 * Completes iteration.
-		 * @param _value The optional completion value.
-		 * @returns A completed iteration result.
-		 */
-		return(_value?: void) {
-			node = null;
-
-			return { done: true, value: undefined };
-		},
-		/**
-		 * Stops iteration and throws the provided error.
-		 * @param error The error to throw.
-		 */
-		throw(error?: unknown): never {
-			node = null;
-			throw error;
-		}
-	};
-};
+function nodeValue<K, V>(node: KeyedNode<K, V>): V {
+	return node.value;
+}
 
 /**
- * Creates an iterator over a keyed node chain's entries.
- * @param first The first node to visit.
- * @returns An iterator over node entries.
+ * Projects a node to a new key-value entry.
+ * @param node The node to project.
+ * @returns The node's key-value entry.
  */
-const createEntryIterator = <K, V>(first: KeyedNode<K, V> | null): LinkedIterator<[K | null, V | null]> => {
-	let node = first;
-
-	return {
-		/** @returns This iterator. */
-		[Symbol.iterator]() {
-			return this;
-		},
-		/** @returns The next iteration result. */
-		next() {
-			if (node === null) { return { done: true, value: undefined } }
-
-			const current = node;
-			node = current.next;
-
-			return { done: false, value: [ current.key, current.value ] };
-		},
-		/**
-		 * Completes iteration.
-		 * @param _value The optional completion value.
-		 * @returns A completed iteration result.
-		 */
-		return(_value?: void) {
-			node = null;
-
-			return { done: true, value: undefined };
-		},
-		/**
-		 * Stops iteration and throws the provided error.
-		 * @param error The error to throw.
-		 */
-		throw(error?: unknown): never {
-			node = null;
-			throw error;
-		}
-	};
-};
+function nodeEntry<K, V>(node: KeyedNode<K, V>): [K, V] {
+	return [ node.key, node.value ];
+}
 
 /** A Map that maintains an explicit linked order for its key-value pairs. */
 export class LinkedMap<K, V> {
 	#head: KeyedNode<K, V> | null = null;
 	#tail: KeyedNode<K, V> | null = null;
+	#generation: number = 0;
+	#source: NodeSource<KeyedNode<K, V>> | null = null;
 	readonly #map: Map<K, KeyedNode<K, V>>;
 
-	/** Initializes an empty LinkedMap. */
-	constructor() {
+	/**
+	 * Initializes a LinkedMap from an optional iterable of key-value entries.
+	 * @param [entries] The key-value entries to initialize the map with.
+	 */
+	constructor(entries?: Iterable<readonly [K, V]>) {
 		this.#map = new Map();
+		if (entries !== undefined) {
+			for (const [ key, value ] of entries) { this.set(key, value) }
+		}
 	}
 
 	/**
@@ -157,19 +60,21 @@ export class LinkedMap<K, V> {
 
 	/**
 	 * Associates the specified value with the specified key in this map.
-	 * If the key already exists, its value is updated and the key is moved to the end of the order.
+	 * If the key already exists, its value is updated without changing its position.
 	 * @param key The key with which the specified value is to be associated.
 	 * @param value The value to be associated with the specified key.
+	 * @returns This map.
 	 */
-	set(key: K, value: V): void {
+	set(key: K, value: V): this {
 		const node = this.#map.get(key);
 
 		if (node !== undefined) {
 			node.value = value;
-			this.#moveToLast(node);
 		} else {
 			this.#appendNewNode(key, value);
 		}
+
+		return this;
 	}
 
 	/**
@@ -180,7 +85,13 @@ export class LinkedMap<K, V> {
 	 * @returns The element associated with the specified key, which will be `defaultValue` if no element previously existed.
 	 */
 	getOrInsert(key: K, defaultValue: V): V {
-		return this.#map.getOrInsertComputed(key, (insertedKey) => this.#createAppendedNode(insertedKey, defaultValue)).value;
+		const node = this.#map.get(key);
+
+		if (node !== undefined) { return node.value }
+
+		this.#appendNewNode(key, defaultValue);
+
+		return defaultValue;
 	}
 
 	/**
@@ -214,10 +125,24 @@ export class LinkedMap<K, V> {
 	 * @param key The key whose mapping is to be removed from the map.
 	 * @returns True if the map contained a mapping for the specified key, false otherwise.
 	 */
-	remove(key: K | null): boolean {
-		if (key === null) { return false }
+	delete(key: K): boolean {
+		const node = this.#map.get(key);
 
-		return this.#unlinkNode(this.#map.get(key)) ? this.#map.delete(key) : false;
+		if (node === undefined) { return false }
+
+		this.#unlinkNode(node);
+
+		return this.#map.delete(key);
+	}
+
+	/**
+	 * Removes the mapping for a key from this map if it is present.
+	 * @deprecated Use {@link delete} instead.
+	 * @param key The key whose mapping is to be removed from the map.
+	 * @returns True if the map contained a mapping for the specified key, false otherwise.
+	 */
+	remove(key: K): boolean {
+		return this.delete(key);
 	}
 
 	/**
@@ -229,8 +154,9 @@ export class LinkedMap<K, V> {
 	 * If the key already exists, the value will be updated.
 	 * @param key The key of the new node.
 	 * @param value The value of the new node.
+	 * @returns This map.
 	 */
-	addFirst(key: K, value: V): void {
+	addFirst(key: K, value: V): this {
 		const node = this.#map.get(key);
 
 		if (node !== undefined) {
@@ -239,6 +165,8 @@ export class LinkedMap<K, V> {
 		} else {
 			this.#prependNewNode(key, value);
 		}
+
+		return this;
 	}
 
 	/**
@@ -250,8 +178,9 @@ export class LinkedMap<K, V> {
 	 * If the key already exists, the value will be updated.
 	 * @param key The key of the new node.
 	 * @param value The value of the new node.
+	 * @returns This map.
 	 */
-	addLast(key: K, value: V): void {
+	addLast(key: K, value: V): this {
 		const node = this.#map.get(key);
 
 		if (node !== undefined) {
@@ -260,6 +189,8 @@ export class LinkedMap<K, V> {
 		} else {
 			this.#appendNewNode(key, value);
 		}
+
+		return this;
 	}
 
 	/**
@@ -274,10 +205,14 @@ export class LinkedMap<K, V> {
 	 * The head will be updated to point to the node.
 	 * If the node is the tail, the tail will be updated to be the previous node.
 	 * If the node is not the tail, the next node's previous pointer will be updated to point to the previous node.
+	 * @remarks Iterators active during reordering tolerate the change, but may skip or revisit entries.
 	 * @param key The key of the node to move to the beginning of the list.
+	 * @returns This map.
 	 */
-	moveToFirst(key: K): void {
+	moveToFirst(key: K): this {
 		this.#moveToFirst(this.#map.get(key));
+
+		return this;
 	}
 
 	/**
@@ -291,54 +226,78 @@ export class LinkedMap<K, V> {
 	 * The tail will be updated to point to the node.
 	 * The node's next pointer will be updated to point to null.
 	 * If the key already exists, the value will be updated.
+	 * @remarks Iterators active during reordering tolerate the change, but may skip or revisit entries.
 	 * @param key The key of the node to move to the end of the list.
+	 * @returns This map.
 	 */
-	moveToLast(key: K): void {
+	moveToLast(key: K): this {
 		this.#moveToLast(this.#map.get(key));
+
+		return this;
 	}
 
 	/**
-	 * Returns the value to which the first key is mapped, or null if this map contains no mappings.
-	 * @returns The value to which the first key is mapped, or null if this map contains no mappings.
+	 * Returns the value to which the first key is mapped, or undefined if this map contains no mappings.
+	 * @returns The value to which the first key is mapped, or undefined if this map contains no mappings.
 	 */
-	getFirst(): V | null {
-		return this.#head?.value ?? null;
+	getFirst(): V | undefined {
+		return this.#head?.value;
 	}
 
 	/**
-	 * Returns the value to which the last key is mapped, or null if this map contains no mappings.
-	 * @returns The value to which the last key is mapped, or null if this map contains no mappings.
+	 * Returns the value to which the last key is mapped, or undefined if this map contains no mappings.
+	 * @returns The value to which the last key is mapped, or undefined if this map contains no mappings.
 	 */
-	getLast(): V | null {
-		return this.#tail?.value ?? null;
+	getLast(): V | undefined {
+		return this.#tail?.value;
 	}
 
 	/**
-	 * Removes the first key and its corresponding value from this map.
-	 * If the map is empty, nothing will happen.
-	 * If the map is not empty, the head will be updated to be the next node.
-	 * If the map is not empty and the head is not null, the head's previous pointer will be updated to point to null.
-	 * The node will be removed from the map.
-	 * The node's previous and next pointers will be updated to point to null.
-	 * @returns True if the first key and its corresponding value were removed, false otherwise.
+	 * Returns the first key in the map, or undefined if the map is empty.
+	 * @returns The first key, or undefined if the map is empty.
 	 */
-	removeFirst(): boolean {
-		return this.#head === null ? false : this.remove(this.#head.key);
+	firstKey(): K | undefined {
+		return this.#head?.key;
 	}
 
 	/**
-	 * Removes the last key and its corresponding value from this map.
-	 * If the map is empty, nothing will happen.
-	 * If the map is not empty, the tail will be updated to be the previous node.
-	 * If the map is not empty and the tail is not null, the tail's next pointer will be updated to point to null.
-	 * The node will be removed from the map.
-	 * The node's previous and next pointers will be updated to point to null.
-	 * If the key does not exist, nothing will happen.
-	 * If the node is already the tail, nothing will happen.
-	 * @returns True if the last key and its corresponding value were removed, false otherwise.
+	 * Returns the last key in the map, or undefined if the map is empty.
+	 * @returns The last key, or undefined if the map is empty.
 	 */
-	removeLast(): boolean {
-		return this.#tail === null ? false : this.remove(this.#tail.key);
+	lastKey(): K | undefined {
+		return this.#tail?.key;
+	}
+
+	/**
+	 * Returns the first entry, or undefined if the map is empty.
+	 * @returns The first entry, or undefined if the map is empty.
+	 */
+	firstEntry(): [K, V] | undefined {
+		return this.#head === null ? undefined : [ this.#head.key, this.#head.value ];
+	}
+
+	/**
+	 * Returns the last entry, or undefined if the map is empty.
+	 * @returns The last entry, or undefined if the map is empty.
+	 */
+	lastEntry(): [K, V] | undefined {
+		return this.#tail === null ? undefined : [ this.#tail.key, this.#tail.value ];
+	}
+
+	/**
+	 * Removes and returns the first entry, or undefined if the map is empty.
+	 * @returns The removed entry, or undefined if the map is empty.
+	 */
+	removeFirst(): [K, V] | undefined {
+		return this.#removeNode(this.#head);
+	}
+
+	/**
+	 * Removes and returns the last entry, or undefined if the map is empty.
+	 * @returns The removed entry, or undefined if the map is empty.
+	 */
+	removeLast(): [K, V] | undefined {
+		return this.#removeNode(this.#tail);
 	}
 
 	/**
@@ -354,18 +313,22 @@ export class LinkedMap<K, V> {
 	 * Executes a provided function once for each key-value pair in the map.
 	 * The callback receives the value, key, and this map, matching the native {@link Map} convention.
 	 * @param callback Function to execute for each key-value pair.
-	 * @param [thisArg] The value to use as `this` when executing the callback. If omitted, this map is used.
+	 * @param [thisArg] The value to use as `this` when executing the callback.
 	 */
-	forEach(callback: (value: V | null, key: K | null, thisArg: LinkedMap<K, V>) => void, thisArg: unknown = this): void {
-		for (let node = this.#head; node !== null; node = node.next) {
-			callback.call(thisArg, node.value, node.key, this);
-		}
+	forEach(callback: (value: V, key: K, thisMap: LinkedMap<K, V>) => void, thisArg?: unknown): void {
+		for (let node = this.#head; node !== null; node = node.next) { callback.call(thisArg, node.value, node.key, this) }
 	}
 
-	/** Removes all of the mappings from this map. The map will be empty after this call returns. */
-	clear(): void {
+	/**
+	 * Removes all of the mappings from this map. The map will be empty after this call returns.
+	 * @returns This map.
+	 */
+	clear(): this {
 		this.#map.clear();
 		this.#head = this.#tail = null;
+		this.#generation++;
+
+		return this;
 	}
 
 	/**
@@ -379,37 +342,41 @@ export class LinkedMap<K, V> {
 	/**
 	 * Returns an iterator that yields all keys in the map in their insertion order.
 	 * The iterator follows the map's current linked order.
+	 * @remarks Removed entries are skipped; after `clear()`, iteration resumes with newly added entries. Once done, an iterator stays done. Moving entries while iterating may skip or revisit entries.
 	 * @returns An iterator for the keys in the map.
 	 */
-	keys(): LinkedIterator<K | null> {
-		return createKeyIterator(this.#head);
+	keys(): LinkedIterator<K> {
+		return createNodeIterator(this.#nodeSource(), nodeKey<K, V>);
 	}
 
 	/**
 	 * Returns an iterator that yields all values in the map in their insertion order.
 	 * The iterator follows the map's current linked order.
+	 * @remarks Removed entries are skipped; after `clear()`, iteration resumes with newly added entries. Once done, an iterator stays done. Moving entries while iterating may skip or revisit entries.
 	 * @returns An iterator for the values in the map.
 	 */
-	values(): LinkedIterator<V | null> {
-		return createValueIterator(this.#head);
+	values(): LinkedIterator<V> {
+		return createNodeIterator(this.#nodeSource(), nodeValue<K, V>);
 	}
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
 	 * The iterator follows the map's current linked order.
+	 * @remarks Removed entries are skipped; after `clear()`, iteration resumes with newly added entries. Once done, an iterator stays done. Moving entries while iterating may skip or revisit entries.
 	 * @returns An iterator for the key-value pairs in the map.
 	 */
-	entries(): LinkedIterator<[K | null, V | null]> {
+	entries(): LinkedIterator<[K, V]> {
 		return this[Symbol.iterator]();
 	}
 
 	/**
 	 * Returns an iterator that yields all key-value pairs in the map as arrays in their insertion order.
 	 * The iterator follows the map's current linked order.
+	 * @remarks Removed entries are skipped; after `clear()`, iteration resumes with newly added entries. Once done, an iterator stays done. Moving entries while iterating may skip or revisit entries.
 	 * @returns An iterator for the key-value pairs in the map.
 	 */
-	[Symbol.iterator](): LinkedIterator<[K | null, V | null]> {
-		return createEntryIterator(this.#head);
+	[Symbol.iterator](): LinkedIterator<[K, V]> {
+		return createNodeIterator(this.#nodeSource(), nodeEntry<K, V>);
 	}
 
 	/**
@@ -421,20 +388,39 @@ export class LinkedMap<K, V> {
 	}
 
 	/**
-	 * Moves the node to the end of the list.
-	 * If the node is already the tail, nothing will happen.
-	 * If the node is not in the map, nothing will happen.
-	 * If the node is the head, the head will be updated to be the next node.
-	 * If the node is not the head, the node's previous pointer will be updated to point to the node's next node.
-	 * If the node is not the tail, the node's next pointer will be updated to point to null.
-	 * The node will be added to the end of the list.
-	 * The node's previous pointer will be updated to point to the current tail.
-	 * The current tail's next pointer will be updated to point to the node.
-	 * @param node The node to move to the end of the list.
-	 * @returns True if the node was moved to the end of the list, false otherwise.
+	 * Gets the live head and generation accessors shared by this map's iterators, creating them on first use.
+	 * @returns The node source for this map.
 	 */
-	#unlinkNode(node?: KeyedNode<K, V>) {
-		if (node === undefined) { return false }
+	#nodeSource(): NodeSource<KeyedNode<K, V>> {
+		return this.#source ??= {
+			/** @returns The current head node. */
+			head: () => this.#head,
+			/** @returns The current clear generation. */
+			generation: () => this.#generation
+		};
+	}
+
+	/**
+	 * Removes a node from the list and the map.
+	 * @param node The node to remove.
+	 * @returns The removed entry, or undefined when no node was given.
+	 */
+	#removeNode(node: KeyedNode<K, V> | null): [K, V] | undefined {
+		if (node === null) { return undefined }
+
+		this.#unlinkNode(node);
+		this.#map.delete(node.key);
+
+		return [ node.key, node.value ];
+	}
+
+	/**
+	 * Unlinks a node from the list.
+	 * @param node The node to unlink.
+	 * @param removed Whether to mark the node as removed for active iterators.
+	 */
+	#unlinkNode(node: KeyedNode<K, V>, removed: boolean = true) {
+		const previous = node.previous;
 
 		// Handle previous node
 		if (node.previous !== null) {
@@ -450,23 +436,19 @@ export class LinkedMap<K, V> {
 			this.#tail = node.previous;
 		}
 
-		// Clean up the removed node's pointers
+		// Keep the forward link on removed nodes so parked iterators can advance.
 		node.previous = null;
-		node.next = null;
-
-		return true;
+		if (removed) {
+			markNodeRemoved(node, previous);
+		} else {
+			node.next = null;
+		}
 	}
 
 	/**
-	 * Adds a new node to the beginning of the list.
-	 * If the key already exists, the node will be moved to the beginning of the list.
-	 * If the key does not exist, a new node will be created and added to the beginning of the list.
-	 * If the key already exists, the node's value will be updated to the new value.
-	 * If the key does not exist, the node's value will be set to the new value.
-	 * If the key already exists, the node will be moved to the beginning of the list.
-	 * If the key does not exist, the node will be added to the beginning of the list.
-	 * @param key The key of the node to add.
-	 * @param value The value of the node to add.
+	 * Creates and links a new node at the beginning of the list.
+	 * @param key The key to associate with the node.
+	 * @param value The value to store in the node.
 	 */
 	#prependNewNode(key: K, value: V) {
 		const newNode = new KeyedNode({ key, value });
@@ -483,15 +465,9 @@ export class LinkedMap<K, V> {
 	}
 
 	/**
-	 * Adds a new node to the end of the list.
-	 * If the key already exists, the node will be moved to the end of the list.
-	 * If the key does not exist, a new node will be created and added to the end of the list.
-	 * If the key already exists, the node's value will be updated to the new value.
-	 * If the key does not exist, the node's value will be set to the new value.
-	 * If the key already exists, the node will be moved to the end of the list.
-	 * If the key does not exist, the node will be added to the end of the list.
-	 * @param key The key of the node to add.
-	 * @param value The value of the node to add.
+	 * Creates and links a new node at the end of the list, registering it in the map.
+	 * @param key The key to associate with the node.
+	 * @param value The value to store in the node.
 	 */
 	#appendNewNode(key: K, value: V) {
 		this.#map.set(key, this.#createAppendedNode(key, value));
@@ -518,51 +494,34 @@ export class LinkedMap<K, V> {
 	}
 
 	/**
-	 * Moves the node to the beginning of the list.
-	 * If the node is already the head, nothing will happen.
-	 * If the node is not in the map, nothing will happen.
-	 * If the node is the tail, the tail will be updated to be the previous node.
-	 * If the node is not the tail, the node's next pointer will be updated to point to the node's previous node.
-	 * If the node is not the head, the node's previous pointer will be updated to point to null.
-	 * The node will be added to the beginning of the list.
-	 * The node's next pointer will be updated to point to the current head.
-	 * The current head's previous pointer will be updated to point to the node.
-	 * @param node The node to move to the beginning of the list.
+	 * Moves an existing node to the beginning of the list.
+	 * @param node The node to move.
 	 */
 	#moveToFirst(node?: KeyedNode<K, V>) {
 		if (node === undefined || node === this.#head) { return }
 
-		this.#unlinkNode(node);
+		this.#unlinkNode(node, false);
 
-		// Add the node at the start
+		// Add the node at the start; a node other than the head implies a non-null head.
 		node.next = this.#head;
 
-		if (this.#head !== null) { this.#head.previous = node }
-
+		this.#head!.previous = node;
 		this.#head = node;
 	}
 
 	/**
-	 * Moves the node to the end of the list.
-	 * If the node is already the tail, nothing will happen.
-	 * If the node is not in the map, nothing will happen.
-	 * If the node is the head, the head will be updated to be the next node.
-	 * If the node is not the head, the node's previous pointer will be updated to point to the node's next node.
-	 * If the node is not the tail, the node's next pointer will be updated to point to null.
-	 * The node will be added to the end of the list.
-	 * The node's previous pointer will be updated to point to the current tail.
-	 * @param node The node to move to the end of the list.
+	 * Moves an existing node to the end of the list.
+	 * @param node The node to move.
 	 */
 	#moveToLast(node?: KeyedNode<K, V>) {
 		if (node === undefined || node === this.#tail) { return }
 
-		this.#unlinkNode(node);
+		this.#unlinkNode(node, false);
 
-		// Add the node at the end
+		// Add the node at the end; a node other than the tail implies a non-null tail.
 		node.previous = this.#tail;
 
-		if (this.#tail !== null) { this.#tail.next = node }
-
+		this.#tail!.next = node;
 		this.#tail = node;
 	}
 }

@@ -19,7 +19,7 @@
     }
   ],
   "engines": {
-    "node": ">=20.16.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "pnpm@12.17.0",
   "publishConfig": {
@@ -27,12 +27,14 @@
     "access": "public"
   },
   "type": "module",
+  "sideEffects": false,
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./internal/*": null,
     "./*": {
       "types": "./dist/*.d.ts",
       "import": "./dist/*.js"

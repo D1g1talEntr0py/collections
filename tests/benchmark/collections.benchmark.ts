@@ -8,7 +8,7 @@ const first = (value: number): boolean => value === 0;
 const missing = (value: number): boolean => value === -1;
 
 const singly = new LinkedList<number>();
-const doubly = new LinkedList<number>(LinkedList.Type.Doubly);
+const doubly = new LinkedList<number>(undefined, LinkedList.Type.Doubly);
 const linkedMap = new LinkedMap<number, number>();
 const nativeMap = new Map<number, number>();
 const multiMap = new MultiMap<string, number>();
@@ -19,8 +19,8 @@ for (const value of source) {
 	doubly.addLast(value);
 	linkedMap.set(value, value);
 	nativeMap.set(value, value);
-	multiMap.set('values', value);
-	setMultiMap.set('values', value);
+	multiMap.add('values', value);
+	setMultiMap.add('values', value);
 }
 
 const listValues = multiMap.get('values')!;

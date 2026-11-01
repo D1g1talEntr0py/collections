@@ -1,4 +1,12 @@
-import './map-upsert-polyfill';
+import { getOrInsert, getOrInsertComputed } from './internal/map-upsert';
+
+/**
+ * Creates an empty set for a newly added key.
+ * @returns A new empty set.
+ */
+function createSet<V>(): Set<V> {
+	return new Set<V>();
+}
 
 /** A {@link Map} that can contain multiple, unique, values for the same key. */
 export class SetMultiMap<K, V> extends Map<K, Set<V>> {
@@ -19,7 +27,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 	 * @returns The SetMultiMap with the updated key and value.
 	 */
 	add(key: K, value: V): this {
-		super.getOrInsertComputed(key, () => new Set<V>()).add(value);
+		getOrInsertComputed(this, key, createSet<V>).add(value);
 
 		return this;
 	}
@@ -31,7 +39,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 	 * @returns The Set associated with the key.
 	 */
 	override getOrInsert(key: K, defaultValue: Set<V>): Set<V> {
-		return super.getOrInsert(key, defaultValue);
+		return getOrInsert(this, key, defaultValue);
 	}
 
 	/**
@@ -41,7 +49,7 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 	 * @returns The Set associated with the key.
 	 */
 	override getOrInsertComputed(key: K, compute: (key: K) => Set<V>): Set<V> {
-		return super.getOrInsertComputed(key, compute);
+		return getOrInsertComputed(this, key, compute);
 	}
 
 	/**
@@ -74,14 +82,14 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 
 	/**
 	 * Removes a specific value from a key.
+	 * `undefined` is treated as a value; use the inherited `delete(key)` to remove the whole key.
 	 * @param key The key to remove the value from.
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value: V | undefined): boolean {
-		if (value === undefined) { return this.delete(key) }
-
+	deleteValue(key: K, value: V): boolean {
 		const values = super.get(key);
+
 		if (values) {
 			const deleted = values.delete(value);
 
@@ -91,6 +99,28 @@ export class SetMultiMap<K, V> extends Map<K, Set<V>> {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the total number of unique values across all keys.
+	 * This getter iterates over every key and runs in O(number of keys).
+	 * @returns The number of stored key-value associations.
+	 */
+	get valueCount(): number {
+		let count = 0;
+
+		for (const values of super.values()) { count += values.size }
+
+		return count;
+	}
+
+	/**
+	 * Iterates over all values in key insertion order and then value insertion order.
+	 * @returns An iterator over all stored values.
+	 * @yields {V} The next stored value.
+	 */
+	*flatValues(): IterableIterator<V> {
+		for (const values of super.values()) { yield* values }
 	}
 
 	/**

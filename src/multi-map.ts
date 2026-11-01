@@ -1,5 +1,11 @@
 import { List } from './list';
-import './map-upsert-polyfill';
+import { getOrInsert, getOrInsertComputed } from './internal/map-upsert';
+
+/**
+ * Creates an empty list for a newly added key.
+ * @returns A new empty list.
+ */
+const createList = <V>(): List<V> => new List<V>();
 
 /** A {@link Map} that can contain multiple values for the same key. */
 export class MultiMap<K, V> extends Map<K, List<V>> {
@@ -20,7 +26,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns The MultiMap with the updated key and value.
 	 */
 	add(key: K, value: V): this {
-		super.getOrInsertComputed(key, () => new List<V>()).add(value);
+		getOrInsertComputed(this, key, createList<V>).add(value);
 
 		return this;
 	}
@@ -32,7 +38,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns The List associated with the key.
 	 */
 	override getOrInsert(key: K, defaultValue: List<V>): List<V> {
-		return super.getOrInsert(key, defaultValue);
+		return getOrInsert(this, key, defaultValue);
 	}
 
 	/**
@@ -42,7 +48,7 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	 * @returns The List associated with the key.
 	 */
 	override getOrInsertComputed(key: K, compute: (key: K) => List<V>): List<V> {
-		return super.getOrInsertComputed(key, compute);
+		return getOrInsertComputed(this, key, compute);
 	}
 
 	/**
@@ -66,14 +72,13 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 	}
 
 	/**
-	 * Removes a specific value from a key.
+	 * Removes one occurrence of a specific value from a key.
+	 * `undefined` is treated as a value; use the inherited `delete(key)` to remove the whole key.
 	 * @param key The key to remove the value from.
 	 * @param value The value to remove.
 	 * @returns True if the value was removed, false otherwise.
 	 */
-	deleteValue(key: K, value?: V): boolean {
-		if (value === undefined) { return this.delete(key) }
-
+	deleteValue(key: K, value: V): boolean {
 		const values = super.get(key);
 
 		if (values) {
@@ -89,6 +94,27 @@ export class MultiMap<K, V> extends Map<K, List<V>> {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the total number of values across all keys.
+	 * @returns The number of stored values, including duplicates.
+	 */
+	get valueCount(): number {
+		let count = 0;
+
+		for (const values of super.values()) { count += values.size }
+
+		return count;
+	}
+
+	/**
+	 * Iterates over all values in key insertion order and then value insertion order.
+	 * @returns An iterator over all stored values.
+	 * @yields {V} The next stored value.
+	 */
+	*flatValues(): IterableIterator<V> {
+		for (const values of super.values()) { yield* values }
 	}
 
 	/**

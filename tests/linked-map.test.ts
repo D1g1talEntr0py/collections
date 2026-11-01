@@ -8,6 +8,14 @@ describe('LinkedMap', () => {
 		linkedMap = new LinkedMap();
 	});
 
+	describe('constructor', () => {
+		it('should initialize entries from an iterable in order', () => {
+			const entries = new LinkedMap([ [ 'first', 1 ], [ 'second', 2 ] ] as const);
+
+			expect(Array.from(entries)).toEqual([ [ 'first', 1 ], [ 'second', 2 ] ]);
+		});
+	});
+
 	describe('size', () => {
 		it('should return the number of key-value pairs in the map', () => {
 			linkedMap.set('key1', 'value1');
@@ -18,6 +26,128 @@ describe('LinkedMap', () => {
 
 		it('should return 0 when the map is empty', () => {
 			expect(linkedMap.size).toBe(0);
+		});
+	});
+
+	describe('mutation-tolerant LinkedMap iterators', () => {
+		it('matches native Map when removing current and next entries and reinserting', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			const nativeMap = new Map<string, number>();
+			for (const [ key, value ] of [ [ 'a', 1 ], [ 'b', 2 ], [ 'c', 3 ], [ 'd', 4 ] ] as const) {
+				linkedMap.set(key, value);
+				nativeMap.set(key, value);
+			}
+
+			const actual = linkedMap.entries();
+			const expected = nativeMap.entries();
+			expect(actual.next()).toEqual(expected.next());
+
+			linkedMap.delete('a');
+			nativeMap.delete('a');
+			linkedMap.delete('b');
+			nativeMap.delete('b');
+			expect(actual.next()).toEqual(expected.next());
+
+			linkedMap.delete('c');
+			nativeMap.delete('c');
+			linkedMap.set('c', 30);
+			nativeMap.set('c', 30);
+			expect(Array.from(actual)).toEqual(Array.from(expected));
+		});
+
+		it('observes an append after the yielded tail is removed', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			linkedMap.set('a', 1);
+			linkedMap.set('b', 2);
+			const iterator = linkedMap.keys();
+
+			expect(iterator.next().value).toBe('a');
+			expect(iterator.next().value).toBe('b');
+			linkedMap.delete('b');
+			linkedMap.set('c', 3);
+
+			expect(Array.from(iterator)).toEqual([ 'c' ]);
+		});
+
+		it('matches native Map across repeated clear and additions', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			const nativeMap = new Map<string, number>();
+			for (const key of [ 'old-1', 'old-2' ]) {
+				linkedMap.set(key, 1);
+				nativeMap.set(key, 1);
+			}
+
+			const actual = linkedMap.keys();
+			const expected = nativeMap.keys();
+			expect(actual.next()).toEqual(expected.next());
+
+			linkedMap.clear();
+			nativeMap.clear();
+			linkedMap.set('discarded', 2);
+			nativeMap.set('discarded', 2);
+			linkedMap.clear();
+			nativeMap.clear();
+			linkedMap.set('new-1', 3);
+			nativeMap.set('new-1', 3);
+			linkedMap.set('new-2', 4);
+			nativeMap.set('new-2', 4);
+
+			expect(Array.from(actual)).toEqual(Array.from(expected));
+		});
+
+		it('stays done after later clear and additions, like native Map', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			const nativeMap = new Map<string, number>();
+			const actual = linkedMap.values();
+			const expected = nativeMap.values();
+
+			expect(actual.next()).toEqual(expected.next());
+			linkedMap.set('later', 1);
+			nativeMap.set('later', 1);
+			linkedMap.clear();
+			nativeMap.clear();
+			linkedMap.set('latest', 2);
+			nativeMap.set('latest', 2);
+			expect(actual.next()).toEqual(expected.next());
+		});
+
+		it('sees additions made after iterator creation while the collection is empty', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			const nativeMap = new Map<string, number>();
+			const actual = linkedMap.keys();
+			const expected = nativeMap.keys();
+
+			linkedMap.set('added', 1);
+			nativeMap.set('added', 1);
+			expect(actual.next()).toEqual(expected.next());
+		});
+
+		it('tolerates moves during iteration, which may skip entries', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			[ 'a', 'b', 'c' ].forEach((key, index) => linkedMap.set(key, index));
+			const iterator = linkedMap.keys();
+
+			expect(iterator.next().value).toBe('a');
+			linkedMap.moveToFirst('c');
+
+			expect(Array.from(iterator)).toEqual([ 'b' ]);
+		});
+
+		it('keeps multiple iterators independent while entries are removed and reinserted', () => {
+			const linkedMap = new LinkedMap<string, number>();
+			[ 'a', 'b', 'c' ].forEach((key, index) => linkedMap.set(key, index));
+			const first = linkedMap.keys();
+			const second = linkedMap.keys();
+
+			expect(first.next().value).toBe('a');
+			expect(second.next().value).toBe('a');
+			expect(second.next().value).toBe('b');
+			linkedMap.delete('a');
+			linkedMap.delete('b');
+			linkedMap.set('b', 1);
+
+			expect(Array.from(first)).toEqual([ 'c', 'b' ]);
+			expect(Array.from(second)).toEqual([ 'c', 'b' ]);
 		});
 	});
 
@@ -44,13 +174,14 @@ describe('LinkedMap', () => {
 			expect(linkedMap.get('key2')).toBe('value2');
 		});
 
-		it('should update the value and move the key to the end of the insertion order if the key already exists', () => {
+		it('should update an existing value in place and return this', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
-			linkedMap.set('key1', 'updatedValue1');
+			const returned = linkedMap.set('key1', 'updatedValue1');
 
 			expect(linkedMap.get('key1')).toBe('updatedValue1');
-			expect(Array.from(linkedMap.keys())).toEqual(['key2', 'key1']);
+			expect(Array.from(linkedMap.keys())).toEqual([ 'key1', 'key2' ]);
+			expect(returned).toBe(linkedMap);
 		});
 	});
 
@@ -155,6 +286,19 @@ describe('LinkedMap', () => {
 		});
 	});
 
+	it('should allow chaining fluent mutation methods', () => {
+		const result = linkedMap
+			.addFirst('first', 'one')
+			.addLast('last', 'two')
+			.moveToFirst('last')
+			.moveToLast('first');
+
+		expect(result).toBe(linkedMap);
+		expect(Array.from(linkedMap.keys())).toEqual([ 'last', 'first' ]);
+		expect(linkedMap.clear()).toBe(linkedMap);
+		expect(linkedMap.size).toBe(0);
+	});
+
 	describe('getFirst', () => {
 		it('should retrieve the value associated with the first key in the map', () => {
 			linkedMap.addFirst('key1', 'value1');
@@ -162,8 +306,8 @@ describe('LinkedMap', () => {
 			expect(linkedMap.getFirst()).toBe('value1');
 		});
 
-		it('should return null if the map is empty', () => {
-			expect(linkedMap.getFirst()).toBeNull();
+		it('should return undefined if the map is empty', () => {
+			expect(linkedMap.getFirst()).toBeUndefined();
 		});
 
 		it('should not move the key to the end of the insertion order', () => {
@@ -194,8 +338,42 @@ describe('LinkedMap', () => {
 			expect(linkedMap.getLast()).toBe('value2');
 		});
 
-		it('should return null if the map is empty', () => {
-			expect(linkedMap.getLast()).toBeNull();
+		it('should return undefined if the map is empty', () => {
+			expect(linkedMap.getLast()).toBeUndefined();
+		});
+	});
+
+	describe('first and last entries', () => {
+		it('should return the first and last keys and entries', () => {
+			linkedMap.set('first', 'one');
+			linkedMap.set('last', 'two');
+
+			expect(linkedMap.firstKey()).toBe('first');
+			expect(linkedMap.lastKey()).toBe('last');
+			expect(linkedMap.firstEntry()).toEqual([ 'first', 'one' ]);
+			expect(linkedMap.lastEntry()).toEqual([ 'last', 'two' ]);
+		});
+
+		it('should return undefined for absent keys and entries', () => {
+			expect(linkedMap.firstKey()).toBeUndefined();
+			expect(linkedMap.lastKey()).toBeUndefined();
+			expect(linkedMap.firstEntry()).toBeUndefined();
+			expect(linkedMap.lastEntry()).toBeUndefined();
+		});
+
+		it('should preserve null and undefined keys and values in entries', () => {
+			const nullable = new LinkedMap<null | undefined, null | undefined>();
+			nullable.set(null, undefined);
+			nullable.set(undefined, null);
+
+			expect(nullable.firstKey()).toBeNull();
+			expect(nullable.lastKey()).toBeUndefined();
+			expect(nullable.getFirst()).toBeUndefined();
+			expect(nullable.getLast()).toBeNull();
+			expect(nullable.firstEntry()).toEqual([ null, undefined ]);
+			expect(nullable.lastEntry()).toEqual([ undefined, null ]);
+			expect(nullable.removeFirst()).toEqual([ null, undefined ]);
+			expect(nullable.removeLast()).toEqual([ undefined, null ]);
 		});
 	});
 
@@ -239,8 +417,8 @@ describe('LinkedMap', () => {
 			expect(Array.from(linkedMap.keys())).toEqual(['key2', 'key3', 'key1']);
 		});
 
-		it('should return undefined if the key does not exist', () => {
-			expect(linkedMap.moveToFirst('key1')).toBeUndefined();
+		it('should return this if the key does not exist', () => {
+			expect(linkedMap.moveToFirst('key1')).toBe(linkedMap);
 		});
 	});
 
@@ -277,32 +455,49 @@ describe('LinkedMap', () => {
 		});
 	});
 
-	describe('remove', () => {
+	describe('delete', () => {
 		it('should delete a key-value pair from the map', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			expect(linkedMap.remove('key1')).toBe(true);
+			expect(linkedMap.delete('key1')).toBe(true);
 			expect(linkedMap.has('key1')).toBe(false);
-			expect(linkedMap.remove(null)).toBe(false);
 			expect(linkedMap.size).toBe(1);
 		});
 
 		it('should return false if the key does not exist in the map', () => {
-			expect(linkedMap.remove('key1')).toBe(false);
+			expect(linkedMap.delete('key1')).toBe(false);
 		});
 
 		it('should not move the key to the end of the insertion order', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			linkedMap.remove('key1');
+			linkedMap.delete('key1');
 
 			expect(Array.from(linkedMap.keys())).toEqual(['key2']);
 
-			linkedMap.remove('key2');
+			linkedMap.delete('key2');
 
 			expect(Array.from(linkedMap.keys())).toEqual([]);
+		});
+
+		it('should support null keys', () => {
+			const nullKeys = new LinkedMap<string | null, string>();
+			nullKeys.set(null, 'value');
+
+			expect(nullKeys.delete(null)).toBe(true);
+			expect(nullKeys.has(null)).toBe(false);
+		});
+	});
+
+	describe('remove alias', () => {
+		it('should delegate to delete', () => {
+			const deleteSpy = vi.spyOn(linkedMap, 'delete');
+			linkedMap.set('key', 'value');
+
+			expect(linkedMap.remove('key')).toBe(true);
+			expect(deleteSpy).toHaveBeenCalledWith('key');
 		});
 	});
 
@@ -311,11 +506,11 @@ describe('LinkedMap', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			expect(linkedMap.removeFirst()).toBe(true);
+			expect(linkedMap.removeFirst()).toEqual([ 'key1', 'value1' ]);
 		});
 
-		it('should return false if the map is empty', () => {
-			expect(linkedMap.removeFirst()).toBe(false);
+		it('should return undefined if the map is empty', () => {
+			expect(linkedMap.removeFirst()).toBeUndefined();
 		});
 
 		it('should not move the key to the end of the insertion order', () => {
@@ -333,11 +528,11 @@ describe('LinkedMap', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			expect(linkedMap.removeLast()).toBe(true);
+			expect(linkedMap.removeLast()).toEqual([ 'key2', 'value2' ]);
 		});
 
-		it('should return false if the map is empty', () => {
-			expect(linkedMap.removeLast()).toBe(false);
+		it('should return undefined if the map is empty', () => {
+			expect(linkedMap.removeLast()).toBeUndefined();
 		});
 
 		it('should not move the key to the end of the insertion order', () => {
@@ -366,7 +561,7 @@ describe('LinkedMap', () => {
 			linkedMap.set('key1', 'value1');
 			linkedMap.set('key2', 'value2');
 
-			linkedMap.clear();
+			expect(linkedMap.clear()).toBe(linkedMap);
 
 			expect(linkedMap.size).toBe(0);
 			expect(linkedMap.has('key1')).toBe(false);

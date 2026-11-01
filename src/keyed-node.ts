@@ -1,10 +1,17 @@
 import { Node } from './node';
 
-type KeyedNodeOptions<K, E> = Partial<Omit<KeyedNode<K, E>, 'value' | 'key'>> & { key: K, value: E };
+type KeyedNodeOptions<K, E> = {
+	previous?: KeyedNode<K, E> | null,
+	next?: KeyedNode<K, E> | null,
+	key: K,
+	value: E
+};
 
 /** JavaScript implementation of a Node that can be used in a linked list. */
 export class KeyedNode<K, E> extends Node<E> {
-	#key: K | null;
+	#key: K;
+	protected override $previous: KeyedNode<K, E> | null;
+	protected override $next: KeyedNode<K, E> | null;
 
 	/**
 	 * Creates a new node with the given value.
@@ -15,7 +22,9 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * @param options.value The value to be assigned to the node.
 	 */
 	constructor({ previous = null, next = null, key, value }: KeyedNodeOptions<K, E>) {
-		super({ previous, next, value });
+		super({ value });
+		this.$previous = previous;
+		this.$next = next;
 		this.#key = key;
 	}
 
@@ -23,7 +32,7 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the key.
 	 * @returns The key.
 	 */
-	get key(): K | null {
+	get key(): K {
 		return this.#key;
 	}
 
@@ -39,8 +48,8 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the previous node.
 	 * @returns The previous node.
 	 */
-	override get previous() {
-		return this.$previous as KeyedNode<K, E>;
+	override get previous(): KeyedNode<K, E> | null {
+		return this.$previous;
 	}
 
 	/**
@@ -55,8 +64,8 @@ export class KeyedNode<K, E> extends Node<E> {
 	 * Gets the next node.
 	 * @returns The next node.
 	 */
-	override get next() {
-		return this.$next as KeyedNode<K, E>;
+	override get next(): KeyedNode<K, E> | null {
+		return this.$next;
 	}
 
 	/**
@@ -65,22 +74,6 @@ export class KeyedNode<K, E> extends Node<E> {
 	 */
 	override set next(next: KeyedNode<K, E> | null) {
 		this.$next = next;
-	}
-
-	/**
-	 * Gets the value of the node.
-	 * @returns The value of the node.
-	 */
-	override get value() {
-		return this.$value;
-	}
-
-	/**
-	 * Sets the value of the node.
-	 * @param value The value of the node.
-	 */
-	override set value(value: E) {
-		this.$value = value;
 	}
 
 	/**

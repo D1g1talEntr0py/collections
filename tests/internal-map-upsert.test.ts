@@ -1,68 +1,54 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { getOrInsert, getOrInsertComputed } from '../src/internal/map-upsert.js';
 
 const nativeGetOrInsert = Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsert');
 const nativeGetOrInsertComputed = Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsertComputed');
 
-const removeUpsertMethods = (): void => {
+const restoreNativeMethods = (): void => {
 	Reflect.deleteProperty(Map.prototype, 'getOrInsert');
 	Reflect.deleteProperty(Map.prototype, 'getOrInsertComputed');
-};
-
-const restoreNativeMethods = (): void => {
-	removeUpsertMethods();
-
 	if (nativeGetOrInsert) { Object.defineProperty(Map.prototype, 'getOrInsert', nativeGetOrInsert) }
 	if (nativeGetOrInsertComputed) { Object.defineProperty(Map.prototype, 'getOrInsertComputed', nativeGetOrInsertComputed) }
 };
 
-describe('map-upsert-polyfill', () => {
-	beforeEach(async () => {
-		// Force the polyfill to install by removing any native implementation first.
-		removeUpsertMethods();
-		vi.resetModules();
-		await import('../src/map-upsert-polyfill');
-	});
-
+describe('internal map upsert helpers', () => {
 	afterEach(() => {
 		restoreNativeMethods();
 		vi.resetModules();
 	});
 
-	it('should install non-enumerable methods', () => {
-		expect(Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsert')?.enumerable).toBe(false);
-		expect(Object.getOwnPropertyDescriptor(Map.prototype, 'getOrInsertComputed')?.enumerable).toBe(false);
-		expect(typeof Map.prototype.getOrInsert).toBe('function');
-		expect(typeof Map.prototype.getOrInsertComputed).toBe('function');
-	});
-
-	it('should not replace an already installed implementation', async () => {
-		const installed = Map.prototype.getOrInsert;
+	it('should not patch Map.prototype when collection entry points are imported', async () => {
+		Reflect.deleteProperty(Map.prototype, 'getOrInsert');
+		Reflect.deleteProperty(Map.prototype, 'getOrInsertComputed');
+		const propertyNames = Object.getOwnPropertyNames(Map.prototype);
 
 		vi.resetModules();
-		await import('../src/map-upsert-polyfill');
+		await import('../src/index.js');
 
-		expect(Map.prototype.getOrInsert).toBe(installed);
+		expect(Object.getOwnPropertyNames(Map.prototype)).toEqual(propertyNames);
+		expect(Map.prototype).not.toHaveProperty('getOrInsert');
+		expect(Map.prototype).not.toHaveProperty('getOrInsertComputed');
 	});
 
 	describe('getOrInsert', () => {
 		it('should insert and return the default value when the key is absent', () => {
 			const map = new Map<string, number>();
 
-			expect(map.getOrInsert('a', 1)).toBe(1);
+			expect(getOrInsert(map, 'a', 1)).toBe(1);
 			expect(map.get('a')).toBe(1);
 		});
 
 		it('should return the existing value without overwriting it', () => {
 			const map = new Map<string, number>([ [ 'a', 1 ] ]);
 
-			expect(map.getOrInsert('a', 2)).toBe(1);
+			expect(getOrInsert(map, 'a', 2)).toBe(1);
 			expect(map.get('a')).toBe(1);
 		});
 
 		it('should return an existing undefined value without inserting', () => {
 			const map = new Map<string, number | undefined>([ [ 'a', undefined ] ]);
 
-			expect(map.getOrInsert('a', 1)).toBeUndefined();
+			expect(getOrInsert(map, 'a', 1)).toBeUndefined();
 			expect(map.size).toBe(1);
 		});
 	});
@@ -72,7 +58,7 @@ describe('map-upsert-polyfill', () => {
 			const map = new Map<string, string>();
 			const compute = vi.fn((key: string) => `${key}-value`);
 
-			expect(map.getOrInsertComputed('a', compute)).toBe('a-value');
+			expect(getOrInsertComputed(map, 'a', compute)).toBe('a-value');
 			expect(map.get('a')).toBe('a-value');
 			expect(compute).toHaveBeenCalledWith('a');
 		});
@@ -81,14 +67,14 @@ describe('map-upsert-polyfill', () => {
 			const map = new Map<string, string>([ [ 'a', 'existing' ] ]);
 			const compute = vi.fn(() => 'computed');
 
-			expect(map.getOrInsertComputed('a', compute)).toBe('existing');
+			expect(getOrInsertComputed(map, 'a', compute)).toBe('existing');
 			expect(compute).not.toHaveBeenCalled();
 		});
 
 		it('should overwrite an entry inserted by the callback', () => {
 			const map = new Map<string, string>();
 
-			expect(map.getOrInsertComputed('a', (key) => {
+			expect(getOrInsertComputed(map, 'a', (key) => {
 				map.set(key, 'from-callback');
 
 				return 'computed';

@@ -7,7 +7,7 @@ JavaScript Collections and Data Structures
 [![codecov](https://img.shields.io/codecov/c/github/D1g1talEntr0py/collections?branch=main&label=coverage)](https://codecov.io/gh/D1g1talEntr0py/collections)
 [![License: MIT](https://img.shields.io/github/license/D1g1talEntr0py/collections)](https://github.com/D1g1talEntr0py/collections/blob/main/LICENSE)
 [![Node.js](https://img.shields.io/node/v/@d1g1tal/collections)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript->=5.1.3-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript->=5.6.0-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
 ## About
 This is a collection of TypeScript data structures and algorithms. The goal is to provide a comprehensive set of data structures and algorithms that can be used in TypeScript/JavaScript programs.
@@ -24,7 +24,7 @@ pnpm add @d1g1tal/collections
 npm install @d1g1tal/collections
 ```
 
-The package is ESM-only and requires Node.js 20.16 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.1.3 and newer.
+The package is ESM-only and requires Node.js 22 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.6 and newer.
 
 ## Usage
 Both root imports and subpath imports are supported.
@@ -126,7 +126,21 @@ console.log(completed.toArray());
 
 ### LinkedList
 
-Use case: manage a queue, playlist, or work stream where items are frequently added or removed from either end.
+Use case: maintain a sequence with efficient front operations and traversal; choose doubly linked mode when tail removals are frequent.
+
+The constructor and `LinkedList.from` accept an iterable first and an optional list type second. The type defaults to `LinkedList.Type.Singly`; pass the type directly, not inside an options object.
+
+```javascript
+import { LinkedList } from '@d1g1tal/collections';
+
+const empty = new LinkedList();
+const singly = new LinkedList([1, 2, 3], LinkedList.Type.Singly);
+const doubly = new LinkedList([1, 2, 3], LinkedList.Type.Doubly);
+const emptyDoubly = new LinkedList(undefined, LinkedList.Type.Doubly);
+
+const fromIterable = LinkedList.from(new Set([1, 2, 3]));
+const doublyFromIterable = LinkedList.from(new Set([1, 2, 3]), LinkedList.Type.Doubly);
+```
 
 ```javascript
 import { LinkedList } from '@d1g1tal/collections';
@@ -163,7 +177,7 @@ Use case: the same linked-list workflow as above, but better suited for reversin
 ```javascript
 import { LinkedList } from '@d1g1tal/collections';
 
-const timeline = new LinkedList(LinkedList.Type.Doubly);
+const timeline = new LinkedList(undefined, LinkedList.Type.Doubly);
 
 timeline.addLast('draft');
 timeline.addLast('review');
@@ -176,6 +190,8 @@ console.log(timeline.toArray());
 
 console.log(timeline.get(1)); // review
 ```
+
+`LinkedList` accepts any iterable in its constructor or `LinkedList.from(iterable)`. Both accept an optional list type as the second parameter and are singly linked by default; pass `LinkedList.Type.Doubly` when reverse traversal or frequent tail removals justify the extra backward links, for example `LinkedList.from([1, 2, 3], LinkedList.Type.Doubly)`. To create an empty doubly linked list, use `new LinkedList(undefined, LinkedList.Type.Doubly)`. `addFirst`, `addLast`, and `removeFirst` are constant-time in either mode; `removeLast` is O(n) for a singly linked list and O(1) for a doubly linked list. Indexed lookup, insertion, and removal must first traverse to the index. Its empty/not-found accessors return `undefined`; use `size` or `contains` to distinguish absence from a stored `undefined`. `descendingValues()` traverses doubly linked lists backward and returns a reverse snapshot for singly linked lists. Iterators skip removed values; after `clear()`, an active iterator resumes at the new head, while a completed iterator stays complete.
 
 ### LinkedMap
 
@@ -197,6 +213,10 @@ console.log(Array.from(recentFiles.keys()));
 
 console.log(recentFiles.getFirst()); // /package
 console.log(recentFiles.getLast()); // /docs/readme
+console.log(recentFiles.firstKey()); // package.json
+
+recentFiles.set('README.md', '/docs/readme-v2'); // updates in place; does not reorder
+recentFiles.delete('tsconfig.json');
 
 const changelogPath = recentFiles.getOrInsert('CHANGELOG.md', '/docs/changelog');
 console.log(changelogPath); // /docs/changelog
@@ -204,6 +224,8 @@ console.log(changelogPath); // /docs/changelog
 const packagePath = recentFiles.getOrInsertComputed('package.json', (key) => `/${key}`);
 console.log(packagePath); // /package
 ```
+
+`LinkedMap` accepts an iterable of `[key, value]` entries. Key lookup and endpoint reordering are constant-time on average; `set` and ordering mutators return the map, and `set` updates existing values without moving their entries. This makes it useful as the ordered index inside a recency list, but it does not enforce a capacity or evict entries automatically. Use `delete(key)` for Map-style removal; `remove(key)` remains as a deprecated alias. `getFirst()` and `getLast()` return `undefined` when empty, and `firstKey()`, `lastKey()`, `firstEntry()`, and `lastEntry()` expose the endpoints. Iterators skip removed entries and, after `clear()`, continue with newly added entries.
 
 ### MultiMap
 
@@ -228,6 +250,10 @@ ticketsByStatus.deleteValue('open', 'INC-100');
 console.log(Array.from(ticketsByStatus.get('open') ?? []));
 // ['INC-101', 'INC-101']
 
+console.log(ticketsByStatus.valueCount); // 2
+console.log(Array.from(ticketsByStatus.flatValues()));
+// ['INC-101', 'INC-101']
+
 const insertedTicket = ticketsByStatus.getOrInsert('pending', new List(['INC-200']));
 console.log(Array.from(insertedTicket));
 // ['INC-200']
@@ -242,6 +268,8 @@ const waitingList = ticketsByStatus.getOrInsertComputed('waiting', () => new Lis
 console.log(Array.from(waitingList));
 // ['INC-300', 'INC-301']
 ```
+
+`deleteValue(key, value)` removes only one matching value, including when `value` is `undefined`; use the inherited `delete(key)` to remove the entire key.
 
 ### SetMultiMap
 
@@ -280,6 +308,8 @@ const teamRoles = rolesByUser.getOrInsertComputed('team', () => new Set(['mainta
 console.log(Array.from(teamRoles));
 // ['maintainer', 'reviewer']
 ```
+
+`SetMultiMap.deleteValue(key, value)` removes only that association, including an `undefined` value. Use `delete(key)` to remove the entire key. `valueCount` returns the number of stored key/value associations, and `flatValues()` iterates them in key and value insertion order.
 
 ### Stack
 

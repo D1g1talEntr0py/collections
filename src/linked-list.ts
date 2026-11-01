@@ -1,148 +1,182 @@
 import { Node } from './node';
+import { createNodeIterator, getRemovedPredecessor, isNodeRemoved, markNodeRemoved, type NodeSource } from './internal/node-iterator';
 
 type LinkedListType = (typeof LinkedList.Type)[keyof typeof LinkedList.Type];
-type LinkedIterator<E> = IterableIterator<E> & {
-	return: () => IteratorResult<E, void>;
-	throw: (error: unknown) => never;
-};
+type LinkedIterator<E> = IteratorObject<E, undefined, unknown>;
 
 /**
- * Creates an iterator over a node chain's values.
- * @param first The first node to visit.
- * @returns An iterator over node values.
+ * Projects a node to its value.
+ * @param node The node to project.
+ * @returns The node's value.
  */
-const createValueIterator = <E>(first: Node<E> | null): LinkedIterator<E> => {
-	let node = first;
-
-	return {
-		/** @returns This iterator. */
-		[Symbol.iterator]() {
-			return this;
-		},
-		/** @returns The next iteration result. */
-		next() {
-			if (node === null) { return { done: true, value: undefined } }
-
-			const current = node;
-			node = current.next;
-
-			return { done: false, value: current.value };
-		},
-		/** @returns A completed iteration result. */
-		return() {
-			node = null;
-
-			return { done: true, value: undefined };
-		},
-		/**
-		 * Stops iteration and throws the provided error.
-		 * @param error The error to throw.
-		 */
-		throw(error: unknown): never {
-			node = null;
-			throw error;
-		}
-	};
-};
+function nodeValue<E>(node: Node<E>): E {
+	return node.value;
+}
 
 /** JavaScript implementation of a LinkedList */
 export class LinkedList<E> {
 	#head: Node<E> | null = null;
 	#tail: Node<E> | null = null;
 	#size: number = 0;
+	#generation: number = 0;
 	#doublyLinked: boolean;
+	#source: NodeSource<Node<E>> | null = null;
 
 	static Type = { Singly: 'singly', Doubly: 'doubly' } as const;
 
 	/**
-	 * Creates a new LinkedList.
-	 * @param type The type of the list ('singly' or 'doubly' linked).
+	 * Creates a new LinkedList from an optional iterable.
+	 * @param iterable The initial values for the list.
+	 * @param type The type of the list ('singly' or 'doubly' linked). Defaults to singly linked.
 	 */
-	constructor(type: LinkedListType = LinkedList.Type.Singly) {
+	constructor(iterable?: Iterable<E>, type: LinkedListType = LinkedList.Type.Singly) {
 		this.#doublyLinked = type == LinkedList.Type.Doubly;
+
+		if (iterable !== undefined) { this.addAllFrom(iterable) }
+	}
+
+	/**
+	 * Creates a new LinkedList from an iterable.
+	 * @param iterable The initial values for the list.
+	 * @param type The type of the list ('singly' or 'doubly' linked). Defaults to singly linked.
+	 * @returns A new LinkedList containing the iterable's values.
+	 */
+	static from<E>(iterable: Iterable<E>, type?: LinkedListType): LinkedList<E> {
+		return new LinkedList(iterable, type);
 	}
 
 	/**
 	 * Adds an element to the start of the list.
 	 * @param value The element to add.
+	 * @returns This list.
 	 */
-	addFirst(value: E): void {
+	addFirst(value: E): this {
 		const node = new Node({ next: this.#head, value });
+
 		if (this.#doublyLinked && this.#head) { this.#head.previous = node }
 
 		this.#head = node;
+
 		if (!this.#tail) { this.#tail = node }
 
 		this.#size++;
+
+		return this;
 	}
 
 	/**
 	 * Adds an element to the end of the list.
 	 * @param value The element to add.
+	 * @returns This list.
 	 */
-	addLast(value: E): void {
+	addLast(value: E): this {
 		const node = new Node({ value, previous: this.#doublyLinked ? this.#tail : null });
+
 		if (this.#tail) { this.#tail.next = node }
 
 		this.#tail = node;
+
 		if (!this.#head) { this.#head = node }
 
 		this.#size++;
+
+		return this;
 	}
 
 	/**
-	 * Gets the first node in the list.
-	 * @returns The first node in the list, or null if the list is empty.
+	 * Adds each provided value to the end of the list.
+	 * @param values The values to add.
+	 * @returns This list.
 	 */
-	getFirst(): E | null {
-		return this.#head?.value ?? null;
+	addAll(...values: E[]): this {
+		for (const value of values) { this.addLast(value) }
+
+		return this;
 	}
 
 	/**
-	 * Gets the last node in the list.
-	 * @returns The last node in the list, or null if the list is empty.
+	 * Adds each value from an iterable to the end of the list.
+	 * This method consumes the iterable incrementally and supports inputs larger than the call-site argument limit.
+	 * @param values The values to add.
+	 * @returns This list.
 	 */
-	getLast(): E | null {
-		return this.#tail?.value ?? null;
+	addAllFrom(values: Iterable<E>): this {
+		for (const value of values) { this.addLast(value) }
+
+		return this;
+	}
+
+	/**
+	 * Gets the first value in the list.
+	 * @returns The first value in the list, or undefined if the list is empty.
+	 */
+	getFirst(): E | undefined {
+		return this.#head === null ? undefined : this.#head.value;
+	}
+
+	/**
+	 * Gets the last value in the list.
+	 * @returns The last value in the list, or undefined if the list is empty.
+	 */
+	getLast(): E | undefined {
+		return this.#tail === null ? undefined : this.#tail.value;
+	}
+
+	/**
+	 * Gets the first value in the list without removing it.
+	 * @returns The first value in the list, or undefined if the list is empty.
+	 */
+	peekFirst(): E | undefined {
+		return this.getFirst();
+	}
+
+	/**
+	 * Gets the last value in the list without removing it.
+	 * @returns The last value in the list, or undefined if the list is empty.
+	 */
+	peekLast(): E | undefined {
+		return this.getLast();
 	}
 
 	/**
 	 * Removes the first element from the list.
-	 * @returns The removed element, or null if the list was empty.
+	 * @returns The removed element, or undefined if the list was empty.
 	 */
-	removeFirst(): E | null {
+	removeFirst(): E | undefined {
 		return this.#removeNode(this.#head);
 	}
 
 	/**
 	 * Removes the last element from the list.
-	 * @returns The removed element, or null if the list was empty.
+	 * @returns The removed element, or undefined if the list was empty.
 	 */
-	removeLast(): E | null {
+	removeLast(): E | undefined {
 		return this.#removeNode(this.#tail);
 	}
 
 	/**
 	 * Removes the first occurrence of an element from the list.
 	 * @param value The element to remove.
-	 * @returns The removed element, or null if the element was not found.
+	 * @returns The removed element, or undefined if the element was not found.
 	 */
-	remove(value: E): E | null {
+	remove(value: E): E | undefined {
 		let previous: Node<E> | null = null;
+
 		for (let node = this.#head; node; previous = node, node = node.next) {
 			if (node.value === value) { return this.#removeNode(node, previous) }
 		}
 
-		return null;
+		return undefined;
 	}
 
 	/**
 	 * Gets the value of the node at the specified index.
-	 * @param index The index of the element to remove.
-	 * @returns The removed element, or null if the index was out of bounds.
+	 * @param index The index of the element to get.
+	 * @returns The value at the index, or undefined if the index is out of bounds.
 	 */
-	get(index: number): E | null {
-		return this.#getNodeAt(index)?.value ?? null;
+	get(index: number): E | undefined {
+		const node = this.#getNodeAt(index);
+		return node === null ? undefined : node.value;
 	}
 
 	/**
@@ -150,13 +184,17 @@ export class LinkedList<E> {
 	 * Replaces the value of the node at the specified index with the specified value.
 	 * @param index The index of the element to set.
 	 * @param value The new value of the element.
+	 * @returns This list.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	set(index: number, value: E): void {
+	set(index: number, value: E): this {
 		const node = this.#getNodeAt(index);
+
 		if (!node) { throw new RangeError('Index out of bounds') }
 
 		node.value = value;
+
+		return this;
 	}
 
 	/**
@@ -167,9 +205,10 @@ export class LinkedList<E> {
 	 * Otherwise, the element is inserted at the specified index.
 	 * @param index The index at which to insert the element.
 	 * @param value The element to insert.
+	 * @returns This list.
 	 * @throws {RangeError} If the index is out of bounds.
 	 */
-	insert(index: number, value: E): void {
+	insert(index: number, value: E): this {
 		if (index < 0 || index > this.#size) { throw new RangeError('Index out of bounds') }
 
 		if (index === 0) {
@@ -187,6 +226,8 @@ export class LinkedList<E> {
 
 			this.#size++;
 		}
+
+		return this;
 	}
 
 	/**
@@ -206,8 +247,9 @@ export class LinkedList<E> {
 	 * Reverses the list.
 	 * The first element becomes the last, and the last element becomes the first.
 	 * This method runs in linear time.
+	 * @returns This list.
 	 */
-	reverse(): void {
+	reverse(): this {
 		let node = this.#head;
 		let prev = null;
 
@@ -222,25 +264,22 @@ export class LinkedList<E> {
 		}
 
 		[ this.#head, this.#tail ] = [ this.#tail, this.#head ];
+
+		return this;
 	}
 
 	/**
 	 * Removes all elements from the list.
 	 * The list will be empty after this call returns.
-	 * This method runs in linear time.
+	 * This method runs in constant time.
+	 * @returns This list.
 	 */
-	clear(): void {
-		let node = this.#head;
-
-		while (node) {
-			const next = node.next;
-
-			node.previous = node.next = null;
-			node = next;
-		}
-
+	clear(): this {
 		this.#head = this.#tail = null;
 		this.#size = 0;
+		this.#generation++;
+
+		return this;
 	}
 
 	/**
@@ -268,14 +307,80 @@ export class LinkedList<E> {
 	}
 
 	/**
+	 * Gets the index of the last matching value in the list.
+	 * If the value is not found, -1 is returned.
+	 * This method runs in linear time.
+	 * @param value The value to search for.
+	 * @returns The last index of the value, or -1 if it is not found.
+	 */
+	lastIndexOf(value: E): number {
+		let lastIndex = -1;
+		for (let index = 0, node = this.#head; node; node = node.next, index++) {
+			if (node.value === value) { lastIndex = index }
+		}
+
+		return lastIndex;
+	}
+
+	/**
+	 * Finds the first value that satisfies the predicate.
+	 * @param predicate The predicate to test each value.
+	 * @param context The context to call the predicate in.
+	 * @returns The first matching value, or undefined if none match.
+	 */
+	find(predicate: (value: E, index: number, list: LinkedList<E>) => unknown, context?: unknown): E | undefined {
+		for (let index = 0, node = this.#head; node; node = node.next, index++) {
+			if (predicate.call(context, node.value, index, this)) { return node.value }
+		}
+
+		return undefined;
+	}
+
+	/**
 	 * Iterates over the list and calls the specified consumer function for each element.
 	 * The consumer function is called with three arguments: the value of the element, the index of the element, and the list itself.
 	 * @param consumer The consumer function to call for each element.
-	 * @param [context] The context to call the consumer function in.
+	 * @param context The context to call the consumer function in. Defaults to undefined.
 	 */
-	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context: object = this): void {
+	forEach(consumer: (arg0: E, arg1: number, arg2: LinkedList<E>) => void, context?: unknown): void {
 		for (let index = 0, node = this.#head; node; node = node.next, index++) {
 			consumer.call(context, node.value, index, this);
+		}
+	}
+
+	/**
+	 * Returns an iterator over values from the last to the first.
+	 * Doubly linked lists traverse backward through their nodes; singly linked lists use an array snapshot.
+	 * @returns An iterator over the values in reverse order.
+	 */
+	descendingValues(): LinkedIterator<E> {
+		return this.#doublyLinked ? this.#descendingValues() : this.toArray().reverse().values();
+	}
+
+	/**
+	 * Traverses a doubly linked list from tail to head.
+	 * @returns An iterator over values in reverse order.
+	 * @yields {E} The next value in reverse order.
+	 */
+	*#descendingValues(): Generator<E, undefined, unknown> {
+		let node = this.#tail;
+		let generation = this.#generation;
+
+		while (true) {
+			if (generation !== this.#generation) {
+				generation = this.#generation;
+				node = this.#tail;
+			}
+
+			while (node !== null && isNodeRemoved(node)) {
+				node = getRemovedPredecessor(node);
+			}
+
+			if (node === null) { return undefined }
+
+			const current = node;
+			node = current.previous;
+			yield current.value;
 		}
 	}
 
@@ -283,10 +388,11 @@ export class LinkedList<E> {
 	 * Returns an iterator over the values in the list.
 	 * The values are returned in order from the first to the last element.
 	 * This method runs in constant time.
+	 * @remarks Removing nodes during iteration skips them. After `clear()`, iteration resumes at the new head; once done, it stays done. Reordering nodes during iteration may skip or revisit values.
 	 * @returns An iterator over the values in the list.
 	 */
 	values(): LinkedIterator<E> {
-		return createValueIterator(this.#head);
+		return createNodeIterator(this.#nodeSource(), nodeValue<E>);
 	}
 
 	/**
@@ -306,13 +412,20 @@ export class LinkedList<E> {
 	 * @returns An array containing all the values in the list.
 	 */
 	toArray(): E[] {
-		return Array.from(this.values());
+		const values = new Array<E>(this.#size);
+
+		for (let index = 0, node = this.#head; node !== null; node = node.next, index++) {
+			values[index] = node.value;
+		}
+
+		return values;
 	}
 
 	/**
 	 * Returns an iterator over the values in the list.
 	 * The values are returned in order from the first to the last element.
 	 * This method runs in constant time.
+	 * @remarks Removing nodes during iteration skips them. After `clear()`, iteration resumes at the new head; once done, it stays done. Reordering nodes during iteration may skip or revisit values.
 	 * The iterator exposes `next`, `return`, and `throw`, but does not provide list mutation methods.
 	 * This method is called when the list is used in a for-of loop.
 	 * @returns An iterator over the values in the list.
@@ -336,6 +449,19 @@ export class LinkedList<E> {
 	}
 
 	/**
+	 * Gets the live head and generation accessors shared by this list's iterators, creating them on first use.
+	 * @returns The node source for this list.
+	 */
+	#nodeSource(): NodeSource<Node<E>> {
+		return this.#source ??= {
+			/** @returns The current head node. */
+			head: () => this.#head,
+			/** @returns The current clear generation. */
+			generation: () => this.#generation
+		};
+	}
+
+	/**
 	 * Gets the node at the specified index.
 	 * If the index is out of bounds, null is returned.
 	 * @param index The index of the node to get.
@@ -344,13 +470,14 @@ export class LinkedList<E> {
 	#getNodeAt(index: number) {
 		if (index < 0 || index >= this.#size) { return null }
 
-		let node: Node<E> | null;
+		// The bounds check guarantees every traversed node exists.
+		let node: Node<E>;
 		if (this.#doublyLinked && index >= this.#size / 2) {
-			node = this.#tail;
-			for (let i = this.#size - 1; i > index; i--) { node = node?.previous ?? null }
+			node = this.#tail!;
+			for (let i = this.#size - 1; i > index; i--) { node = node.previous! }
 		} else {
-			node = this.#head;
-			for (let i = 0; i < index; i++) { node = node?.next ?? null }
+			node = this.#head!;
+			for (let i = 0; i < index; i++) { node = node.next! }
 		}
 
 		return node;
@@ -362,31 +489,46 @@ export class LinkedList<E> {
 	 * @param previous The node preceding the node to remove, when already known.
 	 * @returns The value of the removed node.
 	 */
-	#removeNode(node: Node<E> | null, previous: Node<E> | null = null) {
-		if (node === null) { return null }
+	#removeNode(node: Node<E> | null, previous: Node<E> | null = null): E | undefined {
+		if (node === null) { return undefined }
 
 		const value = node.value;
+		let removedPrevious = this.#doublyLinked ? node.previous : previous;
 
 		if (node === this.#head && node === this.#tail) {
 			this.#head = this.#tail = null;
 		} else if (node === this.#head) {
 			this.#head = node.next;
+
 			if (this.#doublyLinked && this.#head !== null) { this.#head.previous = null }
 		} else if (this.#doublyLinked) {
 			if (node === this.#tail) { this.#tail = node.previous }
-			node.unlink();
+
+			// Only the head lacks a predecessor, and the head was handled above.
+			node.previous!.next = node.next;
+
+			if (node.next !== null) { node.next.previous = node.previous }
+
+			node.previous = null;
 		} else {
 			if (previous === null) {
-				previous = this.#head;
-				while (previous?.next !== node) { previous = previous?.next ?? null }
+				// The node is not the head, so it is reachable from the head.
+				previous = this.#head!;
+				while (previous.next !== node) { previous = previous.next! }
 			}
 
+			removedPrevious = previous;
 			previous.next = node.next;
+
 			if (node === this.#tail) { this.#tail = previous }
+
+			node.previous = null;
 		}
 
-		node.previous = node.next = null;
+		markNodeRemoved(node, removedPrevious);
+
 		this.#size--;
+
 		if (this.#size === 1) { this.#tail = this.#head }
 
 		return value;

@@ -189,9 +189,27 @@ describe('SetMultiMap', () => {
 			expect(multiMap.deleteValue('key1', 'value1')).toBe(false);
 		});
 
-		it('Should delete the key if the value is undefined', () => {
+		it('should delete only the undefined value and retain other values for the key', () => {
+			const nullableMap = new SetMultiMap<string, string | undefined>();
+			nullableMap.add('key1', undefined).add('key1', 'value1');
+
+			expect(nullableMap.deleteValue('key1', undefined)).toBe(true);
+			expect([...nullableMap.get('key1') ?? []]).toEqual(['value1']);
+			expect(nullableMap.has('key1')).toBe(true);
+		});
+
+		it('should return false when undefined is not stored', () => {
+			const nullableMap = new SetMultiMap<string, string | undefined>();
+			nullableMap.add('key1', 'value1');
+
+			expect(nullableMap.deleteValue('key1', undefined)).toBe(false);
+			expect(nullableMap.has('key1')).toBe(true);
+		});
+
+		it('should delete an entire key through the inherited delete method', () => {
 			multiMap.add('key1', 'value1');
-			multiMap.deleteValue('key1', undefined);
+
+			expect(multiMap.delete('key1')).toBe(true);
 			expect(multiMap.has('key1')).toBe(false);
 		});
 
@@ -207,6 +225,20 @@ describe('SetMultiMap', () => {
 			multiMap.deleteValue('key1', 'value1');
 			expect(multiMap.has('key1')).toBe(true);
 			expect(multiMap.get('key1')?.size).toBe(1);
+		});
+	});
+
+	describe('valueCount and flatValues', () => {
+		it('should count and flatten unique values across keys', () => {
+			multiMap.add('first', 'a').add('first', 'b').add('second', 'b');
+
+			expect(multiMap.valueCount).toBe(3);
+			expect([...multiMap.flatValues()]).toEqual(['a', 'b', 'b']);
+		});
+
+		it('should return zero and an empty iterator when no values are stored', () => {
+			expect(multiMap.valueCount).toBe(0);
+			expect([...multiMap.flatValues()]).toEqual([]);
 		});
 	});
 

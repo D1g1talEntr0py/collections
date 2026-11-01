@@ -1,22 +1,30 @@
-type NodeOptions<E> = Partial<Omit<Node<E>, 'value'>> & { value: E };
+type NodeOptions<E> = { previous?: Node<E> | null, next?: Node<E> | null, value: E };
 
 /** JavaScript implementation of a Node that can be used in a linked list */
 export class Node<E> {
+	protected $value: E;
 	protected $previous: Node<E> | null;
 	protected $next: Node<E> | null;
-	protected $value: E;
 
 	/**
 	 * Creates a new node with the given value.
 	 * @param options The options for the node, or the node to copy.
-	 * @param [options.previous] The previous node.
-	 * @param [options.next] The next node.
 	 * @param options.value The value to be assigned to the node.
+	 * @param options.previous The previous node.
+	 * @param options.next The next node.
 	 */
-	constructor({ previous = null, next = null, value }: NodeOptions<E>) {
+	constructor({ value, previous = null, next = null }: NodeOptions<E>) {
+		this.$value = value;
 		this.$previous = previous;
 		this.$next = next;
-		this.$value = value;
+	}
+
+	/**
+	 * Gets the value of the node.
+	 * @returns The value of the node.
+	 */
+	get value() {
+		return this.$value;
 	}
 
 	/**
@@ -49,14 +57,6 @@ export class Node<E> {
 	 */
 	set next(next: Node<E> | null) {
 		this.$next = next;
-	}
-
-	/**
-	 * Gets the value of the node.
-	 * @returns The value of the node.
-	 */
-	get value() {
-		return this.$value;
 	}
 
 	/**
