@@ -11,7 +11,7 @@
 		"noImplicitReturns": true,
 		"noUncheckedIndexedAccess": true,
 		"rootDir": "./src",
-		"lib": [ "esnext", "dom" ],
+		"lib": [ "esnext" ],
 		"module": "preserve"
 	},
 	"include": [ "./src" ],
@@ -33,7 +33,6 @@
 			"multi-set": "./src/multi-set.ts",
 			"sorted-map": "./src/sorted-map.ts",
 			"sorted-set": "./src/sorted-set.ts",
-			"types": "./src/types.ts",
 			"internal/comparator": "./src/internal/comparator.ts",
 			"internal/map-upsert": "./src/internal/map-upsert.ts",
 			"internal/node-iterator": "./src/internal/node-iterator.ts"
