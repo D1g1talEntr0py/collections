@@ -29,6 +29,7 @@
 			"set-multi-map": "./src/set-multi-map.ts",
 			"deque": "./src/deque.ts",
 			"priority-queue": "./src/priority-queue.ts",
+			"bi-map": "./src/bi-map.ts",
 			"types": "./src/types.ts",
 			"internal/comparator": "./src/internal/comparator.ts",
 			"internal/map-upsert": "./src/internal/map-upsert.ts",
