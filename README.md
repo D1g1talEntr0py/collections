@@ -332,6 +332,52 @@ console.log(undoStack.size); // 1
 
 `Stack` can be initialized from an iterable in bottom-to-top order. Iteration and `toArray()` expose top-to-bottom order; `clear()` empties the stack and returns it for chaining.
 
+### Deque
+
+Use case: process values from either end without shifting an array on each operation.
+
+```javascript
+import { Deque } from '@d1g1tal/collections';
+
+const tasks = new Deque(['build', 'test']);
+tasks.pushFront('lint');
+tasks.pushBack('release');
+
+console.log(tasks.popFront()); // lint
+console.log(tasks.popBack()); // release
+console.log(tasks.toArray()); // ['build', 'test']
+```
+
+`Deque` is backed by a ring buffer. `pushFront`, `pushBack`, `popFront`, and `popBack` are amortized O(1), making it a good fit for a work queue that promotes urgent items at the front. `at()` is constant-time and supports negative indexes like `Array.at()`. Empty pops and peeks return `undefined`.
+
+### PriorityQueue
+
+Use case: repeatedly select the next item by priority.
+
+```javascript
+import { PriorityQueue } from '@d1g1tal/collections';
+
+const queue = new PriorityQueue([5, 1, 4, 2]);
+console.log(queue.peek()); // 1
+console.log(queue.pop()); // 1
+console.log([...queue.drain()]); // [2, 4, 5]
+```
+
+The queue is a min-heap by default and accepts a comparator as its second constructor argument. For objects, compare their priority fields:
+
+```javascript
+import { PriorityQueue } from '@d1g1tal/collections';
+
+const jobs = new PriorityQueue(
+	[{ name: 'report', priority: 2 }, { name: 'incident', priority: 1 }],
+	(left, right) => left.priority - right.priority,
+);
+
+console.log(jobs.pop()?.name); // incident
+```
+
+`peek()` is O(1), while `push()` and `pop()` are O(log n); `remove(value)` scans the heap and is O(n). Duplicate values are retained. `toArray()` and ordinary iteration expose the internal heap layout, not priority order; use `drain()` to remove values in priority order. Draining is lazy, so values are removed only as the iterator is consumed. Comparator-equal values have no stable order.
+
 ### Low-Level Primitives
 
 `Node` and `KeyedNode` are exposed for advanced use cases.

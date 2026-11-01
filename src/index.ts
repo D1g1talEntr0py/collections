@@ -6,3 +6,6 @@ export { LinkedList } from './linked-list';
 export { LinkedMap } from './linked-map';
 export { MultiMap } from './multi-map';
 export { SetMultiMap } from './set-multi-map';
+export { Deque } from './deque';
+export { PriorityQueue } from './priority-queue';
+export type { Comparator, Mapper, Predicate, ReadonlyCollection } from './types';
