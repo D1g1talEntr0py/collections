@@ -1,20 +1,28 @@
-/** JavaScript implementation of a Stack */
+/**
+ * A last-in, first-out collection.
+ * Iteration and {@link toArray} expose values from the top of the stack to the bottom.
+ */
 export class Stack<E> {
 	readonly #items: Array<E>;
 
 	/**
-	 * Creates a new stack.
+	 * Creates a new stack from an iterable.
+	 * The last item in the iterable becomes the top of the stack.
+	 * @param items The initial items, in bottom-to-top order.
 	 */
-	constructor() {
-		this.#items = [];
+	constructor(items: Iterable<E> = []) {
+		this.#items = Array.from(items);
 	}
 
 	/**
 	 * Pushes a value onto the stack.
 	 * @param value - The value to be pushed.
+	 * @returns This stack.
 	 */
-	push(value: E): void {
+	push(value: E): this {
 		this.#items.push(value);
+
+		return this;
 	}
 
 	/**
@@ -36,6 +44,16 @@ export class Stack<E> {
 	}
 
 	/**
+	 * Removes all items from the stack.
+	 * @returns This stack.
+	 */
+	clear(): this {
+		this.#items.length = 0;
+
+		return this;
+	}
+
+	/**
 	 * Checks if the stack is empty.
 	 * @returns True if the stack is empty, false otherwise.
 	 */
@@ -49,6 +67,22 @@ export class Stack<E> {
 	 */
 	get size(): number {
 		return this.#items.length;
+	}
+
+	/**
+	 * Returns a shallow copy of the stack's values, from top to bottom.
+	 * @returns The stack values in iteration order.
+	 */
+	toArray(): Array<E> {
+		return this.#items.slice().reverse();
+	}
+
+	/**
+	 * Iterates over the stack from top to bottom.
+	 * @returns An iterator over a snapshot of the stack's values.
+	 */
+	[Symbol.iterator](): IterableIterator<E> {
+		return this.toArray()[Symbol.iterator]();
 	}
 
 	/**

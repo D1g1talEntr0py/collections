@@ -330,6 +330,8 @@ console.log(undoStack.pop()); // rename symbol
 console.log(undoStack.size); // 1
 ```
 
+`Stack` can be initialized from an iterable in bottom-to-top order. Iteration and `toArray()` expose top-to-bottom order; `clear()` empties the stack and returns it for chaining.
+
 ### Low-Level Primitives
 
 `Node` and `KeyedNode` are exposed for advanced use cases.
