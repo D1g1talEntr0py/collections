@@ -5,7 +5,7 @@ TypeScript data-structure library (`@d1g1tal/collections`). ESM-only, targets ES
 ## Build & Test
 
 ```bash
-pnpm install          # install deps (pnpm@10.33.0 required)
+pnpm install          # install deps (pnpm@12.16.1 required)
 pnpm build            # compile TypeScript → dist/
 pnpm type-check       # type-check without emitting
 pnpm lint             # ESLint (strict + type-aware)
@@ -18,18 +18,20 @@ Tests are excluded from ESLint. Coverage excludes `src/index.ts`.
 
 ## Architecture
 
-Eight exported collection classes — see [src/index.ts](../src/index.ts) for the full list.
+Fourteen exported classes, including the new `Deque`, `PriorityQueue`, `BiMap`, `MultiSet`, `SortedMap`, and `SortedSet` — see [src/index.ts](../src/index.ts) for the full list.
 
 **Composition over inheritance** is the dominant pattern:
 - `List<E>` wraps a private `Array<E>`.
-- `LinkedMap<K,V>` composes `Map<K, KeyedNode<K,V>>` plus doubly-linked `$head`/`$tail` pointers.
+- `LinkedMap<K,V>` composes `Map<K, KeyedNode<K,V>>` plus doubly-linked `#head`/`#tail` pointers.
 - `KeyedNode<K,E>` extends `Node<E>` — the only meaningful inheritance.
 
 Each collection is a **standalone class** in its own file (`src/<name>.ts`) with a matching test file (`tests/<name>.test.ts`).
 
 ## Conventions
 
-**Private fields** use a `$` prefix (`$elements`, `$map`, `$head`, `$tail`, `$key`).
+**Private fields** use JavaScript `#` private fields. `Node` and `KeyedNode` retain protected `$`-prefixed fields where subclass access is required.
+
+**Internal helpers** belong in `src/internal/`. Do not export them from `src/index.ts`; package exports intentionally exclude `@d1g1tal/collections/internal/*`.
 
 **Fluent API** — mutating methods (`add`, `set`, `insert`, `remove`, …) return `this` for chaining.
 
@@ -48,6 +50,8 @@ import { List } from '@d1g1tal/collections';
 import { List } from '@d1g1tal/collections/list';
 ```
 When adding a new collection, register it in both `src/index.ts` and `package.json#exports`.
+
+The package supports Node.js 24 and newer.
 
 ## Testing
 

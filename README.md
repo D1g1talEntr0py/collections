@@ -24,6 +24,8 @@ pnpm add @d1g1tal/collections
 npm install @d1g1tal/collections
 ```
 
+Upgrading from version 4? See the [version 5 migration guide](./docs/migration-v5.md).
+
 The package is ESM-only and requires Node.js 22 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.6 and newer.
 
 ## Usage
@@ -56,10 +58,16 @@ Use `add(key, value)` on `MultiMap` and `SetMultiMap` to append a single value t
 | Type | Best for | Why use it |
 | --- | --- | --- |
 | `List` | General ordered data | Familiar array-style operations with a consistent collection API |
-| `LinkedList` | Frequent inserts/removals at the ends or middle | Avoids array shifting costs for linked-list style workflows |
+| `Deque` | Fast operations at both ends | Ring-buffer-backed front and back access |
+| `LinkedList` | Frequent head operations and sequential traversal | Avoids shifting; doubly linked mode supports efficient removal at either end |
 | `LinkedMap` | Ordered key/value data | Preserves order and lets you move entries to the front or back |
+| `BiMap` | One-to-one key/value associations | Looks up either side and keeps an inverse view |
 | `MultiMap` | One key with many values, duplicates allowed | Stores grouped values in a `List` per key |
 | `SetMultiMap` | One key with many unique values | Stores grouped values in a `Set` per key |
+| `MultiSet` | Counted occurrences | Tracks duplicate elements without storing a separate slot per occurrence |
+| `PriorityQueue` | Repeated priority-based retrieval | Retrieves the comparator-smallest value from a binary min-heap |
+| `SortedMap` | Ordered key/value data with navigation | Supports floor/ceiling, lower/higher, and range queries |
+| `SortedSet` | Ordered unique values with navigation | Supports floor/ceiling, lower/higher, and range queries |
 | `Stack` | LIFO workflows | Small, focused push/pop/peek abstraction |
 | `Node` | Building custom linked structures | Low-level primitive used by linked collections |
 | `KeyedNode` | Building custom keyed linked structures | Low-level node primitive for ordered key/value chains |
@@ -68,13 +76,23 @@ Use `add(key, value)` on `MultiMap` and `SetMultiMap` to append a single value t
 
 Use `List` when you want the simplest ordered collection.
 
-Use `LinkedList` when inserts and removals near the front or middle matter more than random access speed.
+Use `Deque` for frequent insertion and removal at both ends.
+
+Use `LinkedList` when you frequently add or remove at either end and traverse sequentially. Indexed lookup and insertion still walk the list, so use `List` for random access or index-heavy edits.
 
 Use `LinkedMap` when order is part of the behavior, such as caches, recency lists, or prioritized registries.
+
+Use `BiMap` when keys and values must both be unique and lookups are needed in both directions.
 
 Use `MultiMap` when one key can intentionally map to repeated values.
 
 Use `SetMultiMap` when one key maps to many values, but duplicates should be ignored.
+
+Use `MultiSet` when values may repeat and their occurrence counts matter.
+
+Use `PriorityQueue` when the next value should always be selected by priority rather than insertion order.
+
+Use `SortedMap` or `SortedSet` when you need ordered navigation or half-open range queries. Their binary searches take O(log n), while insertion and deletion take O(n) because entries are stored in sorted arrays.
 
 Use `Stack` for undo history, parser state, DFS traversal, or any last-in-first-out flow.
 
@@ -378,13 +396,89 @@ console.log(jobs.pop()?.name); // incident
 
 `peek()` is O(1), while `push()` and `pop()` are O(log n); `remove(value)` scans the heap and is O(n). Duplicate values are retained. `toArray()` and ordinary iteration expose the internal heap layout, not priority order; use `drain()` to remove values in priority order. Draining is lazy, so values are removed only as the iterator is consumed. Comparator-equal values have no stable order.
 
+### BiMap
+
+Use case: maintain unique associations that can be looked up from either side.
+
+```javascript
+import { BiMap } from '@d1g1tal/collections';
+
+const codes = new BiMap([['en', 'English'], ['fr', 'French']]);
+console.log(codes.get('en')); // English
+console.log(codes.inverse().get('French')); // fr
+```
+
+Each key and value can appear in at most one pair. Reassigning a key or value evicts any conflicting pair, which is useful when uniqueness must be enforced in both directions rather than checked by the caller. `inverse()` returns a live view that shares the same associations, so changes through either view are reflected in the other.
+
+### MultiSet
+
+Use case: count repeated values, such as tags, votes, or inventory.
+
+```javascript
+import { MultiSet } from '@d1g1tal/collections';
+
+const inventory = new MultiSet(['apple', 'apple', 'pear']);
+inventory.add('pear', 2);
+
+console.log(inventory.count('pear')); // 3
+console.log(inventory.size); // 5 occurrences
+console.log(inventory.uniqueSize); // 2 distinct values
+```
+
+`add` and `remove` accept a positive safe-integer occurrence count. Removing more occurrences than are present removes the available occurrences without error. `size` counts all occurrences, `uniqueSize` counts distinct elements, and iteration yields each occurrence in element insertion order. Use this instead of storing a separate collection slot for every repeated value when counts are the main thing you need.
+
+### SortedMap and SortedSet
+
+Use case: keep data ordered and efficiently find neighboring keys or values.
+
+```javascript
+import { SortedMap, SortedSet } from '@d1g1tal/collections';
+
+const scores = new SortedMap([[30, 'gold'], [10, 'bronze'], [20, 'silver']]);
+console.log(scores.floor(25)); // [20, 'silver']
+console.log([...scores.range(10, 30)]); // [[10, 'bronze'], [20, 'silver']]
+
+const thresholds = new SortedSet([10, 30, 20]);
+console.log(thresholds.ceiling(15)); // 20
+console.log([...thresholds.range(10, 30)]); // [10, 20]
+```
+
+Both types use the shared natural comparator by default: numbers compare numerically, while other values compare by their string representations using locale-independent JavaScript code-unit order. Pass a comparator when you need a different ordering, such as locale-aware text comparison. Comparator equality (`compare(a, b) === 0`) defines duplicate keys or values; for `SortedMap`, setting a comparator-equivalent key updates its value while retaining the original key. `range(from, to)` includes `from` and excludes `to`; navigation methods return entries for `SortedMap` and values for `SortedSet`. Binary-search lookups and navigation are O(log n), but insertion and deletion are O(n) because entries live in sorted arrays. Choose them for ordered navigation and range queries when those reads matter more than frequent updates.
+
 ### Low-Level Primitives
 
-`Node` and `KeyedNode` are exposed for advanced use cases.
+`Node` and `KeyedNode` are building blocks for custom linked structures, not complete collections: they do not track a head, tail, size, or provide traversal on their own.
 
-Use `Node` when you want to build your own linked structure with `previous`, `next`, and `value` references.
+#### Node
 
-Use `KeyedNode` when you need the same linked behavior plus a stored key for ordered key/value structures.
+Use `Node` when implementing a custom linked chain whose entries only need previous/next links and a value. `unlink()` reconnects its neighbors, but your structure must update its own head, tail, and size.
+
+```javascript
+import { Node } from '@d1g1tal/collections';
+
+const head = new Node({ value: 'first' });
+const tail = new Node({ previous: head, value: 'second' });
+head.next = tail;
+
+tail.unlink();
+
+console.log(head.next); // null
+```
+
+#### KeyedNode
+
+Use `KeyedNode` when each linked entry also needs a key, such as a custom ordered index that links identifiers to payloads. Its links point to other `KeyedNode` instances, while its `value` is inherited from `Node`.
+
+```javascript
+import { KeyedNode } from '@d1g1tal/collections';
+
+const first = new KeyedNode({ key: 'user-1', value: { name: 'Ada' } });
+const second = new KeyedNode({ previous: first, key: 'user-2', value: { name: 'Lin' } });
+first.next = second;
+
+console.log(second.previous?.key); // user-1
+console.log(second.value.name); // Lin
+```
 
 Most application code should prefer `LinkedList` or `LinkedMap` over working with nodes directly.
 
