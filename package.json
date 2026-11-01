@@ -21,7 +21,7 @@
   "engines": {
     "node": ">=20.16.0"
   },
-  "packageManager": "pnpm@12.5.1",
+  "packageManager": "pnpm@12.17.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
@@ -58,17 +58,17 @@
     "@d1g1tal/tsbuild": "^3.0.3",
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.6",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@vitest/coverage-v8": "^5.0.2",
-    "eslint": "^10.11.0",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.14.0",
     "eslint-plugin-compat": "^7.0.2",
-    "eslint-plugin-jsdoc": "^64.5.4",
-    "globals": "^17.12.0",
+    "eslint-plugin-jsdoc": "^65.4.2",
+    "globals": "^17.13.0",
     "mitata": "^1.0.34",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "typescript-eslint": "8.70.1",
-    "vitest": "^5.0.2"
+    "typescript-eslint": "8.72.1",
+    "vitest": "^5.0.5"
   },
   "browserslist": [
     "defaults and fully supports es6",
