@@ -1,6 +1,18 @@
 import assert from 'node:assert/strict';
 import { barplot, bench, do_not_optimize, group, run, summary } from 'mitata';
-import { LinkedList, LinkedMap, List, MultiMap, SetMultiMap } from '../../dist/index.js';
+import {
+	BiMap,
+	Deque,
+	LinkedList,
+	LinkedMap,
+	List,
+	MultiMap,
+	MultiSet,
+	PriorityQueue,
+	SetMultiMap,
+	SortedMap,
+	SortedSet
+} from '../../dist/index.js';
 
 const SIZE = 10_000;
 const source = Array.from({ length: SIZE }, (_, index) => index);
@@ -75,7 +87,7 @@ group('LinkedList indexed access', () => {
 	});
 });
 
-group('LinkedMap iteration', () => {
+group('LinkedMap key iteration', () => {
 	summary(() => {
 		bench('Map#keys', () => {
 			let total = 0;
@@ -88,12 +100,16 @@ group('LinkedMap iteration', () => {
 			for (const key of linkedMap.keys()) { total += key! }
 			do_not_optimize(total);
 		});
+	});
+});
 
+group('LinkedMap value iteration', () => {
+	summary(() => {
 		bench('Map#values', () => {
 			let total = 0;
 			for (const value of nativeMap.values()) { total += value }
 			do_not_optimize(total);
-		});
+		}).baseline(true);
 
 		bench('LinkedMap#values', () => {
 			let total = 0;
@@ -103,19 +119,29 @@ group('LinkedMap iteration', () => {
 	});
 });
 
-group('MultiMap find', () => {
+group('MultiMap find first', () => {
 	summary(() => {
 		bench('List#find first', () => do_not_optimize(listValues.find(first))).baseline(true);
 		bench('MultiMap#find first', () => do_not_optimize(multiMap.find('values', first)));
+	});
+});
+
+group('MultiMap find missing', () => {
+	summary(() => {
 		bench('List#find missing', () => do_not_optimize(listValues.find(missing)));
 		bench('MultiMap#find missing', () => do_not_optimize(multiMap.find('values', missing)));
 	});
 });
 
-group('SetMultiMap find', () => {
+group('SetMultiMap find first', () => {
 	summary(() => {
 		bench('Set direct find first', () => do_not_optimize(findInSet(first))).baseline(true);
 		bench('SetMultiMap#find first', () => do_not_optimize(setMultiMap.find('values', first)));
+	});
+});
+
+group('SetMultiMap find missing', () => {
+	summary(() => {
 		bench('Set direct find missing', () => do_not_optimize(findInSet(missing)));
 		bench('SetMultiMap#find missing', () => do_not_optimize(setMultiMap.find('values', missing)));
 	});
@@ -309,13 +335,11 @@ group('List get', () => {
 
 group('List set', () => {
 	summary(() => {
-		bench('Array#splice(replace)', function* () {
+		bench('Array#index assignment', function* () {
 			yield {
 				[0]: newArray,
 				bench(target: number[]) {
-					if (listMutableMidpoint < 0 || target.length <= listMutableMidpoint) { throw new RangeError(`Index ${listMutableMidpoint} out of bounds.`) }
-
-					target.splice(listMutableMidpoint, 1, -1);
+					target[listMutableMidpoint] = -1;
 					do_not_optimize(target);
 				}
 			};
@@ -327,12 +351,20 @@ group('List set', () => {
 	});
 });
 
-group('List size / isEmpty', () => {
+group('List size', () => {
 	summary(() => {
 		bench('Array#length', () => do_not_optimize(array.length));
 		bench('List#size', () => do_not_optimize(list.size));
-		bench('Array#length===0', () => do_not_optimize(array.length === 0));
-		bench('List#isEmpty', () => do_not_optimize(list.isEmpty()));
+	});
+});
+
+group('List emptiness', () => {
+	const emptyArray: number[] = [];
+	const emptyList = new List<number>();
+
+	summary(() => {
+		bench('Array#length===0', () => do_not_optimize(emptyArray.length === 0));
+		bench('List#isEmpty', () => do_not_optimize(emptyList.isEmpty()));
 	});
 });
 
@@ -471,7 +503,8 @@ barplot(() => {
 
 				do_not_optimize(total);
 			});
-
+		});
+		summary(() => {
 			bench('Array#keys', () => {
 				let total = 0;
 				for (const index of array.keys()) { total += index }
@@ -485,7 +518,8 @@ barplot(() => {
 
 				do_not_optimize(total);
 			});
-
+		});
+		summary(() => {
 			bench('Array#values', () => {
 				let total = 0;
 				for (const element of array.values()) { total += element }
@@ -499,7 +533,8 @@ barplot(() => {
 
 				do_not_optimize(total);
 			});
-
+		});
+		summary(() => {
 			bench('Array#entries', () => {
 				let total = 0;
 				for (const [ index, element ] of array.entries()) { total += index + element }
@@ -531,12 +566,184 @@ group('List join', () => {
 	});
 });
 
-group('List toString / valueOf', () => {
+group('List toString', () => {
 	summary(() => {
 		bench('Array#toString', () => do_not_optimize(array.toString()));
 		bench('List#toString', () => do_not_optimize(list.toString()));
-		bench('Array#valueOf', () => do_not_optimize(array.valueOf()));
-		bench('List#valueOf', () => do_not_optimize(list.valueOf()));
+	});
+});
+
+group('Deque front operations', () => {
+	const smallSource = source.slice(0, 250);
+	summary(() => {
+		bench('Deque#pushFront/popFront', function* () {
+			yield {
+				bench() {
+					const deque = new Deque<number>();
+					for (const value of smallSource) { deque.pushFront(value) }
+					for (let index = 0; index < smallSource.length; index++) { deque.popFront() }
+					do_not_optimize(deque);
+				}
+			};
+		});
+		bench('Array#unshift/shift', function* () {
+			yield {
+				bench() {
+					const values: number[] = [];
+					for (const value of smallSource) { values.unshift(value) }
+					for (let index = 0; index < smallSource.length; index++) { values.shift() }
+					do_not_optimize(values);
+				}
+			};
+		}).baseline(true);
+	});
+});
+
+group('PriorityQueue construction', () => {
+	const sortedValues = source.slice(0, 250).reverse();
+
+	summary(() => {
+		bench('PriorityQueue#from', () => do_not_optimize(PriorityQueue.from(sortedValues)));
+	});
+});
+
+group('BiMap lookup', () => {
+	const entries = source.slice(0, 250).map((value) => [ value, value ] as const);
+	const map = new Map(entries);
+	const biMap = new BiMap(entries);
+
+	summary(() => {
+		bench('BiMap#get', () => do_not_optimize(biMap.get(125)));
+		bench('Map#get', () => do_not_optimize(map.get(125))).baseline(true);
+	});
+});
+
+group('MultiSet count', () => {
+	const smallSource = source.slice(0, 250);
+	const multiSet = new MultiSet(smallSource);
+
+	summary(() => {
+		bench('MultiSet#count', () => do_not_optimize(multiSet.count(125)));
+	});
+});
+
+group('SortedMap lookup', () => {
+	const entries = source.slice(0, 250).map((value) => [ value, value ] as const);
+	const map = new Map(entries);
+	const sortedMap = new SortedMap(entries);
+
+	summary(() => {
+		bench('SortedMap#get', () => do_not_optimize(sortedMap.get(125)));
+		bench('Map#get', () => do_not_optimize(map.get(125))).baseline(true);
+	});
+});
+
+group('SortedSet lookup', () => {
+	const smallSource = source.slice(0, 250);
+	const set = new Set(smallSource);
+	const sortedSet = new SortedSet(smallSource.slice().reverse());
+
+	summary(() => {
+		bench('SortedSet#has', () => do_not_optimize(sortedSet.has(125)));
+		bench('Set#has', () => do_not_optimize(set.has(125))).baseline(true);
+	});
+});
+
+group('List flatMap', () => {
+	const pairs = (element: number): number[] => [ element, element ];
+
+	summary(() => {
+		bench('Array#flatMap', () => do_not_optimize(array.flatMap(pairs)));
+		bench('List#flatMap', () => do_not_optimize(list.flatMap(pairs)));
+	});
+});
+
+group('List findLastIndex', () => {
+	const none = (element: number): boolean => element < 0;
+
+	summary(() => {
+		bench('Array#findLastIndex (no match)', () => do_not_optimize(array.findLastIndex(none)));
+		bench('List#findLastIndex (no match)', () => do_not_optimize(list.findLastIndex(none)));
+	});
+});
+
+group('List removeIf', () => {
+	const none = (element: number): boolean => element < 0;
+
+	summary(() => {
+		bench('List#removeIf (no match)', () => do_not_optimize(list.removeIf(none)));
+	});
+});
+
+group('LinkedList snapshot', () => {
+	summary(() => {
+		bench('Array#spread copy', () => do_not_optimize([ ...source ])).baseline(true);
+		bench('LinkedList#toArray', () => do_not_optimize(singly.toArray()));
+	});
+});
+
+group('MultiSet snapshot', () => {
+	const multiSet = new MultiSet<number>();
+	for (let value = 0; value < SIZE / 10; value++) { multiSet.add(value, 10) }
+
+	summary(() => {
+		bench('Array#spread copy', () => do_not_optimize([ ...source ])).baseline(true);
+		bench('MultiSet#toArray', () => do_not_optimize(multiSet.toArray()));
+	});
+});
+
+group('SortedMap snapshot', () => {
+	const entries = source.map((value) => [ value, value ] as [number, number]);
+	const sortedMap = new SortedMap(entries, numeric);
+	const map = new Map(entries);
+
+	summary(() => {
+		bench('Array.from(Map)', () => do_not_optimize(Array.from(map))).baseline(true);
+		bench('SortedMap#toArray', () => do_not_optimize(sortedMap.toArray()));
+	});
+});
+
+group('LinkedMap key iterator creation', () => {
+	summary(() => {
+		bench('Map#keys (create only)', () => do_not_optimize(nativeMap.keys())).baseline(true);
+		bench('LinkedMap#keys (create only)', () => do_not_optimize(linkedMap.keys()));
+	});
+});
+
+group('LinkedList value iterator creation', () => {
+	summary(() => {
+		bench('Array#values (create only)', () => do_not_optimize(source.values())).baseline(true);
+		bench('LinkedList#values (create only)', () => do_not_optimize(singly.values()));
+	});
+});
+
+group('SortedSet construction', () => {
+	const shuffled = source.slice().sort((left, right) => ((left * 7919) % SIZE) - ((right * 7919) % SIZE));
+
+	summary(() => {
+		bench('new SortedSet(shuffled)', () => do_not_optimize(new SortedSet(shuffled, numeric)));
+	});
+});
+
+group('SortedMap construction', () => {
+	const shuffled = source.slice().sort((left, right) => ((left * 7919) % SIZE) - ((right * 7919) % SIZE));
+	const shuffledEntries = shuffled.map((value) => [ value, value ] as [number, number]);
+
+	summary(() => {
+		bench('new SortedMap(shuffled)', () => do_not_optimize(new SortedMap(shuffledEntries, numeric)));
+	});
+});
+
+group('PriorityQueue push and pop', () => {
+	const shuffled = source.slice().sort((left, right) => ((left * 7919) % SIZE) - ((right * 7919) % SIZE));
+
+	summary(() => {
+		bench('PriorityQueue#push/pop', () => {
+			const queue = new PriorityQueue<number>([], numeric);
+			for (const value of shuffled) { queue.push(value) }
+			while (queue.pop() !== undefined);
+			do_not_optimize(queue);
+		});
 	});
 });
 

@@ -390,7 +390,7 @@ Most application code should prefer `LinkedList` or `LinkedMap` over working wit
 
 ## Benchmarks
 
-The repository includes Mitata benchmarks for comparing `List` with native arrays and the linked collections with their native counterparts. Build the project before running the full collection benchmark suite:
+The repository includes Mitata benchmarks for comparing equivalent operations, such as `List` with native arrays and linked collections with their native counterparts. Unmatched operations run in separate summaries rather than being ranked against unrelated workloads. Build the project before running the full collection benchmark suite:
 
 ```bash
 pnpm benchmark   # Build, then run all benchmark suites
