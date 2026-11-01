@@ -46,9 +46,9 @@ type(optional-scope): description
 Add `!` after the type, or include a `BREAKING CHANGE:` footer:
 
 ```
-feat!: drop Node 18 support
+feat!: require Node.js 24.11.1 or newer
 
-BREAKING CHANGE: Minimum Node.js version is now 24.0.0, and published types require TypeScript 5.6 or newer.
+BREAKING CHANGE: Minimum Node.js version is now 24.11.1, and published types require TypeScript 5.6 or newer.
 ```
 
 ### 3. Push and Open a Pull Request
@@ -57,7 +57,9 @@ BREAKING CHANGE: Minimum Node.js version is now 24.0.0, and published types requ
 git push -u origin feat/my-feature
 ```
 
-Open a PR targeting `main`. The CI workflow runs lint, type-check, tests, and build across Node.js 24 and 26. All checks must pass.
+Open a PR targeting `main`. The CI workflow runs lint, type-check, tests, and build across the latest Node.js 24 and 26 releases. All checks must pass. This matrix does not test the exact package minimum of Node.js 24.11.1.
+
+For local development and release checks, use Node.js 24.15.0 or newer and pnpm 12.17.0. The build tool requires Node.js 24.11.1, but the current JSDoc lint tooling requires Node.js 24.15.0.
 
 ### 4. Merge to `main`
 

@@ -4,8 +4,10 @@ Version 5 includes breaking changes to runtime requirements, linked-list constru
 
 ## Runtime and TypeScript requirements
 
-- Node.js 24 or newer is required.
+- Node.js 24.11.1 or newer is required.
 - TypeScript 5.6 or newer is required to consume the published declarations.
+
+Contributors need Node.js 24.15.0 or newer and pnpm 12.17.0 to run the repository's development tooling. The build tool uses native explicit resource management (`await using`), which Node.js 22 cannot parse; the current JSDoc lint tooling additionally requires Node.js 24.15.0.
 
 ## LinkedList constructor
 

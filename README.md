@@ -26,7 +26,9 @@ npm install @d1g1tal/collections
 
 Upgrading from version 4? See the [version 5 migration guide](./docs/migration-v5.md).
 
-The package is ESM-only and requires Node.js 22 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.6 and newer.
+The package is ESM-only and requires Node.js 24.11.1 or newer. The repository uses TypeScript 6 for development, while published types support TypeScript 5.6 and newer.
+
+For development, use Node.js 24.15.0 or newer and pnpm 12.17.0. The build tool requires Node.js 24.11.1, while the current JSDoc lint tooling requires Node.js 24.15.0. CI runs the full checks on the latest Node.js 24 and 26 releases.
 
 ## Usage
 Both root imports and subpath imports are supported.

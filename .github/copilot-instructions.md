@@ -5,7 +5,7 @@ TypeScript data-structure library (`@d1g1tal/collections`). ESM-only, targets ES
 ## Build & Test
 
 ```bash
-pnpm install          # install deps (pnpm@12.16.1 required)
+pnpm install          # install deps (pnpm@12.17.0 required)
 pnpm build            # compile TypeScript → dist/
 pnpm type-check       # type-check without emitting
 pnpm lint             # ESLint (strict + type-aware)
@@ -51,7 +51,7 @@ import { List } from '@d1g1tal/collections/list';
 ```
 When adding a new collection, register it in both `src/index.ts` and `package.json#exports`.
 
-The package supports Node.js 24 and newer.
+The package requires Node.js 24.11.1 or newer. Development requires Node.js 24.15.0 or newer because of the JSDoc lint tooling; the build tool requires Node.js 24.11.1 and uses native `await using` syntax. CI runs the full checks on the latest Node.js 24 and 26 releases, not the exact package minimum.
 
 ## Testing
 
