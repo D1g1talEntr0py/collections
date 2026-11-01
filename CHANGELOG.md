@@ -1,3 +1,14 @@
+# [4.1.0](https://github.com/D1g1talEntr0py/collections/compare/v4.0.1...v4.1.0) (2026-11-01)
+
+
+### Features
+
+* **bimap:** add bidirectional map ([9e25a50](https://github.com/D1g1talEntr0py/collections/commit/9e25a50e3c7560d7aac075f2836ea35b1b097313))
+* **multiset:** add counted element collection ([f3d2de0](https://github.com/D1g1talEntr0py/collections/commit/f3d2de09b8b8ed5a8d9351c1b7dd6b25680e172c))
+* **queue:** add deque and priority queue ([c183798](https://github.com/D1g1talEntr0py/collections/commit/c183798c278abad7c226a92e225533441e20f0b6))
+* **sorted:** add sorted map and set ([8875a80](https://github.com/D1g1talEntr0py/collections/commit/8875a80859fd2c1fb9abb3eb82c0db81b430ca1d))
+* **stack:** add iterable and fluent operations ([2b3ded5](https://github.com/D1g1talEntr0py/collections/commit/2b3ded52025d6113c4338ce4f65b89f64e4b17d3))
+
 ## [4.0.1](https://github.com/D1g1talEntr0py/collections/compare/v4.0.0...v4.0.1) (2026-09-26)
 
 
