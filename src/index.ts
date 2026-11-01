@@ -10,4 +10,6 @@ export { Deque } from './deque';
 export { PriorityQueue } from './priority-queue';
 export { BiMap } from './bi-map';
 export { MultiSet } from './multi-set';
+export { SortedMap } from './sorted-map';
+export { SortedSet } from './sorted-set';
 export type { Comparator, Mapper, Predicate, ReadonlyCollection } from './types';
