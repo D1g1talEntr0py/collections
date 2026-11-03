@@ -3,6 +3,58 @@
 All commits are included below, grouped by release and change type.
 
 
+## [5.0.1](https://github.com/D1g1talEntr0py/collections/compare/v5.0.0...v5.0.1) - 2026-11-03
+
+
+
+
+
+
+
+
+
+
+
+
+### Bug Fixes
+
+* **tsconfig:** update include pattern and refine tsbuild entry points ([31717fd](https://github.com/D1g1talEntr0py/collections/commit/31717fd5766bd2cc0cfffcfd1f63a8ec3eae7fbc))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [5.0.0](https://github.com/D1g1talEntr0py/collections/compare/v4.1.1...v5.0.0) - 2026-11-03
 
 
@@ -38,6 +90,12 @@ This release establishes the intended 5.0.0 version boundary.
 
 
 
+
+
+
+### Chores
+
+* **release:** 5.0.0 [skip ci] ([11d791a](https://github.com/D1g1talEntr0py/collections/commit/11d791ad6a4e0f2f8ab57cac4df942700dd1d435))
 
 
 
