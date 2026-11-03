@@ -14,6 +14,14 @@
 		"lib": [ "esnext" ],
 		"module": "preserve"
 	},
-	"include": [ "./src" ],
-	"tsbuild": { "bundle": false }
+	"include": [ "./src/**/*.ts" ],
+	"tsbuild": {
+		"bundle": false,
+		"entryPoints": {
+			"src": "./src",
+			"internal/comparator": "./src/internal/comparator.ts",
+			"internal/map-upsert": "./src/internal/map-upsert.ts",
+			"internal/node-iterator": "./src/internal/node-iterator.ts"
+		}
+	}
 }
