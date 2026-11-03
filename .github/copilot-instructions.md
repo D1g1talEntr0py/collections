@@ -70,4 +70,4 @@ Use `beforeEach` for shared setup. Use `expect().toEqual()` for value equality a
 
 ## Releases
 
-Automated via Conventional Commits + semantic-release. See [docs/release-process.md](../docs/release-process.md) for commit types and version bump rules.
+Automated via Conventional Commits + git-cliff (pinned in CI). Any conventional `!` marker or breaking-change footer triggers a major release. Release eligibility is separate from changelog inclusion: every commit is included, but non-breaking refactors do not trigger releases. See [docs/release-process.md](../docs/release-process.md) for policy and validation commands.

@@ -1,0 +1,61 @@
+[changelog]
+header = """# Changelog
+
+All commits are included below, grouped by release and change type.
+"""
+body = """
+{% if version %}
+{% if previous.version %}
+## [{{ version | trim_start_matches(pat="v") }}]({{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}
+## [{{ version | trim_start_matches(pat="v") }}]({{ self::remote_url() }}/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% endif %}
+{% else %}
+## [Unreleased]
+{% endif %}
+{% set groups = ["Breaking Changes", "Features", "Bug Fixes", "Performance Improvements", "Reverts", "Documentation", "Styles", "Chores", "Code Refactoring", "Tests", "Build System", "Continuous Integration", "Other Changes"] %}
+{% for group in groups %}
+{% set grouped_commits = commits | filter(attribute="group", value=group) %}
+{% if grouped_commits | length > 0 %}
+### {{ group }}
+{% for commit in grouped_commits %}
+* {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message }} ([{{ commit.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ commit.id }}))
+{% if commit.breaking_description %}
+  > {{ commit.breaking_description }}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% macro remote_url() -%}
+https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro %}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+filter_commits = false
+commit_parsers = [
+  { field = "breaking", pattern = "^true$", group = "Breaking Changes" },
+  { message = "^feat(?:\\([^)]*\\))?:", group = "Features" },
+  { message = "^fix(?:\\([^)]*\\))?:", group = "Bug Fixes" },
+  { message = "^perf(?:\\([^)]*\\))?:", group = "Performance Improvements" },
+  { message = "^revert(?:\\([^)]*\\))?:", group = "Reverts" },
+  { message = "^docs(?:\\([^)]*\\))?:", group = "Documentation" },
+  { message = "^style(?:\\([^)]*\\))?:", group = "Styles" },
+  { message = "^chore(?:\\([^)]*\\))?:", group = "Chores" },
+  { message = "^refactor(?:\\([^)]*\\))?:", group = "Code Refactoring" },
+  { message = "^test(?:\\([^)]*\\))?:", group = "Tests" },
+  { message = "^build(?:\\([^)]*\\))?:", group = "Build System" },
+  { message = "^ci(?:\\([^)]*\\))?:", group = "Continuous Integration" },
+  { message = "(?s).*", group = "Other Changes" }
+]
+tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+sort_commits = "oldest"
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
+initial_tag = "v0.1.0"

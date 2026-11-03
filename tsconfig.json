@@ -15,27 +15,5 @@
 		"module": "preserve"
 	},
 	"include": [ "./src" ],
-	"tsbuild": {
-		"bundle": false,
-		"entryPoints": {
-			"index": "./src/index.ts",
-			"node": "./src/node.ts",
-			"keyed-node": "./src/keyed-node.ts",
-			"stack": "./src/stack.ts",
-			"list": "./src/list.ts",
-			"linked-list": "./src/linked-list.ts",
-			"linked-map": "./src/linked-map.ts",
-			"multi-map": "./src/multi-map.ts",
-			"set-multi-map": "./src/set-multi-map.ts",
-			"deque": "./src/deque.ts",
-			"priority-queue": "./src/priority-queue.ts",
-			"bi-map": "./src/bi-map.ts",
-			"multi-set": "./src/multi-set.ts",
-			"sorted-map": "./src/sorted-map.ts",
-			"sorted-set": "./src/sorted-set.ts",
-			"internal/comparator": "./src/internal/comparator.ts",
-			"internal/map-upsert": "./src/internal/map-upsert.ts",
-			"internal/node-iterator": "./src/internal/node-iterator.ts"
-		}
-	}
+	"tsbuild": { "bundle": false }
 }

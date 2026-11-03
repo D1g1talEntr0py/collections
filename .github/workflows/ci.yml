@@ -26,6 +26,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff@2.14.2
+      - run: pnpm exec tsc --project scripts/tsconfig.json
+      - run: node --test scripts/tests/release-policy.ts
       - run: pnpm lint
       - run: pnpm type-check
       - run: pnpm test:coverage
